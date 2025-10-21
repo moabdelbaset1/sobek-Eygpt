@@ -12,7 +12,7 @@ interface SubMenuItem {
 
 interface MenuItem {
   title: string;
-  href: string;
+  href?: string;  // Make href optional
   subItems?: SubMenuItem[];
 }
 
@@ -28,36 +28,24 @@ const menuItems: MenuItem[] = [
   },
   {
     title: 'Products',
-    href: '/products',
     subItems: [
       {
         title: 'Human Health',
-        href: '/products/human',
+        href: '/products/human-new',
         description: 'Pharmaceutical products for humans',
       },
       {
         title: 'Animal Health',
-        href: '/products/veterinary',
+        href: '/products/veterinary-new',
         description: 'Veterinary pharmaceutical products',
       },
     ]
   },
   {
-    title: 'Science & R&D',
-    href: '/rd',
-    subItems: [
-      { title: 'Research Programs', href: '/rd/programs' },
-      { title: 'Clinical Trials', href: '/rd/trials' },
-      { title: 'Innovation', href: '/rd/innovation' },
-    ]
-  },
-  {
     title: 'Media',
-    href: '/media',
     subItems: [
-      { title: 'Press Releases', href: '/media/press' },
       { title: 'Events', href: '/media/events' },
-      { title: 'News', href: '/news' },
+      { title: 'News', href: '/media/news' },
     ]
   },
   {
@@ -148,17 +136,23 @@ export default function Header() {
                   setDelayedMenuClose();
                 }}
               >
-                <Link
-                  href={item.href}
-                  className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 flex items-center gap-1.5 rounded-lg hover:bg-blue-50 text-sm"
-                >
-                  {item.title}
-                  {item.subItems && (
+                {item.subItems ? (
+                  <span
+                    className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 flex items-center gap-1.5 rounded-lg hover:bg-blue-50 text-sm cursor-pointer"
+                  >
+                    {item.title}
                     <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
-                  )}
-                </Link>
+                  </span>
+                ) : item.href && (
+                  <Link
+                    href={item.href}
+                    className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 flex items-center gap-1.5 rounded-lg hover:bg-blue-50 text-sm"
+                  >
+                    {item.title}
+                  </Link>
+                )}
 
                 {/* Dropdown Menu */}
                 {item.subItems && activeMenu === item.title && (
@@ -291,13 +285,19 @@ export default function Header() {
             <div className="space-y-2">
               {menuItems.map((item) => (
                 <div key={item.title}>
-                  <Link
-                    href={item.href}
-                    className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {item.title}
-                  </Link>
+                  {item.subItems ? (
+                    <div className="px-4 py-3 text-gray-700 font-medium">
+                      {item.title}
+                    </div>
+                  ) : item.href && (
+                    <Link
+                      href={item.href}
+                      className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item.title}
+                    </Link>
+                  )}
                   {item.subItems && (
                     <div className="ml-4 space-y-1">
                       {item.subItems.map((subItem) => (
