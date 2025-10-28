@@ -335,7 +335,7 @@ export default function AdminJobsPage() {
                     {/* Arabic Title */}
                     <div>
                       <label className="block text-sm font-bold text-gray-900 mb-2">
-                        المسمى الوظيفي (عربي)
+                        المسمى الوظيفي (عربي) <span className="text-gray-500 text-xs">(Optional)</span>
                       </label>
                       <input
                         type="text"
@@ -455,7 +455,7 @@ export default function AdminJobsPage() {
                   {/* Description Arabic */}
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">
-                      الوصف الوظيفي (عربي)
+                      الوصف الوظيفي (عربي) <span className="text-gray-500 text-xs">(Optional)</span>
                     </label>
                     <textarea
                       value={formData.description_ar}
@@ -484,7 +484,7 @@ export default function AdminJobsPage() {
                   {/* Requirements Arabic */}
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">
-                      المتطلبات (عربي)
+                      المتطلبات (عربي) <span className="text-gray-500 text-xs">(Optional)</span>
                     </label>
                     <textarea
                       value={formData.requirements_ar}

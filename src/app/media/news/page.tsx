@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Newspaper, Clock, ArrowRight, Search, Calendar } from 'lucide-react';
+import { Newspaper, Clock, ArrowRight, Search, Calendar, X, Play } from 'lucide-react';
 
 interface MediaPost {
   id: string;
@@ -23,6 +23,7 @@ export default function NewsPage() {
   const [news, setNews] = useState<MediaPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedMediaId, setExpandedMediaId] = useState<string | null>(null);
 
   useEffect(() => {
     loadNews();
@@ -82,8 +83,8 @@ export default function NewsPage() {
         </div>
       </div>
 
-      {/* News Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      {/* News Grid - Facebook/Instagram Style */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -96,100 +97,166 @@ export default function NewsPage() {
             <p className="text-gray-500">Check back soon for the latest updates</p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6">
             {filteredNews.map((item, index) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
               >
-                {/* News Content - Medium Facebook Style */}
-                <div className="p-8">
+                {/* News Content - Facebook/Instagram Style */}
+                <div className="p-4">
                   {/* Badge */}
-                  <span className="px-4 py-2 rounded-full text-sm font-semibold bg-blue-100 text-blue-700 inline-block mb-4">
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 inline-block mb-3">
                     📰 News
                   </span>
 
                   {/* News Title */}
-                  <h2 className="text-3xl font-bold text-gray-900 mb-3 leading-tight hover:text-blue-600 transition-colors">
+                  <h2 className="text-lg font-bold text-gray-900 mb-1 leading-tight hover:text-blue-600 transition-colors">
                     {item.title}
                   </h2>
 
                   {/* Arabic Title */}
                   {item.title_ar && (
-                    <h3 className="text-2xl font-semibold text-gray-700 mb-4" dir="rtl">
+                    <h3 className="text-base font-semibold text-gray-700 mb-2" dir="rtl">
                       {item.title_ar}
                     </h3>
                   )}
 
                   {/* Date */}
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
-                    <Calendar className="w-5 h-5 text-blue-600" />
+                  <div className="flex items-center gap-2 mb-3 text-xs text-gray-500">
+                    <Calendar className="w-3 h-3 text-blue-600" />
                     <span className="font-medium">
                       {new Date(item.publish_date).toLocaleDateString('en-US', {
                         year: 'numeric',
-                        month: 'long',
+                        month: 'short',
                         day: 'numeric'
                       })}
                     </span>
                   </div>
 
-                  {/* News Description - Full content visible */}
-                  <div className="mb-5">
-                    <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
+                  {/* News Description - Truncated with Read More */}
+                  <div className="mb-3">
+                    <p className="text-gray-700 text-sm leading-relaxed line-clamp-2" id={`content-${item.id}`}>
                       {item.content}
                     </p>
+                    {item.content.length > 200 && (
+                      <button 
+                        onClick={() => {
+                          const el = document.getElementById(`content-${item.id}`);
+                          if (el) {
+                            el.classList.toggle('line-clamp-2');
+                            el.classList.toggle('line-clamp-none');
+                          }
+                        }}
+                        className="text-blue-600 hover:text-blue-700 font-semibold mt-1 text-xs transition-colors">
+                        Read More →
+                      </button>
+                    )}
                   </div>
 
-                  {/* Arabic Content - Full content visible */}
+                  {/* Arabic Content - Truncated with Read More */}
                   {item.content_ar && (
-                    <div className="mb-5">
-                      <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap" dir="rtl">
+                    <div className="mb-3">
+                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2" id={`content-ar-${item.id}`} dir="rtl">
                         {item.content_ar}
                       </p>
+                      {item.content_ar.length > 200 && (
+                        <button 
+                          onClick={() => {
+                            const el = document.getElementById(`content-ar-${item.id}`);
+                            if (el) {
+                              el.classList.toggle('line-clamp-2');
+                              el.classList.toggle('line-clamp-none');
+                            }
+                          }}
+                          className="text-blue-600 hover:text-blue-700 font-semibold mt-1 text-xs transition-colors">
+                          اقرأ المزيد ←
+                        </button>
+                      )}
                     </div>
                   )}
 
-                  {/* News Media - Medium Size */}
+                  {/* News Media - Compact Size */}
                   {item.media_url && (
-                    <div className="mt-6 mb-5">
+                    <div className="mt-3 mb-3">
                       {item.media_type === 'video' ? (
-                        <video
-                          src={item.media_url}
-                          controls
-                          className="w-full h-[400px] object-cover rounded-lg shadow-md"
-                        />
+                        <div className="relative w-full bg-black rounded-md shadow-md overflow-hidden group cursor-pointer"
+                             onClick={() => setExpandedMediaId(item.id)}>
+                          <video
+                            src={item.media_url}
+                            className="w-full h-auto object-contain"
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                          />
+                          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
+                        </div>
                       ) : (
-                        <div className="relative w-full h-[400px] rounded-lg overflow-hidden shadow-md">
+                        <div className="relative w-full h-40 rounded-md overflow-hidden shadow-md cursor-pointer group"
+                             onClick={() => setExpandedMediaId(item.id)}>
                           <Image
                             src={item.media_url}
                             alt={item.title}
                             fill
-                            className="object-cover hover:scale-105 transition-transform duration-500"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         </div>
                       )}
                     </div>
                   )}
 
-                  {/* Read More Link - Optional */}
-                  <div className="mt-6 pt-5 border-t border-gray-200">
-                    <Link 
-                      href={`/media/news/${item.id}`}
-                      className="inline-flex items-center text-base font-semibold text-blue-600 hover:text-blue-700 transition-colors group"
-                    >
-                      Read Full Details
-                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Media Modal */}
+      {expandedMediaId && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+             onClick={() => setExpandedMediaId(null)}>
+          <div className="relative w-full max-w-4xl bg-black rounded-lg overflow-hidden"
+               onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button
+              onClick={() => setExpandedMediaId(null)}
+              className="absolute top-4 right-4 z-10 bg-white/20 hover:bg-white/40 rounded-full p-2 transition-colors"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+
+            {/* Media Content */}
+            {news.map(item => 
+              item.id === expandedMediaId ? (
+                <div key={item.id}>
+                  {item.media_type === 'video' ? (
+                    <video
+                      src={item.media_url || ''}
+                      controls
+                      autoPlay
+                      className="w-full h-auto max-h-[80vh] object-cover"
+                    />
+                  ) : (
+                    <div className="relative w-full h-[80vh]">
+                      <Image
+                        src={item.media_url!}
+                        alt={item.title}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : null
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

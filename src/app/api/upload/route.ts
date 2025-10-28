@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
     let maxSize: number
     let uploadSubDir: string
     let filePrefix: string
+    let allowedExtensions: string[] = []
 
     // Configure based on upload type
     if (type === 'cv') {
@@ -28,21 +29,38 @@ export async function POST(request: NextRequest) {
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ]
+      allowedExtensions = ['.pdf', '.doc', '.docx']
       maxSize = 10 * 1024 * 1024 // 10MB for CVs
       uploadSubDir = 'cvs'
       filePrefix = 'cv'
+    } else if (type === 'media') {
+      // Media upload (images and videos)
+      allowedTypes = [
+        'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+        'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'
+      ]
+      allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.mp4', '.webm', '.ogv', '.mov', '.avi', '.mpeg', '.mkv']
+      maxSize = 100 * 1024 * 1024 // 100MB for media files
+      uploadSubDir = 'media'
+      filePrefix = 'media'
     } else {
       // Default: image upload
       allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp']
       maxSize = 5 * 1024 * 1024 // 5MB for images
       uploadSubDir = 'products'
       filePrefix = 'product'
     }
 
-    // Validate file type
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file type - check both MIME type and extension
+    const originalFileName = file.name.toLowerCase()
+    const fileExtension = '.' + originalFileName.split('.').pop()
+    const hasValidMimeType = allowedTypes.includes(file.type)
+    const hasValidExtension = allowedExtensions.includes(fileExtension)
+    
+    if (!hasValidMimeType && !hasValidExtension) {
       return NextResponse.json(
-        { error: `Invalid file type for ${type}. Allowed types: ${allowedTypes.join(', ')}` },
+        { error: `Invalid file type for ${type}. Allowed types: ${allowedExtensions.join(', ')}` },
         { status: 400 }
       )
     }
@@ -64,7 +82,7 @@ export async function POST(request: NextRequest) {
     const fileName = `${filePrefix}_${Date.now()}.${ext}`
     
     // Define upload directory
-    const uploadDir = type === 'cv' 
+    const uploadDir = (type === 'cv' || type === 'media') 
       ? join(process.cwd(), 'public', 'uploads', uploadSubDir)
       : join(process.cwd(), 'public', 'images', uploadSubDir)
     
@@ -78,9 +96,14 @@ export async function POST(request: NextRequest) {
     await writeFile(filePath, buffer)
 
     // Return the public URL
-    const imageUrl = type === 'cv'
-      ? `/uploads/${uploadSubDir}/${fileName}`
-      : `/images/${uploadSubDir}/${fileName}`
+    let imageUrl: string
+    if (type === 'cv') {
+      imageUrl = `/uploads/${uploadSubDir}/${fileName}`
+    } else if (type === 'media') {
+      imageUrl = `/uploads/${uploadSubDir}/${fileName}`
+    } else {
+      imageUrl = `/images/${uploadSubDir}/${fileName}`
+    }
     
     return NextResponse.json({ 
       success: true,

@@ -148,7 +148,9 @@ function PostFormModal({
 
     try {
       setIsUploading(true);
-      const mediaUrl = await uploadProductImage(file);
+      // Use uploadMedia function instead of uploadProductImage
+      const { uploadMedia } = await import('@/lib/uploadHelpers');
+      const mediaUrl = await uploadMedia(file);
       setValue('media_url', mediaUrl);
       setPreviewMedia(mediaUrl);
       

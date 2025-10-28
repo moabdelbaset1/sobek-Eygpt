@@ -71,8 +71,8 @@ model MediaPost {
   id          String   @id @default(uuid())
   title       String
   titleAr     String?  @map("title_ar")
-  content     String   // Main text content
-  contentAr   String?  @map("content_ar")
+  content     String   @db.LongText // Main text content - can be very long
+  contentAr   String?  @db.LongText @map("content_ar")
   type        String   // 'news' or 'event'
   mediaType   String?  @map("media_type") // 'image' or 'video'
   mediaUrl    String?  @map("media_url")  // URL to image or video

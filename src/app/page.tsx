@@ -1,7 +1,9 @@
 "use client";
 import {motion} from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { ArrowRight, Newspaper, Calendar, Briefcase } from 'lucide-react';
 
 const heroImages = [
   '/3Scientistssmall-1.jpg',
@@ -224,6 +226,213 @@ export default function HomePage() {
                 </video>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Media & Careers Section */}
+      <section className="py-24 bg-white relative overflow-hidden">
+        {/* Background Decorations */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100 rounded-full filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-100 rounded-full filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
+
+        <div className="container mx-auto px-4 md:px-8 lg:px-16 relative z-10">
+          {/* Section Header */}
+          <div className="text-center mb-20">
+            <motion.div
+              initial={{opacity: 0, y: -30}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              transition={{duration: 0.6}}
+            >
+              <div className="inline-flex items-center justify-center gap-3 mb-6">
+                <div className="w-12 h-1 bg-gradient-to-r from-blue-600 to-transparent"></div>
+                <span className="text-blue-600 font-semibold uppercase tracking-wider text-sm">Discover More</span>
+                <div className="w-12 h-1 bg-gradient-to-l from-blue-600 to-transparent"></div>
+              </div>
+              <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                Stay Connected <span className="bg-gradient-to-r from-blue-600 via-red-600 to-purple-600 bg-clip-text text-transparent">&amp; Grow</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                Explore our latest news, upcoming events, and exciting career opportunities that shape the future of healthcare
+              </p>
+            </motion.div>
+          </div>
+
+          {/* 3 Column Grid with Enhanced Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* News Card */}
+            <motion.div
+              initial={{opacity: 0, y: 40}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              transition={{duration: 0.6}}
+              whileHover={{y: -15}}
+              className="group cursor-pointer"
+            >
+              <Link href="/media/news" className="block h-full">
+                <div className="relative h-full bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                  {/* Image Background */}
+                  <div className="relative h-64 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 overflow-hidden">
+                    <div className="absolute inset-0 opacity-30">
+                      <svg className="w-full h-full" viewBox="0 0 400 300" preserveAspectRatio="none">
+                        <defs>
+                          <pattern id="news-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <circle cx="20" cy="20" r="1" fill="white" />
+                            <circle cx="30" cy="10" r="1" fill="white" />
+                            <circle cx="10" cy="30" r="1" fill="white" />
+                          </pattern>
+                        </defs>
+                        <rect width="400" height="300" fill="url(#news-pattern)" />
+                      </svg>
+                    </div>
+
+                    {/* Icon */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                        <Newspaper className="w-12 h-12 text-white" />
+                      </div>
+                    </div>
+
+                    {/* Animated Shapes */}
+                    <div className="absolute top-4 right-4 w-16 h-16 border-2 border-white/30 rounded-lg group-hover:rotate-45 transition-transform duration-700"></div>
+                    <div className="absolute bottom-4 left-4 w-12 h-12 bg-white/10 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-8 flex flex-col h-48">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                      Latest News
+                    </h3>
+                    <p className="text-gray-600 text-base leading-relaxed flex-1">
+                      Stay informed with the latest updates, announcements, and industry insights from Sobek Pharma
+                    </p>
+                    <div className="flex items-center text-blue-600 font-semibold group-hover:text-blue-700 mt-4 transition-colors">
+                      <span>Read News</span>
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Bottom Bar */}
+                  <div className="h-1 bg-gradient-to-r from-blue-600 to-blue-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Events Card */}
+            <motion.div
+              initial={{opacity: 0, y: 40}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              transition={{duration: 0.6, delay: 0.1}}
+              whileHover={{y: -15}}
+              className="group cursor-pointer"
+            >
+              <Link href="/media/events" className="block h-full">
+                <div className="relative h-full bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                  {/* Image Background */}
+                  <div className="relative h-64 bg-gradient-to-br from-red-400 via-red-500 to-red-700 overflow-hidden">
+                    <div className="absolute inset-0 opacity-30">
+                      <svg className="w-full h-full" viewBox="0 0 400 300" preserveAspectRatio="none">
+                        <defs>
+                          <pattern id="events-pattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+                            <rect x="10" y="10" width="40" height="40" fill="none" stroke="white" strokeWidth="1" />
+                            <circle cx="30" cy="30" r="8" fill="white" opacity="0.5" />
+                          </pattern>
+                        </defs>
+                        <rect width="400" height="300" fill="url(#events-pattern)" />
+                      </svg>
+                    </div>
+
+                    {/* Icon */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                        <Calendar className="w-12 h-12 text-white" />
+                      </div>
+                    </div>
+
+                    {/* Animated Shapes */}
+                    <div className="absolute top-6 left-6 w-20 h-20 border-2 border-white/30 rounded-full group-hover:rotate-180 transition-transform duration-700"></div>
+                    <div className="absolute bottom-6 right-6 w-10 h-10 bg-white/10 group-hover:scale-150 transition-transform duration-700"></div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-8 flex flex-col h-48">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors">
+                      Upcoming Events
+                    </h3>
+                    <p className="text-gray-600 text-base leading-relaxed flex-1">
+                      Join us at conferences, seminars, and networking events to connect with industry leaders and innovators
+                    </p>
+                    <div className="flex items-center text-red-600 font-semibold group-hover:text-red-700 mt-4 transition-colors">
+                      <span>View Events</span>
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Bottom Bar */}
+                  <div className="h-1 bg-gradient-to-r from-red-600 to-red-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Careers Card */}
+            <motion.div
+              initial={{opacity: 0, y: 40}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              transition={{duration: 0.6, delay: 0.2}}
+              whileHover={{y: -15}}
+              className="group cursor-pointer"
+            >
+              <Link href="/careers" className="block h-full">
+                <div className="relative h-full bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                  {/* Image Background */}
+                  <div className="relative h-64 bg-gradient-to-br from-purple-400 via-purple-500 to-purple-700 overflow-hidden">
+                    <div className="absolute inset-0 opacity-30">
+                      <svg className="w-full h-full" viewBox="0 0 400 300" preserveAspectRatio="none">
+                        <defs>
+                          <pattern id="careers-pattern" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+                            <polygon points="25,0 50,25 25,50 0,25" fill="none" stroke="white" strokeWidth="1" />
+                          </pattern>
+                        </defs>
+                        <rect width="400" height="300" fill="url(#careers-pattern)" />
+                      </svg>
+                    </div>
+
+                    {/* Icon */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                        <Briefcase className="w-12 h-12 text-white" />
+                      </div>
+                    </div>
+
+                    {/* Animated Shapes */}
+                    <div className="absolute top-4 right-4 w-14 h-14 border-2 border-white/30 group-hover:rotate-90 transition-transform duration-700"></div>
+                    <div className="absolute bottom-4 left-4 w-16 h-16 bg-white/10 rounded-lg group-hover:scale-125 transition-transform duration-700"></div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-8 flex flex-col h-48">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
+                      Join Our Team
+                    </h3>
+                    <p className="text-gray-600 text-base leading-relaxed flex-1">
+                      Explore exciting career opportunities and become part of a team dedicated to improving global healthcare
+                    </p>
+                    <div className="flex items-center text-purple-600 font-semibold group-hover:text-purple-700 mt-4 transition-colors">
+                      <span>See Opportunities</span>
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Bottom Bar */}
+                  <div className="h-1 bg-gradient-to-r from-purple-600 to-purple-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                </div>
+              </Link>
+            </motion.div>
+
           </div>
         </div>
       </section>
