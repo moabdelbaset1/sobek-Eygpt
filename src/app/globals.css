@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #2563eb; /* Blue 600 */
+  --primary-dark: #1e40af; /* Blue 700 */
+  --accent: #dc2626; /* Red 600 */
+  --accent-light: #fef2f2; /* Red 50 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --primary: #2F6DFF;
+    --accent: #2FD08A;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Logical properties to improve RTL/LTR symmetry */
+.text-start { text-align: start; }
+.text-end { text-align: end; }
+.ms-2 { margin-inline-start: .5rem; }
+.me-2 { margin-inline-end: .5rem; }
+.ps-4 { padding-inline-start: 1rem; }
+.pe-4 { padding-inline-end: 1rem; }
+
+/* Brand utilities */
+.bg-primary { background-color: var(--primary); }
+.text-primary { color: var(--primary); }
+.bg-accent { background-color: var(--accent); }
+.text-accent { color: var(--accent); }
+
+/* Focus styles for accessibility */
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Mobile menu improvements */
+.mobile-menu-enter {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+.mobile-menu-enter-active {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Animations */
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+/* Fade in animation for dropdowns */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
