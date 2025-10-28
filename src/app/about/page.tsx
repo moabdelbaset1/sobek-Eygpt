@@ -2,6 +2,8 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useLanguageContext } from '@/lib/LanguageContext';
+import { t } from '@/lib/translations';
 
 // Counter Animation Hook
 function useCounter(end: number, duration: number = 2000) {
@@ -112,6 +114,8 @@ const awards = [
 ];
 
 export default function AboutPage() {
+  const { lang } = useLanguageContext();
+  
   return (
     <>
       {/* Hero Section */}
@@ -134,14 +138,19 @@ export default function AboutPage() {
                 transition={{ duration: 0.8 }}
               >
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-                  About <span className="text-red-400">Sobek Pharma</span>
+                  {lang === 'ar' ? 'حول' : 'About'} <span className="text-red-400">Sobek Pharma</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-100 leading-relaxed mb-8">
-                  Innovation and Excellence in Pharmaceutical Solutions
+                  {lang === 'ar' 
+                    ? 'الابتكار والتميز في الحلول الدوائية'
+                    : 'Innovation and Excellence in Pharmaceutical Solutions'
+                  }
                 </p>
                 <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl">
-                  Committed to advancing global health through innovative pharmaceutical solutions, 
-                  quality manufacturing, and sustainable practices that improve lives worldwide.
+                  {lang === 'ar'
+                    ? 'ملتزمون بتعزيز الصحة العالمية من خلال الحلول الدوائية المبتكرة والتصنيع عالي الجودة والممارسات المستدامة التي تحسن الحياة في جميع أنحاء العالم.'
+                    : 'Committed to advancing global health through innovative pharmaceutical solutions, quality manufacturing, and sustainable practices that improve lives worldwide.'
+                  }
                 </p>
               </motion.div>
             </div>
@@ -171,10 +180,13 @@ export default function AboutPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Our <span className="text-blue-600">Foundation</span>
+              {lang === 'ar' ? 'أساسنا' : 'Our'} <span className="text-blue-600">{lang === 'ar' ? '' : 'Foundation'}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              The principles that guide everything we do
+              {lang === 'ar'
+                ? 'المبادئ التي توجه كل ما نقوم به'
+                : 'The principles that guide everything we do'
+              }
             </p>
           </motion.div>
 
@@ -195,10 +207,14 @@ export default function AboutPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  {lang === 'ar' ? 'رؤيتنا' : 'Our Vision'}
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  To be a leading global pharmaceutical company recognized for innovation, 
-                  quality, and commitment to improving health outcomes worldwide.
+                  {lang === 'ar'
+                    ? 'أن نكون شركة دوائية رائدة عالمياً معروفة بالابتكار والجودة والالتزام بتحسين نتائج الصحة في جميع أنحاء العالم.'
+                    : 'To be a leading global pharmaceutical company recognized for innovation, quality, and commitment to improving health outcomes worldwide.'
+                  }
                 </p>
               </div>
             </motion.div>
@@ -218,10 +234,14 @@ export default function AboutPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  {lang === 'ar' ? 'مهمتنا' : 'Our Mission'}
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  To advance global health by delivering innovative, high-quality pharmaceutical 
-                  solutions that are accessible and affordable to communities worldwide.
+                  {lang === 'ar'
+                    ? 'تعزيز الصحة العالمية من خلال توفير حلول دوائية مبتكرة وعالية الجودة يمكن الوصول إليها وبأسعار معقولة للمجتمعات في جميع أنحاء العالم.'
+                    : 'To advance global health by delivering innovative, high-quality pharmaceutical solutions that are accessible and affordable to communities worldwide.'
+                  }
                 </p>
               </div>
             </motion.div>
@@ -277,10 +297,13 @@ export default function AboutPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Our <span className="text-blue-600">Journey</span>
+              {lang === 'ar' ? 'رحلتنا' : 'Our'} <span className="text-blue-600">{lang === 'ar' ? '' : 'Journey'}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Years of growth, innovation, and commitment to healthcare excellence
+              {lang === 'ar'
+                ? 'سنوات من النمو والابتكار والالتزام بتميز الرعاية الصحية'
+                : 'Years of growth, innovation, and commitment to healthcare excellence'
+              }
             </p>
           </motion.div>
 
@@ -342,10 +365,13 @@ export default function AboutPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Our <span className="text-blue-600">Leadership</span>
+              {lang === 'ar' ? 'فريق' : 'Our'} <span className="text-blue-600">{lang === 'ar' ? 'القيادة' : 'Leadership'}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Experienced professionals driving innovation and excellence
+              {lang === 'ar'
+                ? 'محترفون ذوو خبرة يقودون الابتكار والتميز'
+                : 'Experienced professionals driving innovation and excellence'
+              }
             </p>
           </motion.div>
 
@@ -371,7 +397,16 @@ export default function AboutPage() {
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                    <p className="text-blue-600 font-medium mb-3">{member.title}</p>
+                    <p className="text-blue-600 font-medium mb-3">
+                      {lang === 'ar'
+                        ? member.title === 'Chief Executive Officer' ? 'الرئيس التنفيذي' :
+                          member.title === 'Chief Scientific Officer' ? 'كبير مسؤولي العلوم' :
+                          member.title === 'Chief Operations Officer' ? 'كبير مسؤولي التشغيل' :
+                          member.title === 'Head of Regulatory Affairs' ? 'رئيس الشؤون التنظيمية' :
+                          member.title
+                        : member.title
+                      }
+                    </p>
                     <p className="text-gray-600 text-sm leading-relaxed">{member.bio}</p>
                   </div>
                 </div>
@@ -392,10 +427,13 @@ export default function AboutPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Awards & <span className="text-blue-600">Certifications</span>
+              {lang === 'ar' ? 'الجوائز والشهادات' : 'Awards &'} <span className="text-blue-600">{lang === 'ar' ? '' : 'Certifications'}</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Recognized for excellence in quality, innovation, and industry leadership
+              {lang === 'ar'
+                ? 'معترف به للتميز في الجودة والابتكار وقيادة الصناعة'
+                : 'Recognized for excellence in quality, innovation, and industry leadership'
+              }
             </p>
           </motion.div>
 

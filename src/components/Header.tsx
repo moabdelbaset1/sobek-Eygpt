@@ -2,6 +2,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
+import LangSwitcher from './LangSwitcher';
+import { useLanguageContext } from '@/lib/LanguageContext';
+import { t } from '@/lib/translations';
 
 interface SubMenuItem {
   title: string;
@@ -11,23 +14,23 @@ interface SubMenuItem {
 }
 
 interface MenuItem {
-  title: string;
-  href?: string;  // Make href optional
+  titleKey: string;  // Changed from title to titleKey
+  href?: string;
   subItems?: SubMenuItem[];
 }
 
-// Main navigation items
+// Main navigation items - using keys for translation
 const menuItems: MenuItem[] = [
   {
-    title: 'Home',
+    titleKey: 'home',
     href: '/',
   },
   {
-    title: 'About',
+    titleKey: 'about',
     href: '/about',
   },
   {
-    title: 'Products',
+    titleKey: 'products',
     subItems: [
       {
         title: 'Human Health',
@@ -42,24 +45,30 @@ const menuItems: MenuItem[] = [
     ]
   },
   {
-    title: 'Media',
+    titleKey: 'media',
     subItems: [
       { title: 'Events', href: '/media/events' },
       { title: 'News', href: '/media/news' },
     ]
   },
   {
-    title: 'Careers',
+    titleKey: 'careers',
     href: '/careers',
   },
 ];
 
 export default function Header() {
+  const { lang, mounted } = useLanguageContext();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Get translated menu label
+  const getMenuLabel = (key: string) => {
+    return t(key, lang);
+  };
 
   // Clear timeout function
   const clearMenuTimeout = () => {
@@ -126,11 +135,11 @@ export default function Header() {
           <ul className="hidden lg:flex items-center gap-1">
             {menuItems.map((item) => (
               <li
-                key={item.title}
+                key={item.titleKey}
                 className="relative group"
                 onMouseEnter={() => {
                   clearMenuTimeout();
-                  setActiveMenu(item.title);
+                  setActiveMenu(item.titleKey);
                 }}
                 onMouseLeave={() => {
                   setDelayedMenuClose();
@@ -140,7 +149,7 @@ export default function Header() {
                   <span
                     className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 flex items-center gap-1.5 rounded-lg hover:bg-blue-50 text-sm cursor-pointer"
                   >
-                    {item.title}
+                    {getMenuLabel(item.titleKey)}
                     <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -150,12 +159,12 @@ export default function Header() {
                     href={item.href}
                     className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 flex items-center gap-1.5 rounded-lg hover:bg-blue-50 text-sm"
                   >
-                    {item.title}
+                    {getMenuLabel(item.titleKey)}
                   </Link>
                 )}
 
                 {/* Dropdown Menu */}
-                {item.subItems && activeMenu === item.title && (
+                {item.subItems && activeMenu === item.titleKey && (
                   <div 
                     className="absolute top-full left-0 mt-2 bg-white border border-gray-100 shadow-2xl rounded-xl min-w-[280px] py-3 animate-fadeIn"
                     onMouseEnter={() => {
@@ -226,27 +235,7 @@ export default function Header() {
           {/* Right Side - Language Switcher & Contact Button */}
           <div className="flex items-center gap-3">
             {/* Language Switcher */}
-            <div className="relative group hidden md:block">
-              <button className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50">
-                <span className="text-lg">🌐</span>
-                <span className="text-xs font-medium">EN</span>
-                <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              
-              {/* Language Dropdown */}
-              <div className="absolute top-full right-0 mt-2 bg-white border border-gray-100 shadow-lg rounded-xl min-w-[140px] py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <button className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-gray-50 transition-colors text-gray-700">
-                  <span className="text-lg">🇺🇸</span>
-                  <span className="font-medium text-sm">English</span>
-                </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-gray-50 transition-colors text-gray-700">
-                  <span className="text-lg">🇪🇬</span>
-                  <span className="font-medium text-sm">العربية</span>
-                </button>
-              </div>
-            </div>
+            <LangSwitcher />
 
             {/* Contact Button */}
             <Link
@@ -284,10 +273,10 @@ export default function Header() {
           >
             <div className="space-y-2">
               {menuItems.map((item) => (
-                <div key={item.title}>
+                <div key={item.titleKey}>
                   {item.subItems ? (
                     <div className="px-4 py-3 text-gray-700 font-medium">
-                      {item.title}
+                      {getMenuLabel(item.titleKey)}
                     </div>
                   ) : item.href && (
                     <Link
@@ -295,7 +284,7 @@ export default function Header() {
                       className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      {item.title}
+                      {getMenuLabel(item.titleKey)}
                     </Link>
                   )}
                   {item.subItems && (

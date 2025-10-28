@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { ArrowRight, Newspaper, Calendar, Briefcase } from 'lucide-react';
+import { useLanguageContext } from '@/lib/LanguageContext';
+import { t } from '@/lib/translations';
 
 const heroImages = [
   '/3Scientistssmall-1.jpg',
@@ -13,6 +15,7 @@ const heroImages = [
 ];
 
 export default function HomePage() {
+  const { lang } = useLanguageContext();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
@@ -53,10 +56,14 @@ export default function HomePage() {
                 transition={{duration: 0.8}}
               >
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-relaxed">
-                  <span className="text-red-500 text-4xl md:text-5xl lg:text-6xl">B</span>etter Health within reach everyday.
+                  <span className="text-red-500 text-4xl md:text-5xl lg:text-6xl">{lang === 'ar' ? 'ت' : 'B'}</span>
+                  {lang === 'ar' ? 'عزيز الصحة متاح كل يوم' : 'etter Health within reach everyday.'}
                 </h1>
                 <p className="text-base md:text-lg lg:text-xl text-gray-100 leading-relaxed">
-                  By creating high-quality products and making them accessible to those who need them, we are helping to shape a healthier world that enriches all our communities.
+                  {lang === 'ar' 
+                    ? 'من خلال إنشاء منتجات عالية الجودة وجعلها في متناول من يحتاجونها، نساعد في تشكيل عالم أكثر صحة يثري مجتمعاتنا جميعاً.'
+                    : 'By creating high-quality products and making them accessible to those who need them, we are helping to shape a healthier world that enriches all our communities.'
+                  }
                 </p>
               </motion.div>
 
@@ -70,13 +77,13 @@ export default function HomePage() {
                   href="/products"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-base transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  Explore Our Products
+                  {t('exploreProducts', lang)}
                 </Link>
                 <Link
                   href="/about"
                   className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-6 py-3 rounded-lg font-medium text-base transition-all duration-200 border-2 border-white/30 hover:border-white/50"
                 >
-                  Learn About Us
+                  {lang === 'ar' ? 'اعرف عنا' : 'Learn About Us'}
                 </Link>
               </motion.div>
             </div>
@@ -154,16 +161,22 @@ export default function HomePage() {
                 </h2>
               </motion.div>
               <p className="text-base md:text-lg text-gray-900 leading-relaxed mb-4">
-                We provide the best towards a healthier community, through safe, inspiring and inclusive work environment.
+                {lang === 'ar' 
+                  ? 'نحن نوفر الأفضل نحو مجتمع أكثر صحة، من خلال بيئة عمل آمنة وملهمة وشاملة.'
+                  : 'We provide the best towards a healthier community, through safe, inspiring and inclusive work environment.'
+                }
               </p>
               <p className="text-base md:text-lg text-gray-900 leading-relaxed mb-8">
-                Consistently expanding our business across the border through delivering high quality cost effective pharmaceutical product provided with our competitive services and belief in the role we play in healthcare community.
+                {lang === 'ar'
+                  ? 'نتوسع باستمرار عملنا عبر الحدود من خلال توفير منتجات دوائية عالية الجودة وفعالة من حيث التكلفة مع خدماتنا التنافسية والاعتقاد بدورنا في مجتمع الرعاية الصحية.'
+                  : 'Consistently expanding our business across the border through delivering high quality cost effective pharmaceutical product provided with our competitive services and belief in the role we play in healthcare community.'
+                }
               </p>
               <Link
                 href="/about"
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
               >
-                Read More
+                {t('readMore', lang)}
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -193,14 +206,20 @@ export default function HomePage() {
                 className="mb-6"
               >
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-800">
-                  Our Mission
+                  {t('ourMission', lang)}
                 </h2>
               </motion.div>
               <p className="text-base md:text-lg text-gray-900 leading-relaxed mb-4">
-                At Sobek Pharma, our mission is to advance global health by delivering innovative, high-quality pharmaceutical solutions that are accessible and affordable to communities worldwide.
+                {lang === 'ar'
+                  ? 'في سوبك فارما، مهمتنا هي تعزيز الصحة العالمية من خلال توفير حلول دوائية مبتكرة وعالية الجودة يمكن الوصول إليها وبأسعار معقولة للمجتمعات في جميع أنحاء العالم.'
+                  : 'At Sobek Pharma, our mission is to advance global health by delivering innovative, high-quality pharmaceutical solutions that are accessible and affordable to communities worldwide.'
+                }
               </p>
               <p className="text-base md:text-lg text-gray-900 leading-relaxed mb-8">
-                We are committed to excellence in research, manufacturing, and distribution, fostering partnerships that drive healthcare progress and improve lives through sustainable and ethical practices.
+                {lang === 'ar'
+                  ? 'نحن ملتزمون بالتميز في البحث والتصنيع والتوزيع، وتعزيز الشراكات التي تدفع التقدم الصحي وتحسن الحياة من خلال الممارسات المستدامة والأخلاقية.'
+                  : 'We are committed to excellence in research, manufacturing, and distribution, fostering partnerships that drive healthcare progress and improve lives through sustainable and ethical practices.'
+                }
               </p>
             </motion.div>
 
@@ -247,14 +266,19 @@ export default function HomePage() {
             >
               <div className="inline-flex items-center justify-center gap-3 mb-6">
                 <div className="w-12 h-1 bg-gradient-to-r from-blue-600 to-transparent"></div>
-                <span className="text-blue-600 font-semibold uppercase tracking-wider text-sm">Discover More</span>
+                <span className="text-blue-600 font-semibold uppercase tracking-wider text-sm">
+                  {lang === 'ar' ? 'اكتشف المزيد' : 'Discover More'}
+                </span>
                 <div className="w-12 h-1 bg-gradient-to-l from-blue-600 to-transparent"></div>
               </div>
               <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                Stay Connected <span className="bg-gradient-to-r from-blue-600 via-red-600 to-purple-600 bg-clip-text text-transparent">&amp; Grow</span>
+                {lang === 'ar' ? 'ابق متصلاً' : 'Stay Connected'} <span className="bg-gradient-to-r from-blue-600 via-red-600 to-purple-600 bg-clip-text text-transparent">&amp; {lang === 'ar' ? 'انمو' : 'Grow'}</span>
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                Explore our latest news, upcoming events, and exciting career opportunities that shape the future of healthcare
+                {lang === 'ar'
+                  ? 'استكشف أحدث أخبارنا والأحداث القادمة وفرص العمل المثيرة التي تشكل مستقبل الرعاية الصحية'
+                  : 'Explore our latest news, upcoming events, and exciting career opportunities that shape the future of healthcare'
+                }
               </p>
             </motion.div>
           </div>
@@ -303,13 +327,16 @@ export default function HomePage() {
                   {/* Content */}
                   <div className="p-8 flex flex-col h-48">
                     <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                      Latest News
+                      {t('latestNews', lang)}
                     </h3>
                     <p className="text-gray-600 text-base leading-relaxed flex-1">
-                      Stay informed with the latest updates, announcements, and industry insights from Sobek Pharma
+                      {lang === 'ar'
+                        ? 'ابق على اطلاع بأحدث التحديثات والإعلانات والرؤى الصناعية من سوبك فارما'
+                        : 'Stay informed with the latest updates, announcements, and industry insights from Sobek Pharma'
+                      }
                     </p>
                     <div className="flex items-center text-blue-600 font-semibold group-hover:text-blue-700 mt-4 transition-colors">
-                      <span>Read News</span>
+                      <span>{lang === 'ar' ? 'اقرأ الأخبار' : 'Read News'}</span>
                       <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" />
                     </div>
                   </div>
@@ -360,13 +387,16 @@ export default function HomePage() {
                   {/* Content */}
                   <div className="p-8 flex flex-col h-48">
                     <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors">
-                      Upcoming Events
+                      {t('upcomingEvents', lang)}
                     </h3>
                     <p className="text-gray-600 text-base leading-relaxed flex-1">
-                      Join us at conferences, seminars, and networking events to connect with industry leaders and innovators
+                      {lang === 'ar'
+                        ? 'انضم إلينا في المؤتمرات والندوات وأحداث التواصل للتواصل مع قادة الصناعة والمبتكرين'
+                        : 'Join us at conferences, seminars, and networking events to connect with industry leaders and innovators'
+                      }
                     </p>
                     <div className="flex items-center text-red-600 font-semibold group-hover:text-red-700 mt-4 transition-colors">
-                      <span>View Events</span>
+                      <span>{lang === 'ar' ? 'عرض الأحداث' : 'View Events'}</span>
                       <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" />
                     </div>
                   </div>
@@ -416,13 +446,16 @@ export default function HomePage() {
                   {/* Content */}
                   <div className="p-8 flex flex-col h-48">
                     <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
-                      Join Our Team
+                      {t('joinOurTeam', lang)}
                     </h3>
                     <p className="text-gray-600 text-base leading-relaxed flex-1">
-                      Explore exciting career opportunities and become part of a team dedicated to improving global healthcare
+                      {lang === 'ar'
+                        ? 'استكشف فرص عمل مثيرة وكن جزءاً من فريق مكرس لتحسين الرعاية الصحية العالمية'
+                        : 'Explore exciting career opportunities and become part of a team dedicated to improving global healthcare'
+                      }
                     </p>
                     <div className="flex items-center text-purple-600 font-semibold group-hover:text-purple-700 mt-4 transition-colors">
-                      <span>See Opportunities</span>
+                      <span>{lang === 'ar' ? 'شاهد الفرص' : 'See Opportunities'}</span>
                       <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" />
                     </div>
                   </div>
@@ -442,10 +475,13 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Why Choose <span className="text-blue-600">Sobek Pharma</span>
+              {lang === 'ar' ? 'لماذا تختار' : 'Why Choose'} <span className="text-blue-600">Sobek Pharma</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Leading the pharmaceutical industry with innovation, quality, and commitment to healthcare excellence
+              {lang === 'ar'
+                ? 'قيادة صناعة الأدوية بالابتكار والجودة والالتزام بتميز الرعاية الصحية'
+                : 'Leading the pharmaceutical industry with innovation, quality, and commitment to healthcare excellence'
+              }
             </p>
           </div>
 
