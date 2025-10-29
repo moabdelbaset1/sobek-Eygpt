@@ -7,6 +7,7 @@ import { CartProvider } from "../context/CartContext";
 import { LocationProvider } from "../contexts/LocationContext";
 import { ReactQueryProvider } from "../lib/react-query-provider";
 import { usePerformanceMonitoring } from "../lib/performance-optimization-service";
+import MarketingPopupProvider from "../components/marketing/marketing-popup-provider";
 
 const roboto = Roboto({
   weight: ["400"],
@@ -15,8 +16,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Dev Egypt",
-  description: "Dev Egypt WhisperLite page",
+  title: "Dav Egypt",
+  description: "Dav Egypt WhisperLite page",
 };
 
 export const viewport: Viewport = {
@@ -38,7 +39,9 @@ export default function RootLayout({
           <AuthProvider>
             <LocationProvider>
               <CartProvider>
-                {children}
+                <MarketingPopupProvider>
+                  {children}
+                </MarketingPopupProvider>
               </CartProvider>
             </LocationProvider>
           </AuthProvider>

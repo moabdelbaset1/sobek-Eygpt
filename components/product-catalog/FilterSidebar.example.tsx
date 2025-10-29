@@ -18,7 +18,7 @@ const mockFilterOptions: FilterOptions = {
     { name: 'Purple', hex: '#9333EA', imageUrl: '/images/purple.jpg' },
   ],
   availableBrands: [
-    'Dev Egypt',
+    'Dav Egypt',
     'Cherokee',
     'Dickies',
     'WonderWink',

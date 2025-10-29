@@ -18,7 +18,7 @@ const exampleFilters: FilterOptions = {
     { name: 'Purple', hex: '#9333ea', imageUrl: '/purple.jpg' }
   ],
   availableBrands: [
-    'Dev Egypt',
+    'Dav Egypt',
     'Cherokee',
     'Dickies',
     'WonderWink',

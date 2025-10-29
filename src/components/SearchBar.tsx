@@ -45,7 +45,7 @@ export default function SearchBar({
     'medical scrubs',
     'lab coat',
     'cherokee',
-    'dev egypt',
+    'dav egypt',
     'nursing shoes',
     'stethoscope'
   ];

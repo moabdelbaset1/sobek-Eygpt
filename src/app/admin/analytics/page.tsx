@@ -1,28 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  ShoppingCart,
-  Users,
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { 
+  BarChart3, 
+  TrendingUp, 
+  DollarSign, 
+  ShoppingCart, 
+  Users, 
   Package,
-  RefreshCw,
-  Calendar
+  Eye,
+  Star
 } from "lucide-react"
 
 interface AnalyticsData {
@@ -51,7 +40,11 @@ interface AnalyticsData {
       quantity: number
     }>
     orderStatusDistribution: {
-      [key: string]: number
+      pending: number
+      processing: number
+      shipped: number
+      delivered: number
+      cancelled: number
     }
     paymentMethodDistribution: Array<{
       method: string
@@ -65,114 +58,107 @@ interface AnalyticsData {
     totalCustomers: number
     repeatCustomers: number
   }
+  brandAnalytics?: {
+    topViewedBrands: Array<{
+      brand_id: string
+      brand_name: string
+      views: number
+      growth: number
+    }>
+    topSellingBrands: Array<{
+      brand_id: string
+      brand_name: string
+      orders: number
+      revenue: number
+    }>
+  }
 }
 
 export default function AnalyticsPage() {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [period, setPeriod] = useState("30")
 
-  // Fetch analytics data
-  const fetchAnalyticsData = async () => {
+  useEffect(() => {
+    fetchAnalytics()
+  }, [period])
+
+  const fetchAnalytics = async () => {
+    setLoading(true)
     try {
-      setLoading(true)
-      setError(null)
-      
       const response = await fetch(`/api/admin/analytics?period=${period}`)
       const data = await response.json()
-      
-      if (data.error) {
-        setError(data.error)
-      } else {
-        setAnalyticsData(data)
-      }
+      setAnalytics(data)
     } catch (error) {
-      console.error('Failed to fetch analytics data:', error)
-      setError('Failed to load analytics data')
+      console.error("Failed to fetch analytics:", error)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    fetchAnalyticsData()
-  }, [period])
-
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">Loading analytics...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading Analytics...</p>
         </div>
       </div>
     )
   }
 
-  if (error || !analyticsData) {
+  if (!analytics) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <BarChart3 className="h-8 w-8 text-red-500 mx-auto mb-4" />
-            <p className="text-red-600 mb-4">{error || 'Failed to load analytics data'}</p>
-            <Button onClick={fetchAnalyticsData} variant="outline">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Try Again
-            </Button>
-          </div>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-600">Failed to load analytics data</p>
       </div>
     )
   }
-
-  const { summary, charts, insights } = analyticsData
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted-foreground">
-            Track your store's performance and growth
+          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+          <p className="text-gray-600 mt-1">
+            Comprehensive insights for your store performance
           </p>
         </div>
-        <div className="flex gap-2 items-center">
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Select period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
-              <SelectItem value="365">Last year</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={fetchAnalyticsData} variant="outline" size="sm">
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
+        
+        <div className="flex gap-2">
+          <button
+            onClick={() => setPeriod("7")}
+            className={`px-4 py-2 rounded-lg ${period === "7" ? "bg-blue-600 text-white" : "bg-gray-100"}`}
+          >
+            7 Days
+          </button>
+          <button
+            onClick={() => setPeriod("30")}
+            className={`px-4 py-2 rounded-lg ${period === "30" ? "bg-blue-600 text-white" : "bg-gray-100"}`}
+          >
+            30 Days
+          </button>
+          <button
+            onClick={() => setPeriod("90")}
+            className={`px-4 py-2 rounded-lg ${period === "90" ? "bg-blue-600 text-white" : "bg-gray-100"}`}
+          >
+            90 Days
+          </button>
         </div>
       </div>
 
-      {/* Summary Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              ${summary.totalRevenue.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Last {period} days
+            <div className="text-2xl font-bold">${analytics.summary.totalRevenue.toFixed(2)}</div>
+            <p className="text-xs text-gray-600 mt-1">
+              Last {analytics.period.days} days
             </p>
           </CardContent>
         </Card>
@@ -180,27 +166,12 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <ShoppingCart className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary.totalOrders}</div>
-            <p className="text-xs text-muted-foreground">
-              Last {period} days
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Order Value</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${summary.averageOrderValue.toFixed(2)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Per order
+            <div className="text-2xl font-bold">{analytics.summary.totalOrders}</div>
+            <p className="text-xs text-gray-600 mt-1">
+              ${analytics.summary.averageOrderValue.toFixed(2)} avg order value
             </p>
           </CardContent>
         </Card>
@@ -208,179 +179,222 @@ export default function AnalyticsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">New Customers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary.newCustomers}</div>
-            <p className="text-xs text-muted-foreground">
-              Last {period} days
+            <div className="text-2xl font-bold">{analytics.summary.newCustomers}</div>
+            <p className="text-xs text-gray-600 mt-1">
+              {analytics.insights.repeatCustomers} repeat customers
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Customer LTV</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Active Products</CardTitle>
+            <Package className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              ${summary.avgCustomerLifetimeValue.toFixed(2)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Average lifetime value
+            <div className="text-2xl font-bold">{analytics.insights.activeProducts}</div>
+            <p className="text-xs text-gray-600 mt-1">
+              {analytics.insights.lowStockProducts} low stock alerts
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Top Products */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Products</CardTitle>
-            <CardDescription>
-              Best performing products by revenue
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {charts.topProducts.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Revenue</TableHead>
-                    <TableHead>Quantity</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {charts.topProducts.slice(0, 5).map((product, index) => (
-                    <TableRow key={product.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">
-                            #{index + 1}
-                          </Badge>
-                          <span className="font-medium">{product.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-bold">
-                        ${product.revenue.toFixed(2)}
-                      </TableCell>
-                      <TableCell>{product.quantity}</TableCell>
-                    </TableRow>
+      {/* Tabs for Different Analytics Views */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="products">Top Products</TabsTrigger>
+          <TabsTrigger value="brands">Brand Analytics</TabsTrigger>
+          <TabsTrigger value="orders">Order Status</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Daily Revenue Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue Trend</CardTitle>
+                <CardDescription>Daily revenue for the selected period</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {analytics.charts.dailyRevenue.slice(-14).map((day, index) => (
+                    <div key={index} className="flex items-center gap-4">
+                      <span className="text-sm text-gray-600 w-24">
+                        {new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                      <div className="flex-1">
+                        <div 
+                          className="bg-blue-500 h-6 rounded"
+                          style={{ width: `${(day.revenue / Math.max(...analytics.charts.dailyRevenue.map(d => d.revenue))) * 100}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-medium w-20 text-right">
+                        ${day.revenue.toFixed(0)}
+                      </span>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-8">
-                <Package className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">No sales data yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Order Status Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Order Status</CardTitle>
-            <CardDescription>
-              Distribution of order statuses
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {Object.entries(charts.orderStatusDistribution).map(([status, count]) => (
-                <div key={status} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant="outline" 
-                      className={`capitalize ${
-                        status === 'delivered' ? 'border-green-200 text-green-700' :
-                        status === 'shipped' ? 'border-blue-200 text-blue-700' :
-                        status === 'processing' ? 'border-yellow-200 text-yellow-700' :
-                        status === 'pending' ? 'border-orange-200 text-orange-700' :
-                        'border-red-200 text-red-700'
-                      }`}
-                    >
-                      {status}
-                    </Badge>
-                  </div>
-                  <span className="font-bold">{count}</span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Payment Methods */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Methods</CardTitle>
-            <CardDescription>
-              Payment method distribution
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {charts.paymentMethodDistribution.length > 0 ? (
+            {/* Payment Methods */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Methods</CardTitle>
+                <CardDescription>Distribution of payment methods</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {analytics.charts.paymentMethodDistribution.map((pm, index) => (
+                    <div key={index}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium capitalize">{pm.method.replace('_', ' ')}</span>
+                        <span className="text-sm text-gray-600">{pm.count} orders</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-green-600 h-2 rounded-full"
+                          style={{ width: `${(pm.count / analytics.summary.totalOrders) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Top Products Tab */}
+        <TabsContent value="products">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Selling Products</CardTitle>
+              <CardDescription>Best performing products by revenue</CardDescription>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-4">
-                {charts.paymentMethodDistribution.map((payment) => (
-                  <div key={payment.method} className="flex items-center justify-between">
-                    <span className="capitalize font-medium">{payment.method}</span>
-                    <Badge variant="outline">{payment.count}</Badge>
+                {analytics.charts.topProducts.map((product, index) => (
+                  <div key={product.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium">{product.name}</h3>
+                      <p className="text-sm text-gray-600">
+                        {product.quantity} units sold
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-green-600">${product.revenue.toFixed(2)}</p>
+                      <p className="text-xs text-gray-600">revenue</p>
+                    </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <DollarSign className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-muted-foreground">No payment data yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        {/* Store Insights */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Store Insights</CardTitle>
-            <CardDescription>
-              Overall store statistics
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Total Products</span>
-                <Badge variant="outline">{insights.totalProducts}</Badge>
+        {/* Brand Analytics Tab */}
+        <TabsContent value="brands">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5 text-blue-600" />
+                  Most Viewed Brands
+                </CardTitle>
+                <CardDescription>Top brands by page views this month</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center py-8 text-gray-500">
+                    <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Brand view tracking coming soon</p>
+                    <p className="text-sm">Requires analytics integration</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-yellow-600" />
+                  Top Selling Brands
+                </CardTitle>
+                <CardDescription>Brands with highest order count</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center py-8 text-gray-500">
+                    <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Brand sales tracking coming soon</p>
+                    <p className="text-sm">Requires order-brand correlation</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Order Status Tab */}
+        <TabsContent value="orders">
+          <Card>
+            <CardHeader>
+              <CardTitle>Order Status Distribution</CardTitle>
+              <CardDescription>Breakdown of orders by status</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {Object.entries(analytics.charts.orderStatusDistribution).map(([status, count]) => (
+                  <div key={status} className="text-center p-4 border rounded-lg">
+                    <p className="text-3xl font-bold text-blue-600">{count}</p>
+                    <p className="text-sm text-gray-600 capitalize mt-1">{status}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {((count / analytics.summary.totalOrders) * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Active Products</span>
-                <Badge variant="outline" className="border-green-200 text-green-700">
-                  {insights.activeProducts}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Low Stock Products</span>
-                <Badge variant="outline" className="border-yellow-200 text-yellow-700">
-                  {insights.lowStockProducts}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Total Customers</span>
-                <Badge variant="outline">{insights.totalCustomers}</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Repeat Customers</span>
-                <Badge variant="outline" className="border-blue-200 text-blue-700">
-                  {insights.repeatCustomers}
-                </Badge>
-              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Customer Insights */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Customer Insights</CardTitle>
+          <CardDescription>Understanding your customer base</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+              <Users className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold">{analytics.insights.totalCustomers}</p>
+              <p className="text-sm text-gray-600">Total Customers</p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+              <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold">{analytics.insights.repeatCustomers}</p>
+              <p className="text-sm text-gray-600">Repeat Customers</p>
+            </div>
+            <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+              <DollarSign className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold">${analytics.summary.avgCustomerLifetimeValue.toFixed(2)}</p>
+              <p className="text-sm text-gray-600">Avg Customer LTV</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

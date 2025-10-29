@@ -20,7 +20,7 @@ export default function WishlistPage() {
   const mockProducts: Record<string, WishlistItemWithProduct> = {
     'prod_1': {
       $id: 'prod_1',
-      name: 'Dev Egypt Professional Scrub Top',
+      name: 'Dav Egypt Professional Scrub Top',
       slug: 'dev-egypt-professional-scrub-top',
       price: 299,
       discount_price: 249,
@@ -34,7 +34,7 @@ export default function WishlistPage() {
       hasVariations: false,
       media_id: 'https://via.placeholder.com/300x400?text=Scrub+Top',
       description: 'High-quality professional scrub top for healthcare workers',
-      meta_title: 'Dev Egypt Professional Scrub Top',
+      meta_title: 'Dav Egypt Professional Scrub Top',
       meta_description: 'High-quality professional scrub top for healthcare workers',
       meta_keywords: 'scrub top, medical scrubs, professional',
       $createdAt: new Date().toISOString(),

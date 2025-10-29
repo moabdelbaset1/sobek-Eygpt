@@ -47,7 +47,7 @@ export default function Home() {
           <div className="absolute inset-0">
             <Image
               src="/images/brands/hero-section.jpg"
-              alt="Dev Egypt Fashion"
+              alt="Dav Egypt Fashion"
               fill
               className="object-cover"
               priority
@@ -61,7 +61,7 @@ export default function Home() {
             <div className="text-center text-white">
               {/* Main Title */}
               <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6 drop-shadow-2xl">
-                <span className="text-white">Dev</span> <span className="text-red-600">Egypt</span>
+                <span className="text-white">Dav</span> <span className="text-red-600">Egypt</span>
               </h1>
               
               <p className="text-xl md:text-2xl mb-12 text-gray-100 max-w-3xl mx-auto drop-shadow-lg">
@@ -263,8 +263,8 @@ export default function Home() {
 
         <section className="w-full py-16 px-4 bg-white">
           <div className="max-w-4xl mx-auto space-y-6 text-gray-700">
-            <h2 className="text-3xl font-bold text-gray-900">Premium Fashion Collection - Dev Egypt</h2>
-            <p className="text-lg leading-relaxed">Welcome to <strong>Dev Egypt</strong>, your destination for premium clothing featuring three distinctive brands: <strong>OMAIMA</strong> for professional medical wear, <strong>H LEO</strong> for comfortable oversized fashion, and <strong>SEEN</strong> for elegant slim-fit styles.</p>
+            <h2 className="text-3xl font-bold text-gray-900">Premium Fashion Collection - Dav Egypt</h2>
+            <p className="text-lg leading-relaxed">Welcome to <strong>Dav Egypt</strong>, your destination for premium clothing featuring three distinctive brands: <strong>OMAIMA</strong> for professional medical wear, <strong>H LEO</strong> for comfortable oversized fashion, and <strong>SEEN</strong> for elegant slim-fit styles.</p>
             <p className="text-lg leading-relaxed">Each brand is carefully curated to meet specific needs - whether you're a healthcare professional seeking quality uniforms, a fashion enthusiast looking for comfortable streetwear, or someone who appreciates tailored elegance. Our collections combine quality materials, expert craftsmanship, and contemporary designs.</p>
             <p className="text-lg leading-relaxed">Browse through our extensive catalog featuring <strong>tops, pants, jumpsuits, jackets</strong>, and more. With regular new arrivals and special offers, you'll always find something perfect for your style and needs.</p>
           </div>

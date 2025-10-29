@@ -22,7 +22,7 @@ const exampleProduct: Product = {
     { name: 'Red', hex: '#dc2626', imageUrl: '/images/scrub-red.jpg' },
   ],
   sizes: ['XS', 'S', 'M', 'L', 'XL'],
-  brand: 'Dev Egypt',
+  brand: 'Dav Egypt',
   rating: 4.5,
   reviewCount: 128,
   isOnSale: true,

@@ -19,7 +19,7 @@ const ProductGridExample = () => {
         { name: 'Navy', hex: '#000080', imageUrl: '/products/lab-coat-navy.jpg' }
       ],
       sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-      brand: 'Dev Egypt',
+      brand: 'Dav Egypt',
       rating: 4.5,
       reviewCount: 127,
       isOnSale: true,

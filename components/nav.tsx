@@ -39,7 +39,7 @@ export default function Nav() {
   const [hoverBrand, setHoverBrand] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null); // No default selection
 
-  // Professional brand structure (only 3 brands - Dev Egypt is the main site)
+  // Professional brand structure (only 3 brands - Dav Egypt is the main site)
   const newBrands: NewBrand[] = [
     {
       id: 'omaima',
@@ -115,7 +115,7 @@ export default function Nav() {
         { $id: 'omaima-fallback', name: 'OMAIMA', prefix: 'OMA', status: true },
         { $id: 'hleo-fallback', name: 'H LEO', prefix: 'HL', status: true },
         { $id: 'seen-fallback', name: 'SEEN', prefix: 'SEEN', status: true },
-        { $id: 'dev-egypt-fallback', name: 'Dev Egypt', prefix: 'DE', status: true },
+        { $id: 'dev-egypt-fallback', name: 'Dav Egypt', prefix: 'DE', status: true },
         { $id: 'cherokee-fallback', name: 'Cherokee', prefix: 'CHE', status: true },
         { $id: 'wonderwink-fallback', name: 'WonderWink', prefix: 'WW', status: true }
       ];
@@ -234,7 +234,7 @@ export default function Nav() {
       <div className="w-full bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            {/* Logo - Dev Egypt (main site name) */}
+            {/* Logo - Dav Egypt (main site name) */}
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-4 group">
                 <div className="w-16 h-16 bg-black text-white flex items-center justify-center text-2xl font-bold transform group-hover:scale-110 transition-all duration-500">
@@ -242,7 +242,7 @@ export default function Nav() {
                 </div>
                 <div className="relative">
                   <div className="text-4xl font-bold text-black group-hover:scale-105 transition-transform duration-300">
-                    Dev Egypt<sup className="text-sm">®</sup>
+                    Dav Egypt<sup className="text-sm">®</sup>
                   </div>
                   <div className="text-sm text-gray-600 -mt-1">Premium Collections</div>
                 </div>

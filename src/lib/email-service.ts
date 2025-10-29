@@ -140,7 +140,7 @@ export class EmailService {
           <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; text-align: center; margin-bottom: 30px;">
             <h1 style="color: white; margin: 0; font-size: 28px;">Order Confirmed!</h1>
             <p style="color: #dbeafe; margin: 10px 0 0 0; font-size: 16px;">
-              Thank you for shopping with Dev Egypt
+              Thank you for shopping with Dav Egypt
             </p>
           </div>
 
@@ -213,7 +213,7 @@ export class EmailService {
     const text = `
       Order Confirmed - ${orderData.orderNumber}
 
-      Thank you for shopping with Dev Egypt!
+      Thank you for shopping with Dav Egypt!
 
       Order Details:
       Order Number: ${orderData.orderNumber}
@@ -238,7 +238,7 @@ export class EmailService {
 
       Questions? Contact us at support@deveg.com
 
-      Thank you for choosing Dev Egypt!
+      Thank you for choosing Dav Egypt!
     `;
 
     return {
@@ -286,7 +286,7 @@ export class EmailService {
 
             <div style="margin-top: 20px; text-align: center;">
               <p style="color: #6b7280; font-size: 14px;">
-                This message was sent from the Dev Egypt contact form.
+                This message was sent from the Dav Egypt contact form.
               </p>
             </div>
           </div>
@@ -309,7 +309,7 @@ export class EmailService {
       ${contactData.message}
 
       ---
-      This message was sent from the Dev Egypt contact form.
+      This message was sent from the Dav Egypt contact form.
     `;
 
     return {

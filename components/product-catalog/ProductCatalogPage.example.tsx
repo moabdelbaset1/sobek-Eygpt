@@ -18,7 +18,7 @@ const exampleProducts: Product[] = [
       { name: 'Black', hex: '#000000', imageUrl: '/images/scrub-black-1.jpg' }
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    brand: 'Dev Egypt',
+    brand: 'Dav Egypt',
     rating: 4.5,
     reviewCount: 128,
     isOnSale: true,
@@ -37,7 +37,7 @@ const exampleProducts: Product[] = [
       { name: 'Gray', hex: '#6B7280', imageUrl: '/images/pants-gray-1.jpg' }
     ],
     sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    brand: 'Dev Egypt',
+    brand: 'Dav Egypt',
     rating: 4.2,
     reviewCount: 89,
     isOnSale: false,
@@ -95,7 +95,7 @@ const exampleFilterOptions: FilterOptions = {
     { name: 'Teal', hex: '#0D9488', imageUrl: '/images/color-teal.jpg' },
     { name: 'Pink', hex: '#EC4899', imageUrl: '/images/color-pink.jpg' }
   ],
-  availableBrands: ['Dev Egypt', 'Cherokee', 'Dickies', 'WonderWink', 'Barco', 'FIGS'],
+  availableBrands: ['Dav Egypt', 'Cherokee', 'Dickies', 'WonderWink', 'Barco', 'FIGS'],
   priceRange: [0, 200]
 };
 

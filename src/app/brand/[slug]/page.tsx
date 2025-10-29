@@ -23,13 +23,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     // In a real implementation, this would fetch from the database
     // For now, return default metadata
     return {
-      title: `Brand - ${params.slug} | Dev Egypt`,
-      description: `Discover ${params.slug} products and brand information at Dev Egypt`,
+      title: `Brand - ${params.slug} | Dav Egypt`,
+      description: `Discover ${params.slug} products and brand information at Dav Egypt`,
       keywords: ['brand', params.slug, 'medical scrubs', 'healthcare uniforms'],
     };
   } catch (error) {
     return {
-      title: 'Brand Not Found | Dev Egypt',
+      title: 'Brand Not Found | Dav Egypt',
       description: 'The requested brand page could not be found',
     };
   }

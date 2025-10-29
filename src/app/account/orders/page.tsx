@@ -88,7 +88,7 @@ export default function OrdersPage() {
           items: [
             {
               productId: 'prod_1',
-              productName: 'Dev Egypt Professional Scrub Top',
+              productName: 'Dav Egypt Professional Scrub Top',
               productImage: 'https://via.placeholder.com/100x100?text=Scrub+Top',
               sku: 'DE-ST-001',
               quantity: 2,
@@ -97,7 +97,7 @@ export default function OrdersPage() {
             },
             {
               productId: 'prod_2',
-              productName: 'Dev Egypt Comfortable Scrub Pants',
+              productName: 'Dav Egypt Comfortable Scrub Pants',
               productImage: 'https://via.placeholder.com/100x100?text=Scrub+Pants',
               sku: 'DE-SP-001',
               quantity: 1,
@@ -252,7 +252,7 @@ export default function OrdersPage() {
           items: [
             {
               productId: 'prod_4',
-              productName: 'Dev Egypt Professional Lab Coat',
+              productName: 'Dav Egypt Professional Lab Coat',
               productImage: 'https://via.placeholder.com/100x100?text=Lab+Coat',
               sku: 'DE-LC-001',
               quantity: 1,

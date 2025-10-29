@@ -36,7 +36,7 @@ export default function Footer() {
                 <input placeholder="Enter Email Address" className="w-full h-[40px] rounded border border-[#ddd] px-3 text-[14px]" />
                 <input placeholder="Enter Phone Number" className="w-full h-[40px] rounded border border-[#ddd] px-3 text-[14px]" />
               </div>
-              <p className="text-[10px] opacity-70 mt-3">By subscribing to Dev Egypt text messaging, you consent to receive recurring autodialed marketing messages to the mobile number used...</p>
+              <p className="text-[10px] opacity-70 mt-3">By subscribing to Dav Egypt text messaging, you consent to receive recurring autodialed marketing messages to the mobile number used...</p>
               <div className="mt-4">
                 <div className="text-[14px] font-medium mb-2">Get Social With Us</div>
                 <div className="flex items-center gap-4">
@@ -137,8 +137,8 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="mt-8 text-center text-[12px] opacity-70">© {new Date().getFullYear()} Dev Egypt. All rights reserved.</div>
-          {/* Removed logos section - replaced with Dev Egypt branding only */}
+          <div className="mt-8 text-center text-[12px] opacity-70">© {new Date().getFullYear()} Dav Egypt. All rights reserved.</div>
+          {/* Removed logos section - replaced with Dav Egypt branding only */}
         </div>
       </section>
     </footer>

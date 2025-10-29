@@ -1,4 +1,4 @@
-// Service Worker for Dev Egypt PWA
+// Service Worker for Dav Egypt PWA
 const CACHE_NAME = 'pwa-cache-v1'
 const RUNTIME_CACHE = 'pwa-runtime-v1'
 

@@ -31,7 +31,7 @@ const mockProduct: Product = {
   ],
   colors: [mockColorOption],
   sizes: ['XS', 'S', 'M', 'L', 'XL'],
-  brand: 'Dev Egypt',
+  brand: 'Dav Egypt',
   rating: 4.5,
   reviewCount: 128,
   isOnSale: true,
@@ -41,7 +41,7 @@ const mockProduct: Product = {
 const mockFilterState: FilterState = {
   sizes: ['M', 'L'],
   colors: ['Navy Blue'],
-  brands: ['Dev Egypt'],
+  brands: ['Dav Egypt'],
   priceRange: [20, 50],
   onSale: true
 }

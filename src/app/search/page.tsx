@@ -106,7 +106,7 @@ export default function SearchPage() {
       const fallbackProducts: Product[] = [
         {
           $id: 'fallback-p1',
-          name: 'Dev Egypt Professional Scrub Top',
+          name: 'Dav Egypt Professional Scrub Top',
           slug: 'dev-egypt-professional-scrub-top',
           price: 299,
           discount_price: 249,
@@ -120,7 +120,7 @@ export default function SearchPage() {
           hasVariations: false,
           media_id: 'https://via.placeholder.com/300x400?text=Scrub+Top',
           description: 'High-quality professional scrub top',
-          meta_title: 'Dev Egypt Professional Scrub Top',
+          meta_title: 'Dav Egypt Professional Scrub Top',
           meta_description: 'High-quality professional scrub top for healthcare workers',
           meta_keywords: 'scrub top, medical scrubs, professional',
           $createdAt: new Date().toISOString(),
@@ -169,7 +169,7 @@ export default function SearchPage() {
         { $id: 'fallback-c2', name: 'Scrub Pants', status: true }
       ]);
       setBrands([
-        { $id: 'fallback-b1', name: 'Dev Egypt', prefix: 'DE', status: true }
+        { $id: 'fallback-b1', name: 'Dav Egypt', prefix: 'DE', status: true }
       ]);
     }
   };
@@ -737,7 +737,7 @@ export default function SearchPage() {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
-                        placeholder="Try searching for 'scrub top' or 'Dev Egypt'..."
+                        placeholder="Try searching for 'scrub top' or 'Dav Egypt'..."
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#173a6a] focus:border-[#173a6a]"
                       />
                     </div>

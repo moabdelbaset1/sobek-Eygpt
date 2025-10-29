@@ -9,8 +9,8 @@ export async function middleware(request: NextRequest) {
   const publicPaths = [
     '/account', 
     '/register', 
-    '/admin/login', 
-    '/admin/forgot-password',
+    '/login',
+    '/forgot-password',
     '/create-admin',
     '/make-admin',
     '/catalog',
@@ -48,10 +48,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // For admin routes, allow access and let the client-side layout handle authentication
-  // This prevents the middleware from blocking client-side session management
+  // Admin routes - let the layout handle authentication
+  // Middleware should NOT redirect admin routes to avoid loops
   if (path.startsWith('/admin')) {
-    console.log('Admin route accessed:', path)
+    // Just allow access - the AdminLayout will handle authentication
     return NextResponse.next()
   }
 

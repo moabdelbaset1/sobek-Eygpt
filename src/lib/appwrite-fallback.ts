@@ -82,7 +82,7 @@ export const fallbackCategories: FallbackCategory[] = [
 export const fallbackBrands: FallbackBrand[] = [
   {
     $id: 'fallback-brand-1',
-    name: 'Dev Egypt',
+    name: 'Dav Egypt',
     prefix: 'UA',
     status: true,
     $createdAt: new Date().toISOString(),

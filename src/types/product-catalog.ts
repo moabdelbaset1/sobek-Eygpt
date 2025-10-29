@@ -32,6 +32,7 @@ export interface FilterState {
   colors: string[];
   brands: string[];
   priceRange: [number, number];
+  season?: string;
   onSale: boolean;
 }
 
@@ -40,6 +41,7 @@ export interface FilterOptions {
   availableColors: ColorOption[];
   availableBrands: string[];
   priceRange: [number, number];
+  onSeasonChange?: (season: string) => void;
 }
 
 // Sorting types

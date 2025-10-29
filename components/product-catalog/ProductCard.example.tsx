@@ -19,7 +19,7 @@ const exampleProduct: Product = {
     { name: 'Royal Blue', hex: '#2563eb', imageUrl: '/images/scrub-royal.jpg' }
   ],
   sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-  brand: 'Dev Egypt',
+  brand: 'Dav Egypt',
   rating: 4.5,
   reviewCount: 128,
   isOnSale: true,

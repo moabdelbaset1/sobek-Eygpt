@@ -28,6 +28,7 @@ const ProductSchema = z.object({
   brand_id: z.string(),
   category_id: z.string(),
   price: z.number(),
+  customProductId: z.string().min(1, 'Product ID (customProductId) is required - this is the unique identifier'),
   discount_price: z.number().optional(),
   min_order_quantity: z.number().optional(),
   description: z.string().optional(),
@@ -40,7 +41,6 @@ const ProductSchema = z.object({
   units: z.number().optional(),
   // New fields for enhanced inventory management
   season: z.enum(['summer', 'winter', 'all-season']).optional(),
-  customProductId: z.string().optional(),
   cartonCode: z.string().optional(),
   mainImage: z.string().optional(),
   backImage: z.string().optional(),
@@ -247,10 +247,15 @@ export async function POST(request: NextRequest) {
       } : {})
     }
 
+    // Use custom_product_id if provided, otherwise use auto-generated ID
+    const documentId = data.customProductId && data.customProductId.trim() 
+      ? data.customProductId.trim()
+      : ID.unique()
+
     const product = await databases.createDocument(
       DATABASE_ID,
       PRODUCTS_COLLECTION_ID,
-      ID.unique(),
+      documentId,
       productPayload
     )
     createdDocs.push({ id: product.$id, collection: PRODUCTS_COLLECTION_ID })

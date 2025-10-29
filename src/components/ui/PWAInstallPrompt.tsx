@@ -116,7 +116,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                 <Smartphone className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Install Dev Egypt App</p>
+                <p className="font-medium text-gray-900">Install Dav Egypt App</p>
                 <p className="text-sm text-gray-600">
                   Get quick access to products and exclusive deals from your home screen
                 </p>

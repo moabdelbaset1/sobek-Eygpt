@@ -29,11 +29,26 @@ export default function LoginPage() {
   // Get redirect URL from search params
   const redirectTo = searchParams.get('redirect') || '/';
 
-  // Redirect if already authenticated
+  // Redirect after login, check if admin
   useEffect(() => {
-    if (auth.isAuthenticated && !auth.isLoading) {
-      router.push(redirectTo);
-    }
+    const handleRedirect = async () => {
+      if (auth.isAuthenticated && !auth.isLoading) {
+        try {
+          const res = await fetch('/api/auth/check-admin');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.isAdmin) {
+              router.push('/admin');
+              return;
+            }
+          }
+        } catch (err) {
+          // ignore, fallback to normal redirect
+        }
+        router.push(redirectTo);
+      }
+    };
+    handleRedirect();
   }, [auth.isAuthenticated, auth.isLoading, router, redirectTo]);
 
   const handleInputChange = (field: string, value: string | boolean) => {

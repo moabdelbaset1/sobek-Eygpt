@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import MainLayout from '../../components/MainLayout';
 import { Product } from '../../types/product';
+import { useCart } from '../../context/CartContext';
 import { ChevronDown, Filter, X, Star, Heart } from 'lucide-react';
 import Image from 'next/image';
 
@@ -25,6 +26,7 @@ interface Filters {
   categories: string[];
   brands: string[];
   priceRange: [number, number];
+  season?: string;
   showFeatured: boolean;
   showNew: boolean;
   showOnSale: boolean;
@@ -32,6 +34,7 @@ interface Filters {
 
 export default function CatalogPage() {
   const searchParams = useSearchParams();
+  const { addToCart, isInCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -44,6 +47,7 @@ export default function CatalogPage() {
     categories: [],
     brands: [],
     priceRange: [0, 1000],
+    season: '', // Default to "All Seasons" to show all products
     showFeatured: false,
     showNew: false,
     showOnSale: false
@@ -97,7 +101,7 @@ export default function CatalogPage() {
       const fallbackProducts: Product[] = [
         {
           $id: 'fallback-p1',
-          name: 'Dev Egypt Professional Scrub Top',
+          name: 'Dav Egypt Professional Scrub Top',
           slug: 'dev-egypt-professional-scrub-top',
           price: 299,
           discount_price: 249,
@@ -111,7 +115,7 @@ export default function CatalogPage() {
           hasVariations: false,
           media_id: 'https://via.placeholder.com/300x400?text=Scrub+Top',
           description: 'High-quality professional scrub top',
-          meta_title: 'Dev Egypt Professional Scrub Top',
+          meta_title: 'Dav Egypt Professional Scrub Top',
           meta_description: 'High-quality professional scrub top for healthcare workers',
           meta_keywords: 'scrub top, medical scrubs, professional',
           $createdAt: new Date().toISOString(),
@@ -119,7 +123,7 @@ export default function CatalogPage() {
         },
         {
           $id: 'fallback-p2',
-          name: 'Dev Egypt Comfortable Scrub Pants',
+          name: 'Dav Egypt Comfortable Scrub Pants',
           slug: 'dev-egypt-comfortable-scrub-pants',
           price: 199,
           discount_price: 0,
@@ -133,7 +137,7 @@ export default function CatalogPage() {
           hasVariations: false,
           media_id: 'https://via.placeholder.com/300x400?text=Scrub+Pants',
           description: 'Comfortable and durable scrub pants',
-          meta_title: 'Dev Egypt Comfortable Scrub Pants',
+          meta_title: 'Dav Egypt Comfortable Scrub Pants',
           meta_description: 'Comfortable and durable scrub pants for all-day wear',
           meta_keywords: 'scrub pants, medical scrubs, comfortable',
           $createdAt: new Date().toISOString(),
@@ -224,7 +228,7 @@ export default function CatalogPage() {
       console.error('Failed to fetch brands:', error.message || error);
       // Use fallback brands when API fails
       setBrands([
-        { $id: 'fallback-b1', name: 'Dev Egypt', prefix: 'DE', status: true },
+        { $id: 'fallback-b1', name: 'Dav Egypt', prefix: 'DE', status: true },
         { $id: 'fallback-b2', name: 'Cherokee', prefix: 'CHE', status: true },
         { $id: 'fallback-b3', name: 'WonderWink', prefix: 'WW', status: true },
         { $id: 'fallback-b4', name: 'FIGS', prefix: 'FIGS', status: true },
@@ -404,6 +408,21 @@ export default function CatalogPage() {
       // Brand filter
       if (filters.brands.length > 0 && !filters.brands.includes(product.brand_id)) {
         return false;
+      }
+
+      // Season filter - check meta_keywords for season data
+      if (filters.season && filters.season !== '') {
+        // Check if product has season data in meta_keywords (format: "season:summer" or "season:winter")
+        const metaKeywords = product.meta_keywords || '';
+        const productSeason = metaKeywords.match(/season:(\w+)/)?.[1];
+        
+        // If product has season data, check if it matches the filter
+        if (productSeason) {
+          if (productSeason !== filters.season && productSeason !== 'all-season') {
+            return false; // Hide if doesn't match and is not all-season
+          }
+        }
+        // If no season data found, assume it's all-season and show it
       }
       
       // Price range filter
@@ -680,6 +699,34 @@ export default function CatalogPage() {
                             )</span>
                           </label>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* Season Filter */}
+                    <div className="mb-8">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3">Season</h3>
+                      <div className="space-y-2">
+                        {[{ value: '', label: 'All Seasons' }, { value: 'summer', label: 'Summer' }, { value: 'winter', label: 'Winter' }].map((option) => {
+                          const currentMonth = new Date().getMonth() + 1;
+                          const isCurrentSeason = (option.value === 'summer' && currentMonth >= 4 && currentMonth <= 9) || 
+                                                 (option.value === 'winter' && (currentMonth <= 3 || currentMonth >= 10));
+                          return (
+                            <label key={option.value} className="flex items-center space-x-3 cursor-pointer">
+                              <input
+                                type="radio"
+                                name="season"
+                                value={option.value}
+                                checked={filters.season === option.value}
+                                onChange={() => setFilters(prev => ({ ...prev, season: option.value }))}
+                                className="border-gray-300 text-[#173a6a] focus:ring-[#173a6a] focus:ring-offset-0"
+                              />
+                              <span className="text-sm text-gray-700">
+                                {option.label} 
+                                {isCurrentSeason && option.value && <span className="text-xs text-blue-600 ml-1">(Current)</span>}
+                              </span>
+                            </label>
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -1088,8 +1135,20 @@ export default function CatalogPage() {
                           </div>
                           
                           {/* Add to Cart Button */}
-                          <button className="w-full bg-[#173a6a] text-white py-3 px-4 rounded-md hover:bg-[#1e4a7a] transition-colors font-medium text-sm">
-                            Add to Cart
+                          <button 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              addToCart(product);
+                              console.log('Added to cart:', product.name);
+                            }}
+                            className={`w-full py-3 px-4 rounded-md transition-colors font-medium text-sm ${
+                              isInCart(product.$id)
+                                ? 'bg-green-600 text-white hover:bg-green-700'
+                                : 'bg-[#173a6a] text-white hover:bg-[#1e4a7a]'
+                            }`}
+                          >
+                            {isInCart(product.$id) ? 'Added to Cart ✓' : 'Add to Cart'}
                           </button>
                         </div>
                       </Link>

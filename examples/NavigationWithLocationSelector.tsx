@@ -115,7 +115,7 @@ export default function EnhancedNav() {
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-3">
               <div className="w-[46px] h-[46px] bg-[#173a6a] text-white flex items-center justify-center text-[18px] font-bold">DE</div>
-              <div className="text-[28px] tracking-[-0.02em]">Dev Egypt</div>
+              <div className="text-[28px] tracking-[-0.02em]">Dav Egypt</div>
             </Link>
           </div>
           

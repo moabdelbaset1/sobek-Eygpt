@@ -18,7 +18,7 @@ const mockProduct: Product = {
     { name: 'White', hex: '#ffffff', imageUrl: '/images/scrub-white.jpg' }
   ],
   sizes: ['XS', 'S', 'M', 'L', 'XL'],
-  brand: 'Dev Egypt',
+  brand: 'Dav Egypt',
   rating: 4.5,
   reviewCount: 128,
   isOnSale: true,
@@ -53,7 +53,7 @@ describe('ProductCard', () => {
     render(<ProductCard product={mockProduct} {...mockHandlers} />)
     
     expect(screen.getByText('Classic Scrub Top')).toBeInTheDocument()
-    expect(screen.getByText('Dev Egypt')).toBeInTheDocument()
+    expect(screen.getByText('Dav Egypt')).toBeInTheDocument()
     expect(screen.getByText('$24.99')).toBeInTheDocument()
     expect(screen.getByText('$29.99')).toBeInTheDocument()
     expect(screen.getByText('(128)')).toBeInTheDocument()

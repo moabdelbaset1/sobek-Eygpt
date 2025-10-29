@@ -21,6 +21,7 @@ import { ArrowLeft, CreditCard, Truck, Shield, CheckCircle, User, UserCheck } fr
 import Link from 'next/link';
 import { toast } from 'sonner';
 import AddressForm from '../../components/AddressForm';
+import CheckoutLoginModal from '@/components/checkout/checkout-login-modal';
 
 // Form validation schema
 const checkoutSchema = z.object({
@@ -89,6 +90,7 @@ export default function CheckoutPage() {
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string>('');
   const [orderCode, setOrderCode] = useState<string>('');
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const form = useForm<CheckoutFormData>({
@@ -131,13 +133,12 @@ export default function CheckoutPage() {
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;
 
-  // AUTHENTICATION GUARD: Redirect to login if not authenticated
+  // AUTHENTICATION GUARD: Show login modal if not authenticated
   useEffect(() => {
     if (!auth.isLoading && !auth.isAuthenticated) {
-      // Store current page as redirect target
-      router.push('/login?redirect=/checkout');
+      setShowLoginModal(true);
     }
-  }, [auth.isLoading, auth.isAuthenticated, router]);
+  }, [auth.isLoading, auth.isAuthenticated]);
 
   // Helper function to determine if media_id is a URL or file ID
   const getImageSrc = (mediaId: string) => {
@@ -275,7 +276,32 @@ export default function CheckoutPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create order');
+        
+        // Handle specific stock validation errors
+        if (errorData.details && errorData.stockValidation) {
+          console.error('❌ Stock validation failed:', errorData.details);
+          
+          // Show detailed stock error message
+          const stockIssues = errorData.details.map((issue: any) => {
+            if (issue.shortage) {
+              return `${issue.productName}: مطلوب ${issue.requestedQuantity} لكن متوفر فقط ${issue.availableStock}`;
+            }
+            return `${issue.productName}: ${issue.error || 'غير متوفر'}`;
+          }).join('\n');
+          
+          toast.error(`المخزون غير كافي:\n${stockIssues}`, {
+            duration: 6000,
+          });
+          
+          // Reset loading state
+          setIsSubmitting(false);
+          return;
+        }
+        
+        // Handle other errors
+        const errorMessage = errorData.error || 'Failed to create order';
+        console.error('❌ Order creation failed:', errorMessage);
+        throw new Error(errorMessage);
       }
 
       const { order } = await response.json();
@@ -675,6 +701,21 @@ export default function CheckoutPage() {
           </Form>
         </div>
       </div>
+
+      {/* Login Modal for checkout */}
+      {showLoginModal && (
+        <CheckoutLoginModal
+          onClose={() => {
+            setShowLoginModal(false);
+            router.push('/cart');
+          }}
+          onSuccess={() => {
+            setShowLoginModal(false);
+            window.location.reload(); // Reload to update auth state
+          }}
+          cartTotal={total}
+        />
+      )}
     </MainLayout>
   );
 }

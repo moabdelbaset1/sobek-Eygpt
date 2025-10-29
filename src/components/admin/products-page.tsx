@@ -106,7 +106,7 @@ export default function ProductsPage() {
   // Enhanced inventory states
   const [enhancedStats, setEnhancedStats] = useState<EnhancedProductStats | null>(null)
   const [inventoryOverview, setInventoryOverview] = useState<InventoryOverview | null>(null)
-  const [inventoryData, setInventoryData] = useState<ProductInventorySummary[]>([])
+  const [inventoryData, setInventoryData] = useState<Product[]>([])
   const [inventoryLoading, setInventoryLoading] = useState(false)
   const [inventoryError, setInventoryError] = useState<string | null>(null)
   
@@ -165,7 +165,7 @@ export default function ProductsPage() {
       setInventoryLoading(true)
       setInventoryError(null)
       
-      const response = await fetch('/api/admin/inventory-analytics?detailed=true&limit=100')
+      const response = await fetch('/api/admin/inventory-analytics-simple')
       const data = await response.json()
       
       if (data.success) {
@@ -291,34 +291,29 @@ export default function ProductsPage() {
     setInventoryModalOpen(true)
   }
 
-  // Get sales velocity info from inventory data
+  // Simplified - no complex analytics needed
   const getProductSalesInfo = (productId: string) => {
-    const inventoryInfo = inventoryData.find(item => item.product.id === productId)
-    return inventoryInfo?.sales || null
+    return null // Simplified
   }
 
-  // Get inventory info from enhanced data
+  // Simplified - no complex analytics needed  
   const getProductInventoryInfo = (productId: string) => {
-    const inventoryInfo = inventoryData.find(item => item.product.id === productId)
-    return inventoryInfo?.inventory || null
+    return null // Simplified
   }
 
-  // Get stock status with enhanced information
+  // Simplified stock status (essential info only)
   const getEnhancedStockStatus = (product: Product) => {
-    const inventoryInfo = getProductInventoryInfo(product.$id)
-    const salesInfo = getProductSalesInfo(product.$id)
-    
     const currentStock = product.units || product.stockQuantity || 0
     const threshold = product.lowStockThreshold || product.min_order_quantity || 5
     
     return {
       currentStock,
-      availableStock: inventoryInfo?.availableStock || currentStock,
-      reservedStock: inventoryInfo?.reservedStock || 0,
+      availableStock: currentStock,
+      reservedStock: 0,
       reorderPoint: threshold,
-      salesVelocity: salesInfo?.salesVelocity || 'stagnant',
-      totalSold: salesInfo?.totalSold || 0,
-      revenue: salesInfo?.revenue?.total || 0
+      salesVelocity: 'medium',
+      totalSold: 0,
+      revenue: 0
     }
   }
 
@@ -431,7 +426,10 @@ export default function ProductsPage() {
       ) : enhancedStats ? (
         <div className="space-y-6">
           <InventoryStatsCards stats={enhancedStats} overview={inventoryOverview || undefined} loading={inventoryLoading} />
-          <InventoryOverviewCards overview={inventoryOverview || undefined} loading={inventoryLoading} />
+          {/* Optional detailed overview - can be removed if not needed */}
+          {inventoryOverview && (
+            <InventoryOverviewCards overview={inventoryOverview} loading={inventoryLoading} />
+          )}
         </div>
       ) : (
         /* Fallback to basic stats */
@@ -753,9 +751,11 @@ export default function ProductsPage() {
                                 <Warehouse className="mr-2 h-4 w-4" />
                                 Inventory Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Product
+                              <DropdownMenuItem asChild>
+                                <Link href={`/admin/products/${product.$id}`}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View Product
+                                </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
                                 <Link href={`/admin/products/${product.$id}/edit`}>

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         { $id: 'omaima-fallback', name: 'OMAIMA', prefix: 'OMA', status: true, logo_id: null, $createdAt: new Date().toISOString(), $updatedAt: new Date().toISOString() },
         { $id: 'hleo-fallback', name: 'H LEO', prefix: 'HL', status: true, logo_id: null, $createdAt: new Date().toISOString(), $updatedAt: new Date().toISOString() },
         { $id: 'seen-fallback', name: 'SEEN', prefix: 'SEEN', status: true, logo_id: null, $createdAt: new Date().toISOString(), $updatedAt: new Date().toISOString() },
-        { $id: 'dev-egypt-fallback', name: 'Dev Egypt', prefix: 'DE', status: true, logo_id: null, $createdAt: new Date().toISOString(), $updatedAt: new Date().toISOString() },
+        { $id: 'dev-egypt-fallback', name: 'Dav Egypt', prefix: 'DE', status: true, logo_id: null, $createdAt: new Date().toISOString(), $updatedAt: new Date().toISOString() },
         { $id: 'cherokee-fallback', name: 'Cherokee', prefix: 'CHE', status: true, logo_id: null, $createdAt: new Date().toISOString(), $updatedAt: new Date().toISOString() },
         { $id: 'wonderwink-fallback', name: 'WonderWink', prefix: 'WW', status: true, logo_id: null, $createdAt: new Date().toISOString(), $updatedAt: new Date().toISOString() }
       ]

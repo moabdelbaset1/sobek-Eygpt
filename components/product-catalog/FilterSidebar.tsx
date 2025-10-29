@@ -173,6 +173,7 @@ const FilterSidebar = memo(({
     color: true,
     brand: true,
     price: true,
+    season: true,
     sale: true
   });
 
@@ -185,6 +186,7 @@ const FilterSidebar = memo(({
     color: generateId('color-section'),
     brand: generateId('brand-section'),
     price: generateId('price-section'),
+    season: generateId('season-section'),
     sale: generateId('sale-section')
   });
 
@@ -454,6 +456,46 @@ const FilterSidebar = memo(({
           value={currentFilters.priceRange}
           onChange={handlePriceRangeChange}
         />
+      </FilterSection>
+
+      {/* Season Filter */}
+      <FilterSection
+        title="Season"
+        isOpen={openSections.season}
+        onToggle={() => toggleSection('season')}
+        id={sectionIds.season}
+      >
+        <fieldset>
+          <legend className="sr-only">Filter by season</legend>
+          <div className="space-y-2">
+            {['Summer', 'Winter'].map((season) => {
+              const currentMonth = new Date().getMonth() + 1; // 1-12
+              const isCurrentSeason = (season === 'Summer' && currentMonth >= 4 && currentMonth <= 9) || 
+                                    (season === 'Winter' && (currentMonth <= 3 || currentMonth >= 10));
+              
+              return (
+                <label 
+                  key={season}
+                  className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded transition-colors duration-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+                >
+                  <input
+                    type="radio"
+                    name="season"
+                    value={season.toLowerCase()}
+                    checked={currentFilters.season === season.toLowerCase()}
+                    defaultChecked={isCurrentSeason && !currentFilters.season}
+                    onChange={(e) => filters.onSeasonChange?.(e.target.value)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                    aria-describedby={`season-${season.toLowerCase()}-desc`}
+                  />
+                  <span className="ml-2 text-sm text-gray-700" id={`season-${season.toLowerCase()}-desc`}>
+                    {season} {isCurrentSeason ? '(Current)' : ''}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
       </FilterSection>
 
       {/* Sale Filter */}
