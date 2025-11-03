@@ -35,7 +35,6 @@ function AdminSidebar({ currentPage, setCurrentPage }: { currentPage: string, se
     { id: 'human-products', label: 'Human Products', icon: Package, href: '/admin/products/human' },
     { id: 'vet-products', label: 'Veterinary Products', icon: Package, href: '/admin/products/veterinary' },
     { id: 'categories', label: 'Categories', icon: Users, href: '/admin/categories' },
-    { id: 'jobs', label: 'Jobs Management', icon: Briefcase, href: '/admin/jobs' },
     { id: 'applications', label: 'Job Applications', icon: FileText, href: '/admin/applications' },
     { id: 'media', label: 'Media & News', icon: Newspaper, href: '/admin/media' },
     { id: 'settings', label: 'Settings', icon: Settings, href: '/admin/settings' },
@@ -49,7 +48,7 @@ function AdminSidebar({ currentPage, setCurrentPage }: { currentPage: string, se
           <Package className="w-6 h-6" />
         </div>
         <div>
-          <h2 className="font-bold text-lg">Sobek Pharma</h2>
+          <h2 className="font-bold text-lg">Sobek Egypt Pharma</h2>
           <p className="text-gray-400 text-sm">Admin Panel</p>
         </div>
       </div>
@@ -151,6 +150,13 @@ function DashboardOverview() {
       icon: Users,
       color: 'bg-purple-600',
       href: '/admin/categories'
+    },
+    {
+      title: 'Media Posts',
+      value: loading ? '...' : '12', // Static for now, can be made dynamic later
+      icon: Newspaper,
+      color: 'bg-indigo-600',
+      href: '/admin/media'
     }
   ];
 
@@ -171,7 +177,7 @@ function DashboardOverview() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {statsDisplay.map((stat, index) => {
           const Icon = stat.icon;
           const CardContent = (
@@ -206,7 +212,7 @@ function DashboardOverview() {
       {/* Quick Actions */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link href="/admin/products/human" className="bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-lg p-4 text-center transition-colors">
             <Plus className="w-8 h-8 text-blue-600 mx-auto mb-2" />
             <h3 className="font-semibold text-blue-900">Add Human Product</h3>
@@ -224,6 +230,7 @@ function DashboardOverview() {
             <h3 className="font-semibold text-purple-900">Manage Categories</h3>
             <p className="text-purple-600 text-sm">Edit and add new categories</p>
           </Link>
+
         </div>
       </div>
 

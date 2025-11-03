@@ -125,9 +125,9 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <img 
-              src="/logo.png" 
+              src="/logo.jpg" 
               alt="Sobek Egypt" 
-              className="h-10 w-auto"
+              className="h-15 w-auto"
             />
           </Link>
 

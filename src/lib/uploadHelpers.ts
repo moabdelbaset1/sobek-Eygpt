@@ -3,11 +3,11 @@ export const uploadProductImage = async (file: File): Promise<string> => {
   try {
     // Validate file first
     validateImageFile(file);
-    
+
     // Create FormData for file upload
     const formData = new FormData();
     formData.append('file', file);
-    
+
     // Upload to API endpoint
     const response = await fetch('/api/upload', {
       method: 'POST',
@@ -24,6 +24,36 @@ export const uploadProductImage = async (file: File): Promise<string> => {
   } catch (error: any) {
     console.error('Error uploading image:', error);
     throw new Error(error.message || 'Failed to upload image');
+  }
+};
+
+// Upload leadership image
+export const uploadLeadershipImage = async (file: File): Promise<string> => {
+  try {
+    // Validate file first
+    validateImageFile(file);
+
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'leadership');
+
+    // Upload to API endpoint
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload image');
+    }
+
+    const data = await response.json();
+    return data.imageUrl;
+  } catch (error: any) {
+    console.error('Error uploading leadership image:', error);
+    throw new Error(error.message || 'Failed to upload leadership image');
   }
 };
 

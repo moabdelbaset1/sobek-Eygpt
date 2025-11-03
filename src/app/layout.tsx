@@ -14,7 +14,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Sobek Pharma",
+  title: "Sobek Egypt Pharma",
   description: "Advancing Health with Trusted Pharmaceuticals",
 };
 
@@ -24,8 +24,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${poppins.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      </head>
+      <body className={`${poppins.variable} antialiased`} suppressHydrationWarning>
         <LanguageProvider>
           {/* Google Tag Manager */}
           {process.env.NEXT_PUBLIC_GTM_ID ? (

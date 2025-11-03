@@ -36,7 +36,7 @@ const timelineData = [
   {
     year: '2019',
     title: 'Foundation',
-    description: 'Sobek Pharma was established in Egypt with a vision to provide quality pharmaceutical products to the region.',
+    description: 'Sobek Egypt Pharma was established in Egypt with a vision to provide quality pharmaceutical products to the region.',
     image: 'https://images.unsplash.com/photo-1583737097428-af53774819a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwYnVpbGRpbmclMjBpbmR1c3RyaWFsJTIwcGhhcm1hY2V1dGljYWwlMjB2aW50YWdlfGVufDB8MHx8fDE3NjA1MTU4NTR8MA&ixlib=rb-4.1.0&q=85',
     attribution: 'Birmingham Museums Trust on Unsplash'
   },
@@ -63,33 +63,7 @@ const timelineData = [
   }
 ];
 
-// Leadership Team Data
-const leadershipTeam = [
-  {
-    name: 'Dr. Ahmed Hassan',
-    title: 'Chief Executive Officer',
-    bio: 'Leading Sobek Pharma with 25+ years of pharmaceutical industry experience.',
-    image: 'https://i.pravatar.cc/400?img=12'
-  },
-  {
-    name: 'Dr. Fatima El-Sayed',
-    title: 'Chief Scientific Officer',
-    bio: 'Driving innovation and research excellence with expertise in pharmaceutical development.',
-    image: 'https://i.pravatar.cc/400?img=45'
-  },
-  {
-    name: 'Mohamed Kamal',
-    title: 'Chief Operations Officer',
-    bio: 'Ensuring operational excellence and quality standards across all facilities.',
-    image: 'https://i.pravatar.cc/400?img=33'
-  },
-  {
-    name: 'Sarah Ibrahim',
-    title: 'Chief Financial Officer',
-    bio: 'Managing financial strategy and sustainable growth initiatives.',
-    image: 'https://i.pravatar.cc/400?img=47'
-  }
-];
+import { leadershipAPI, LeadershipMember } from '@/lib/api';
 
 // Awards Data
 const awards = [
@@ -115,6 +89,23 @@ const awards = [
 
 export default function AboutPage() {
   const { lang } = useLanguageContext();
+  const [leadershipTeam, setLeadershipTeam] = useState<LeadershipMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadLeadership = async () => {
+      try {
+        const data = await leadershipAPI.getAll();
+        setLeadershipTeam(data);
+      } catch (error) {
+        console.error('Error loading leadership team:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLeadership();
+  }, []);
   
   return (
     <>
@@ -138,7 +129,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.8 }}
               >
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-                  {lang === 'ar' ? 'حول' : 'About'} <span className="text-red-400">Sobek Pharma</span>
+                  {lang === 'ar' ? 'حول' : 'About'} <span className="text-red-400">Sobek Egypt Pharma</span>
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-100 leading-relaxed mb-8">
                   {lang === 'ar' 
@@ -375,10 +366,10 @@ export default function AboutPage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {leadershipTeam.map((member, index) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {leadershipTeam.filter(member => member.is_leadership).slice(0, 2).map((member, index) => (
               <motion.div
-                key={index}
+                key={member.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -387,32 +378,54 @@ export default function AboutPage() {
               >
                 <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
                   <div className="relative overflow-hidden">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
-                      style={{ width: '100%', height: '320px' }}
-                    />
+                    {member.image_url ? (
+                      <img
+                        src={member.image_url}
+                        alt={member.name}
+                        className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
+                        style={{ width: '100%', height: '320px' }}
+                      />
+                    ) : (
+                      <div className="w-full h-80 bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500">No Image</span>
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                      {lang === 'ar' ? (member.name_ar || member.name) : member.name}
+                    </h3>
                     <p className="text-blue-600 font-medium mb-3">
-                      {lang === 'ar'
-                        ? member.title === 'Chief Executive Officer' ? 'الرئيس التنفيذي' :
-                          member.title === 'Chief Scientific Officer' ? 'كبير مسؤولي العلوم' :
-                          member.title === 'Chief Operations Officer' ? 'كبير مسؤولي التشغيل' :
-                          member.title === 'Head of Regulatory Affairs' ? 'رئيس الشؤون التنظيمية' :
-                          member.title
-                        : member.title
-                      }
+                      {lang === 'ar' ? (member.title_ar || member.title) : member.title}
                     </p>
-                    <p className="text-gray-600 text-sm leading-relaxed">{member.bio}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {lang === 'ar' ? (member.bio_ar || member.bio) : member.bio}
+                    </p>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          {/* View Full Team Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-center mt-12"
+          >
+            <Link
+              href="/team"
+              className="inline-flex items-center px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+            >
+              {lang === 'ar' ? 'عرض الفريق الكامل' : 'View Full Team'}
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </motion.div>
         </div>
       </section>
 

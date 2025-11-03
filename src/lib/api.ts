@@ -314,6 +314,60 @@ export const jobsAPI = {
   },
 }
 
+// Leadership Team Interface
+export interface LeadershipMember {
+  id: string
+  name: string
+  name_ar?: string | null
+  title: string
+  title_ar?: string | null
+  department: string
+  department_ar?: string | null
+  bio: string
+  bio_ar?: string | null
+  image_url: string | null
+  is_leadership: boolean
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+// Leadership Team API
+export const leadershipAPI = {
+  getAll: async (): Promise<LeadershipMember[]> => {
+    const res = await fetch('/api/leadership')
+    if (!res.ok) throw new Error('Failed to fetch leadership team')
+    return res.json()
+  },
+
+  create: async (data: any): Promise<LeadershipMember> => {
+    const res = await fetch('/api/leadership', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) throw new Error('Failed to create leadership member')
+    return res.json()
+  },
+
+  update: async (id: string, data: any): Promise<LeadershipMember> => {
+    const res = await fetch(`/api/leadership?id=${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) throw new Error('Failed to update leadership member')
+    return res.json()
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const res = await fetch(`/api/leadership?id=${id}`, {
+      method: 'DELETE',
+    })
+    if (!res.ok) throw new Error('Failed to delete leadership member')
+  },
+}
+
 // Job Applications API
 export const jobApplicationsAPI = {
   getAll: async (): Promise<JobApplication[]> => {

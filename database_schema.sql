@@ -119,9 +119,51 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+-- Leadership Team Table
+CREATE TABLE leadership_team (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  name_ar VARCHAR(255),
+  title VARCHAR(255) NOT NULL,
+  title_ar VARCHAR(255),
+  department VARCHAR(255) NOT NULL,
+  department_ar VARCHAR(255),
+  bio TEXT NOT NULL,
+  bio_ar TEXT,
+  image_url TEXT,
+  is_leadership BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert sample leadership team data
+INSERT INTO leadership_team (name, name_ar, title, title_ar, department, department_ar, bio, bio_ar, image_url, is_leadership) VALUES
+('Dr. Ahmed Hassan', 'د. أحمد حسن', 'Chief Executive Officer', 'الرئيس التنفيذي', 'Executive Management', 'الإدارة التنفيذية', 'Leading Sobek Pharma with 25+ years of pharmaceutical industry experience.', 'يقود شركة صوبيك فارما بأكثر من 25 عامًا من الخبرة في صناعة الأدوية.', 'https://i.pravatar.cc/400?img=12', true),
+('Dr. Fatima El-Sayed', 'د. فاطمة السيد', 'Chief Scientific Officer', 'كبير مسؤولي العلوم', 'Research & Development', 'البحث والتطوير', 'Driving innovation and research excellence with expertise in pharmaceutical development.', 'يقود الابتكار والتميز في البحث مع الخبرة في تطوير الأدوية.', 'https://i.pravatar.cc/400?img=45', true),
+('Mohamed Kamal', 'محمد كمال', 'Chief Operations Officer', 'كبير مسؤولي التشغيل', 'Operations', 'العمليات', 'Ensuring operational excellence and quality standards across all facilities.', 'يضمن التميز التشغيلي ومعايير الجودة عبر جميع المنشآت.', 'https://i.pravatar.cc/400?img=33', true),
+('Sarah Ibrahim', 'سارة إبراهيم', 'Chief Financial Officer', 'كبير مسؤولي المالية', 'Finance', 'المالية', 'Managing financial strategy and sustainable growth initiatives.', 'يدير الاستراتيجية المالية ومبادرات النمو المستدام.', 'https://i.pravatar.cc/400?img=47', true),
+('Dr. Mohamed Ali', 'د. محمد علي', 'Head of Manufacturing', 'رئيس التصنيع', 'Manufacturing', 'التصنيع', 'Overseeing pharmaceutical manufacturing operations and quality control.', 'يشرف على عمليات التصنيع الدوائي وضبط الجودة.', 'https://i.pravatar.cc/400?img=68', true),
+('Dr. Nour El-Din', 'د. نور الدين', 'Quality Control Manager', 'مدير ضبط الجودة', 'Quality Control', 'ضبط الجودة', 'Ensuring product quality and compliance with international standards.', 'يضمن جودة المنتجات والامتثال للمعايير الدولية.', 'https://i.pravatar.cc/400?img=25', false),
+('Ahmed Hassan', 'أحمد حسن', 'Production Supervisor', 'مشرف الإنتاج', 'Manufacturing', 'التصنيع', 'Managing daily production operations and team coordination.', 'يدير عمليات الإنتاج اليومية وتنسيق الفريق.', 'https://i.pravatar.cc/400?img=50', false),
+('Fatima Mahmoud', 'فاطمة محمود', 'R&D Scientist', 'عالم بحث وتطوير', 'Research & Development', 'البحث والتطوير', 'Conducting research on new pharmaceutical formulations.', 'تقوم بأبحاث على تركيبات دوائية جديدة.', 'https://i.pravatar.cc/400?img=32', false);
+
+-- Create indexes for leadership_team
+CREATE INDEX idx_leadership_team_active ON leadership_team(is_active);
+
+-- Enable Row Level Security for leadership_team
+ALTER TABLE leadership_team ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for public read access
+CREATE POLICY "Public read access for leadership team" ON leadership_team
+    FOR SELECT USING (is_active = true);
+
 -- Create triggers for updated_at
 CREATE TRIGGER update_human_products_updated_at BEFORE UPDATE ON human_products
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_veterinary_products_updated_at BEFORE UPDATE ON veterinary_products
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_leadership_team_updated_at BEFORE UPDATE ON leadership_team
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

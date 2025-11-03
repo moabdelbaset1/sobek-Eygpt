@@ -24,13 +24,47 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
-/* Logical properties to improve RTL/LTR symmetry */
+/* RTL Support - Logical properties for RTL/LTR symmetry */
 .text-start { text-align: start; }
 .text-end { text-align: end; }
-.ms-2 { margin-inline-start: .5rem; }
-.me-2 { margin-inline-end: .5rem; }
+
+/* Margin inline utilities */
+.ms-1 { margin-inline-start: 0.25rem; }
+.ms-2 { margin-inline-start: 0.5rem; }
+.ms-3 { margin-inline-start: 0.75rem; }
+.ms-4 { margin-inline-start: 1rem; }
+.me-1 { margin-inline-end: 0.25rem; }
+.me-2 { margin-inline-end: 0.5rem; }
+.me-3 { margin-inline-end: 0.75rem; }
+.me-4 { margin-inline-end: 1rem; }
+
+/* Padding inline utilities */
+.ps-2 { padding-inline-start: 0.5rem; }
 .ps-4 { padding-inline-start: 1rem; }
+.ps-6 { padding-inline-start: 1.5rem; }
+.pe-2 { padding-inline-end: 0.5rem; }
 .pe-4 { padding-inline-end: 1rem; }
+.pe-6 { padding-inline-end: 1.5rem; }
+
+/* RTL-aware transforms */
+[dir="rtl"] .rtl\:rotate-180 { transform: rotate(180deg); }
+[dir="rtl"] .rtl\:scale-x-\[-1\] { transform: scaleX(-1); }
+
+/* Arabic font optimization */
+[dir="rtl"] body {
+  font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+  letter-spacing: normal;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] h5,
+[dir="rtl"] h6 {
+  font-weight: 700;
+  letter-spacing: normal;
+}
 
 /* Brand utilities */
 .bg-primary { background-color: var(--primary); }

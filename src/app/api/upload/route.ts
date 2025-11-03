@@ -43,6 +43,13 @@ export async function POST(request: NextRequest) {
       maxSize = 100 * 1024 * 1024 // 100MB for media files
       uploadSubDir = 'media'
       filePrefix = 'media'
+    } else if (type === 'leadership') {
+      // Leadership image upload
+      allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp']
+      maxSize = 5 * 1024 * 1024 // 5MB for leadership images
+      uploadSubDir = 'leadership'
+      filePrefix = 'leadership'
     } else {
       // Default: image upload
       allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
@@ -82,7 +89,7 @@ export async function POST(request: NextRequest) {
     const fileName = `${filePrefix}_${Date.now()}.${ext}`
     
     // Define upload directory
-    const uploadDir = (type === 'cv' || type === 'media') 
+    const uploadDir = (type === 'cv' || type === 'media' || type === 'leadership')
       ? join(process.cwd(), 'public', 'uploads', uploadSubDir)
       : join(process.cwd(), 'public', 'images', uploadSubDir)
     
@@ -97,9 +104,7 @@ export async function POST(request: NextRequest) {
 
     // Return the public URL
     let imageUrl: string
-    if (type === 'cv') {
-      imageUrl = `/uploads/${uploadSubDir}/${fileName}`
-    } else if (type === 'media') {
+    if (type === 'cv' || type === 'media' || type === 'leadership') {
       imageUrl = `/uploads/${uploadSubDir}/${fileName}`
     } else {
       imageUrl = `/images/${uploadSubDir}/${fileName}`
