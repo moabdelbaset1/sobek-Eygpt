@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react"
 import {
   Search,
-  ChevronDown,
+ChevronDown,
   ChevronUp,
   Truck,
   Package,
@@ -491,6 +491,7 @@ export default function OrdersTracker() {
                   <TableHead className="w-8"></TableHead>
                   <TableHead>Order ID</TableHead>
                   <TableHead>Customer</TableHead>
+                  <TableHead>Items</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Payment</TableHead>
@@ -523,6 +524,17 @@ export default function OrdersTracker() {
                           <div className="font-medium">{order.customer_name}</div>
                           <div className="text-sm text-gray-600">{order.customer_email}</div>
                         </div>
+                      </TableCell>
+                      <TableCell className="text-center font-semibold">
+                        {(() => {
+                          try {
+                            const items = JSON.parse(order.items || '[]');
+                            const totalItems = items.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+                            return totalItems;
+                          } catch {
+                            return 'N/A';
+                          }
+                        })()}
                       </TableCell>
                       <TableCell className="text-right font-semibold">
                         ${order.total_amount?.toFixed(2) || '0.00'}
@@ -566,7 +578,7 @@ export default function OrdersTracker() {
                     {/* Expanded Details Row */}
                     {expandedRows.has(order.$id) && (
                       <TableRow className="bg-blue-50">
-                        <TableCell colSpan={8} className="p-4">
+                        <TableCell colSpan={9} className="p-4">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {/* Order Details */}
                             <div className="space-y-3">
@@ -594,6 +606,21 @@ export default function OrdersTracker() {
                                 <div className="flex justify-between">
                                   <span className="text-gray-600">Order Date:</span>
                                   <span>{formatDate(order.$createdAt)}</span>
+                                </div>
+                                {/* Items Count */}
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Items:</span>
+                                  <span className="font-semibold">
+                                    {(() => {
+                                      try {
+                                        const items = JSON.parse(order.items || '[]');
+                                        const totalItems = items.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+                                        return `${totalItems} piece${totalItems !== 1 ? 's' : ''}`;
+                                      } catch {
+                                        return 'N/A';
+                                      }
+                                    })()}
+                                  </span>
                                 </div>
                               </div>
                             </div>

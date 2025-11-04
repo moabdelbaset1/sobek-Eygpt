@@ -203,15 +203,35 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* New/Featured Badges */}
       <div className="absolute top-3 left-3 z-10 flex flex-col space-y-2">
         {product.isNew && (
-          <span className="px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
+          <span className="px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full shadow-sm">
             New
           </span>
         )}
         {product.isFeatured && (
-          <span className="px-2 py-1 bg-purple-500 text-white text-xs font-medium rounded-full">
+          <span className="px-2 py-1 bg-purple-500 text-white text-xs font-medium rounded-full shadow-sm">
             Featured
           </span>
         )}
+        {/* Stock Status Badge */}
+        {(() => {
+          const stock = currentColor?.stock || product.stock || product.units || 0;
+          const hasStockInfo = currentColor || product.stock !== undefined || product.units !== undefined;
+
+          if (hasStockInfo && stock <= 5 && stock > 0) {
+            return (
+              <span className="px-2 py-1 bg-yellow-500 text-white text-xs font-medium rounded-full shadow-sm">
+                Low Stock
+              </span>
+            );
+          } else if (hasStockInfo && stock === 0) {
+            return (
+              <span className="px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-full shadow-sm">
+                Out of Stock
+              </span>
+            );
+          }
+          return null;
+        })()}
       </div>
 
       {/* Wishlist Button */}
@@ -222,14 +242,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }}
         className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all wishlist-button ${
           isWishlisted
-            ? 'bg-red-50 text-red-500'
-            : 'bg-white bg-opacity-80 text-gray-600 hover:bg-opacity-100 hover:text-red-500'
+            ? 'bg-red-500 text-white shadow-lg'
+            : 'bg-white bg-opacity-90 text-gray-600 hover:bg-opacity-100 hover:text-red-500 shadow-md'
         }`}
         aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
       >
         <Heart
           className={`w-5 h-5 transition-colors ${
-            isWishlisted ? 'fill-current text-red-500' : ''
+            isWishlisted ? 'fill-current text-white' : ''
           }`}
         />
       </button>
@@ -316,10 +336,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
 
           {/* Price Overlay */}
-          <div className="absolute top-3 left-3 bg-white bg-opacity-90 px-2 py-1 rounded text-sm font-medium">
-            <span className="text-gray-900">${product.price}</span>
+          <div className="absolute top-3 left-3 bg-white bg-opacity-95 px-3 py-2 rounded-lg text-sm font-medium shadow-sm border border-gray-200">
+            <span className="text-[#173a6a] font-semibold">${product.price}</span>
             {product.compareAtPrice && (
-              <span className="text-gray-500 line-through ml-1">
+              <span className="text-gray-500 line-through ml-2 text-xs">
                 ${product.compareAtPrice}
               </span>
             )}
@@ -346,15 +366,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
             if (hasStockInfo) {
               return (
-                <p className={`text-sm mb-3 ${
-                  stock > 5 ? 'text-green-600' :
-                  stock > 0 ? 'text-yellow-600' : 'text-red-600'
-                }`}>
-                  {stock > 0
-                    ? `${stock} in stock`
-                    : 'Out of stock'
-                  }
-                </p>
+                <div className="mb-3">
+                  <p className={`text-sm font-medium ${
+                    stock > 5 ? 'text-green-600' :
+                    stock > 0 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>
+                    {stock > 0
+                      ? `${stock} in stock`
+                      : 'Out of stock'
+                    }
+                  </p>
+                  {stock === 0 && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      This item is currently unavailable
+                    </p>
+                  )}
+                </div>
               );
             }
             return null;
@@ -364,7 +391,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <button
             onClick={handleAddToCart}
             disabled={!product.isActive || ((currentColor?.stock || product.stock || product.units || 0) === 0)}
-            className="w-full py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className={`w-full py-3 px-4 text-sm font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-none ${
+              !product.isActive || ((currentColor?.stock || product.stock || product.units || 0) === 0)
+                ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-600 cursor-not-allowed'
+                : 'bg-gradient-to-r from-[#173a6a] to-[#1e4a7a] text-white hover:from-[#1e4a7a] hover:to-[#244b8a]'
+            }`}
           >
             {product.isActive
               ? (currentColor?.stock || product.stock || product.units || 0) > 0

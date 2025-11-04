@@ -29,48 +29,114 @@ export async function POST(request: NextRequest) {
     const sampleOrders = [
       {
         order_code: 'ORD-001',
-        customer_id: 'user1',
+        customer_name: 'Ahmed Mohamed',
+        customer_email: 'ahmed@example.com',
         total_amount: 250.50,
         payable_amount: 250.50,
         order_status: 'pending',
+        status: 'pending',
         payment_status: 'paid',
-        brand_id: 'brand1'
+        fulfillment_status: 'pending',
+        brand_id: 'brand1',
+        items: JSON.stringify([
+          { product_id: 'prod1', name: 'Black Shirt', quantity: 2, price: 125.25 }
+        ]),
+        shipping_address: JSON.stringify({
+          street: '123 Main Street',
+          city: 'Cairo',
+          country: 'Egypt'
+        })
       },
       {
         order_code: 'ORD-002',
-        customer_id: 'user2',
+        customer_name: 'Fatima Ahmed',
+        customer_email: 'fatima@example.com',
         total_amount: 180.00,
         payable_amount: 180.00,
         order_status: 'shipped',
+        status: 'shipped',
         payment_status: 'paid',
-        brand_id: 'brand2'
+        fulfillment_status: 'shipped',
+        brand_id: 'brand2',
+        shipped_at: new Date().toISOString(),
+        tracking_number: 'TRK123456',
+        carrier: 'DHL',
+        items: JSON.stringify([
+          { product_id: 'prod2', name: 'White T-Shirt', quantity: 1, price: 180.00 }
+        ]),
+        shipping_address: JSON.stringify({
+          street: '456 Republic Street',
+          city: 'Alexandria',
+          country: 'Egypt'
+        })
       },
       {
         order_code: 'ORD-003',
-        customer_id: 'user3',
+        customer_name: 'Mohamed Ali',
+        customer_email: 'mohamed@example.com',
         total_amount: 320.75,
         payable_amount: 320.75,
         order_status: 'delivered',
+        status: 'delivered',
         payment_status: 'paid',
-        brand_id: 'brand3'
+        fulfillment_status: 'delivered',
+        brand_id: 'brand3',
+        shipped_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        delivered_at: new Date().toISOString(),
+        tracking_number: 'TRK789012',
+        carrier: 'FedEx',
+        items: JSON.stringify([
+          { product_id: 'prod3', name: 'Blue Jeans', quantity: 3, price: 106.92 }
+        ]),
+        shipping_address: JSON.stringify({
+          street: '789 El Moez Street',
+          city: 'Giza',
+          country: 'Egypt'
+        })
       },
       {
         order_code: 'ORD-004',
-        customer_id: 'user4',
+        customer_name: 'Sara Hassan',
+        customer_email: 'sara@example.com',
         total_amount: 95.25,
         payable_amount: 95.25,
         order_status: 'returned',
+        status: 'returned',
         payment_status: 'refunded',
-        brand_id: 'brand4'
+        fulfillment_status: 'returned',
+        brand_id: 'brand4',
+        shipped_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        delivered_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        tracking_number: 'TRK345678',
+        carrier: 'Aramex',
+        items: JSON.stringify([
+          { product_id: 'prod4', name: 'Red Dress', quantity: 1, price: 95.25 }
+        ]),
+        shipping_address: JSON.stringify({
+          street: '321 Pyramid Street',
+          city: 'Giza',
+          country: 'Egypt'
+        })
       },
       {
         order_code: 'ORD-005',
-        customer_id: 'user5',
+        customer_name: 'Omar Hossam',
+        customer_email: 'omar@example.com',
         total_amount: 450.00,
         payable_amount: 450.00,
         order_status: 'processing',
+        status: 'processing',
         payment_status: 'paid',
-        brand_id: 'brand5'
+        fulfillment_status: 'processing',
+        brand_id: 'brand5',
+        items: JSON.stringify([
+          { product_id: 'prod5', name: 'Black Jacket', quantity: 2, price: 225.00 }
+        ]),
+        shipping_address: JSON.stringify({
+          street: '654 Mediterranean Street',
+          city: 'Alexandria',
+          country: 'Egypt'
+        })
       }
     ]
 

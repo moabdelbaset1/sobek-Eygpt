@@ -262,10 +262,12 @@ export async function PATCH(request: NextRequest) {
     // Regular order update - use only fields that exist
     const filteredUpdateData: any = {}
 
-    // Handle status updates - try both 'status' and 'order_status' fields
+    // Handle status updates - use only 'order_status' field
     if (updateData.status) {
-      filteredUpdateData.status = updateData.status
       filteredUpdateData.order_status = updateData.status
+    }
+    if (updateData.order_status) {
+      filteredUpdateData.order_status = updateData.order_status
     }
 
     // Handle payment status
@@ -290,10 +292,10 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Add timestamps for status changes
-    if (updateData.status === 'shipped') {
+    if (updateData.status === 'shipped' || updateData.order_status === 'shipped') {
       filteredUpdateData.shipped_at = new Date().toISOString()
     }
-    if (updateData.status === 'delivered') {
+    if (updateData.status === 'delivered' || updateData.order_status === 'delivered') {
       filteredUpdateData.delivered_at = new Date().toISOString()
 
       // 📦 Reduce inventory when order is delivered
@@ -303,7 +305,7 @@ export async function PATCH(request: NextRequest) {
         console.warn('⚠️ Inventory reduction failed:', inventoryResult.error);
       }
     }
-    if (updateData.status === 'cancelled') {
+    if (updateData.status === 'cancelled' || updateData.order_status === 'cancelled') {
       filteredUpdateData.cancelled_at = new Date().toISOString()
 
       // 📦 Restore inventory when order is cancelled
@@ -313,7 +315,7 @@ export async function PATCH(request: NextRequest) {
         console.warn('⚠️ Inventory restoration failed:', inventoryResult.error);
       }
     }
-    if (updateData.status === 'returned') {
+    if (updateData.status === 'returned' || updateData.order_status === 'returned') {
       // 📦 Restore inventory when order is returned
       console.log('📦 Order returned, restoring inventory...');
       const inventoryResult = await restoreInventoryOnCancel(databases, orderId);

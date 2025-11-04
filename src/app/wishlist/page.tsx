@@ -70,15 +70,52 @@ export default function WishlistPage() {
     const loadWishlistProducts = async () => {
       setLoading(true);
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      try {
+        // Get product IDs from wishlist
+        const productIds = wishlist.items.map(item => item.product_id);
 
-      // Get products for wishlist items
-      const wishlistProducts = wishlist.items
-        .map(item => mockProducts[item.productId])
-        .filter(Boolean) as WishlistItemWithProduct[];
+        if (productIds.length === 0) {
+          setProducts([]);
+          setLoading(false);
+          return;
+        }
 
-      setProducts(wishlistProducts);
+        // Fetch products from API
+        const productsResponse = await fetch(`/api/products?ids=${productIds.join(',')}`);
+        const productsData = await productsResponse.json();
+
+        if (productsData.success) {
+          // Combine wishlist data with product data
+          const wishlistProducts = wishlist.items.map(wishlistItem => {
+            const product = productsData.products.find((p: any) => p.$id === wishlistItem.product_id);
+            if (product) {
+              return {
+                ...product,
+                wishlistAddedAt: new Date(wishlistItem.added_at || wishlistItem.$createdAt)
+              };
+            }
+            return null;
+          }).filter(Boolean) as WishlistItemWithProduct[];
+
+          setProducts(wishlistProducts);
+        } else {
+          // Fallback to mock data if API fails
+          const wishlistProducts = wishlist.items
+            .map(item => mockProducts[item.product_id])
+            .filter(Boolean) as WishlistItemWithProduct[];
+
+          setProducts(wishlistProducts);
+        }
+      } catch (error) {
+        console.error('Error loading wishlist products:', error);
+        // Fallback to mock data
+        const wishlistProducts = wishlist.items
+          .map(item => mockProducts[item.product_id])
+          .filter(Boolean) as WishlistItemWithProduct[];
+
+        setProducts(wishlistProducts);
+      }
+
       setLoading(false);
     };
 
@@ -115,6 +152,7 @@ export default function WishlistPage() {
   const handleRemoveFromWishlist = async (productId: string) => {
     try {
       await removeFromWishlist(productId);
+      // Products will be updated automatically via useEffect
     } catch (error) {
       console.error('Error removing from wishlist:', error);
     }

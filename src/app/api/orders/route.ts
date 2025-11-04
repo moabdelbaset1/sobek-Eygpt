@@ -23,7 +23,62 @@ export const POST = async (request: NextRequest) => {
 
     const serverClient = createServerClient();
     const serverDatabases = new Databases(serverClient);
-    
+
+    // Validate inventory availability before creating order
+    const outOfStockItems = [];
+    const lowStockItems = [];
+
+    for (const item of items) {
+      try {
+        const product = await serverDatabases.getDocument(DATABASE_ID, PRODUCTS_COLLECTION_ID, item.productId);
+        const currentStock = product.units || product.stockQuantity || 0;
+
+        if (currentStock === 0) {
+          outOfStockItems.push({
+            productId: item.productId,
+            name: product.name || 'Unknown Product',
+            requested: item.quantity,
+            available: currentStock
+          });
+        } else if (currentStock < item.quantity) {
+          outOfStockItems.push({
+            productId: item.productId,
+            name: product.name || 'Unknown Product',
+            requested: item.quantity,
+            available: currentStock
+          });
+        } else if (currentStock <= 5) { // Low stock warning
+          lowStockItems.push({
+            productId: item.productId,
+            name: product.name || 'Unknown Product',
+            available: currentStock
+          });
+        }
+      } catch (error) {
+        console.error('Error checking product stock:', error);
+        return NextResponse.json({
+          error: `Product ${item.productId} not found or unavailable`
+        }, { status: 400 });
+      }
+    }
+
+    // Return detailed stock information
+    if (outOfStockItems.length > 0) {
+      return NextResponse.json({
+        error: 'Some items are out of stock or insufficient quantity',
+        outOfStockItems,
+        lowStockItems,
+        canProceed: false,
+        message: 'Please adjust your order quantities or wait for restock'
+      }, { status: 400 });
+    }
+
+    // Include low stock warnings in successful response
+    const warnings = lowStockItems.length > 0 ? {
+      lowStockItems,
+      message: 'Some items have low stock levels'
+    } : null;
+
     const calculatedSubtotal = subtotal || items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const totalAmount = calculatedSubtotal + shippingCost + taxAmount - discountAmount;
 
@@ -41,17 +96,32 @@ export const POST = async (request: NextRequest) => {
 
     const order = await serverDatabases.createDocument(DATABASE_ID, ORDERS_COLLECTION_ID, ID.unique(), orderData);
 
+    // Reduce inventory after successful order creation
     for (const item of items) {
       try {
         const product = await serverDatabases.getDocument(DATABASE_ID, PRODUCTS_COLLECTION_ID, item.productId);
-        const newStock = Math.max(0, (product.units || 0) - item.quantity);
-        await serverDatabases.updateDocument(DATABASE_ID, PRODUCTS_COLLECTION_ID, item.productId, { units: newStock });
+        const newStock = Math.max(0, (product.units || product.stockQuantity || 0) - item.quantity);
+        await serverDatabases.updateDocument(DATABASE_ID, PRODUCTS_COLLECTION_ID, item.productId, {
+          units: newStock,
+          stockQuantity: newStock
+        });
+        console.log(`✅ Reduced stock for ${product.name}: ${(product.units || product.stockQuantity || 0)} → ${newStock}`);
       } catch (error) {
         console.error('Error updating stock:', error);
       }
     }
 
-    return NextResponse.json({ success: true, order: { id: order.$id, order_code: order.order_code, total_amount: order.total_amount, order_status: order.order_status }, message: 'Order created successfully' });
+    return NextResponse.json({
+      success: true,
+      order: {
+        id: order.$id,
+        order_code: order.order_code,
+        total_amount: order.total_amount,
+        order_status: order.order_status
+      },
+      warnings,
+      message: 'Order created successfully'
+    });
   } catch (error) {
     console.error('Error creating order:', error);
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to create order' }, { status: 500 });

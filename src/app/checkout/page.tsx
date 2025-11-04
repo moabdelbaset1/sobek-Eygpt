@@ -276,28 +276,29 @@ export default function CheckoutPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        
+
         // Handle specific stock validation errors
-        if (errorData.details && errorData.stockValidation) {
-          console.error('❌ Stock validation failed:', errorData.details);
-          
+        if (errorData.outOfStockItems && errorData.outOfStockItems.length > 0) {
+          console.error('❌ Stock validation failed:', errorData.outOfStockItems);
+
           // Show detailed stock error message
-          const stockIssues = errorData.details.map((issue: any) => {
-            if (issue.shortage) {
-              return `${issue.productName}: مطلوب ${issue.requestedQuantity} لكن متوفر فقط ${issue.availableStock}`;
+          const stockIssues = errorData.outOfStockItems.map((issue: any) => {
+            if (issue.available === 0) {
+              return `${issue.name}: غير متوفر حالياً`;
+            } else {
+              return `${issue.name}: مطلوب ${issue.requested} لكن متوفر فقط ${issue.available}`;
             }
-            return `${issue.productName}: ${issue.error || 'غير متوفر'}`;
           }).join('\n');
-          
-          toast.error(`المخزون غير كافي:\n${stockIssues}`, {
-            duration: 6000,
+
+          toast.error(`المنتجات التالية غير متوفرة بالكمية المطلوبة:\n${stockIssues}`, {
+            duration: 8000,
           });
-          
+
           // Reset loading state
           setIsSubmitting(false);
           return;
         }
-        
+
         // Handle other errors
         const errorMessage = errorData.error || 'Failed to create order';
         console.error('❌ Order creation failed:', errorMessage);
