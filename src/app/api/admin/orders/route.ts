@@ -1,661 +1,314 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Query } from "node-appwrite"
 import { createAdminClient } from "@/lib/appwrite-admin"
-import { EnhancedOrder, OrderItem, OrderReturn, InventoryMovement } from "@/types/orders"
-import { inventoryMovementService } from '@/lib/services/InventoryMovementService'
+import { DATABASE_ID, ORDERS_COLLECTION_ID } from "@/constants/appwrite"
+import { Databases, ID, Models } from "appwrite"
 
-// Get database ID from environment
-const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID || ''
-const ORDERS_COLLECTION_ID = 'orders'
-const RETURNS_COLLECTION_ID = 'order_returns'
-const INVENTORY_MOVEMENTS_COLLECTION_ID = 'inventory_movements'
-const PRODUCTS_COLLECTION_ID = 'products'
+//@ts-ignore
+export const runtime = 'edge'
+
+interface OrderItem {
+  order_id: string
+  product_id: string
+  quantity: number
+  product_name: string
+  title?: string
+  variant_id?: string
+  size?: string
+  color?: string
+}
+
+// Function to get order items from order object
+function getOrderItemsFromOrder(order: any): OrderItem[] | null {
+  try {
+    console.log('� Checking items in order object:', order.items);
+    
+    if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
+      console.log('❌ No items found in order object or invalid items format');
+      return null;
+    }
+
+    const items = order.items.map((item: any) => {
+      if (!item.product_id && !item.id) {
+        console.error('❌ Item missing product_id:', item);
+        throw new Error(`Item missing product_id: ${JSON.stringify(item)}`);
+      }
+
+      return {
+        order_id: order.$id,
+        order_code: order.order_code,
+        product_id: item.product_id || item.id,
+        quantity: Number(item.quantity) || 1,
+        product_name: item.product_name || item.title || 'Unknown Product',
+        title: item.title,
+        variant_id: item.variant_id,
+        size: item.size,
+        color: item.color
+      };
+    });
+
+    console.log(`📦 Successfully processed ${items.length} items from order`);
+    return items;
+  } catch (error) {
+    console.error('❌ Error processing order items:', error);
+    throw error;
+  }
+}
+
+// Note: Inventory tracking functionality has been temporarily removed
+type OrderAction = 'mark_processing' | 'mark_shipped' | 'mark_delivered' | 'mark_cancelled' | 'mark_returned';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const orderId = searchParams.get("orderId")
-    const search = searchParams.get("search") || ""
+    const query = searchParams.get("search") || ""
+    const status = searchParams.get("status")
+    const payment = searchParams.get("payment")
     const limit = parseInt(searchParams.get("limit") || "100")
     const offset = parseInt(searchParams.get("offset") || "0")
-    const status = searchParams.get("status")
-    const paymentStatus = searchParams.get("paymentStatus")
-    const fulfillmentStatus = searchParams.get("fulfillmentStatus")
 
-    // Create admin client
     const { databases } = await createAdminClient()
 
-    // If orderId is provided, fetch single order
-    if (orderId) {
-      const order = await databases.getDocument(DATABASE_ID, ORDERS_COLLECTION_ID, orderId)
-      return NextResponse.json({ order })
-    }
-
-    // Build queries
-    const queries = [
+    const queries: string[] = [
       Query.limit(limit),
       Query.offset(offset),
-      Query.orderDesc('$createdAt')
+      Query.orderDesc("$createdAt"),
     ]
 
-    // Add search query if provided
-    if (search) {
-      queries.push(Query.search("order_number", search))
-    }
+    if (status) queries.push(Query.equal("order_status", status))
+    if (payment) queries.push(Query.equal("payment_status", payment))
+    if (query) queries.push(Query.search("customer_name", query))
 
-    // Add filters
-    if (status && status !== "all") {
-      // Support both 'status' and 'fulfillment_status' fields
-      queries.push(Query.equal("status", status))
-    }
-
-    if (paymentStatus && paymentStatus !== "all") {
-      queries.push(Query.equal("payment_status", paymentStatus))
-    }
-
-    if (fulfillmentStatus && fulfillmentStatus !== "all") {
-      queries.push(Query.equal("fulfillment_status", fulfillmentStatus))
-    }
-
-    // Fetch orders with retry logic for network issues
-    let result
-    let allOrders
-    let retries = 3
-    
-    while (retries > 0) {
-      try {
-        result = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID, queries)
-        allOrders = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID, [Query.limit(1000)])
-        break // Success - exit retry loop
-      } catch (error: any) {
-        retries--
-        if (error.code === 'UND_ERR_CONNECT_TIMEOUT' || error.message?.includes('Connect Timeout')) {
-          console.log(`⚠️ Connection timeout, retrying... (${retries} attempts left)`)
-          if (retries === 0) throw error // Out of retries
-          await new Promise(resolve => setTimeout(resolve, 1000)) // Wait 1s before retry
-        } else {
-          throw error // Non-timeout error, don't retry
-        }
-      }
-    }
-    
-    if (!result || !allOrders) {
-      throw new Error('Failed to fetch orders after retries')
-    }
-    
-    const orders = allOrders.documents
-
-    const totalRevenue = orders
-      .filter(o => o.payment_status === "paid")
-      .reduce((sum, o) => sum + (o.total_amount || 0), 0)
-    
-    const totalRefunded = orders
-      .reduce((sum, o) => sum + (o.total_returned_amount || 0), 0)
-
-    const stats = {
-      total: orders.length,
-      pending: orders.filter(o => (o.status || o.order_status) === "pending").length,
-      processing: orders.filter(o => (o.status || o.order_status) === "processing").length,
-      shipped: orders.filter(o => (o.status || o.order_status) === "shipped").length,
-      delivered: orders.filter(o => (o.status || o.order_status) === "delivered").length,
-      cancelled: orders.filter(o => (o.status || o.order_status) === "cancelled").length,
-      returned: orders.filter(o => (o.status || o.order_status) === "returned").length,
-      totalRevenue,
-      totalRefunded,
-      averageOrderValue: orders.length > 0 ? totalRevenue / orders.length : 0
-    }
-
-    return NextResponse.json({
-      orders: result.documents,
-      total: result.total,
-      stats,
-    })
-
-  } catch (error: any) {
-    console.error("Error fetching orders:", error)
-    return NextResponse.json(
-      { error: error.message || "Failed to fetch orders" },
-      { status: 500 }
-    )
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const orderData = await request.json()
-
-    // Create admin client
-    const { databases } = await createAdminClient()
-
-    // Validate required fields
-    const requiredFields = ['customer_id', 'items', 'total', 'shipping_address']
-    for (const field of requiredFields) {
-      if (!orderData[field]) {
-        return NextResponse.json(
-          { error: `${field} is required` },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Generate order number
-    const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`
-
-    // Set default values
-    const orderToCreate = {
-      order_number: orderNumber,
-      customer_id: orderData.customer_id,
-      customer_name: orderData.customer_name || '',
-      customer_email: orderData.customer_email || '',
-      items: JSON.stringify(orderData.items), // Store as JSON string
-      total: parseFloat(orderData.total),
-      subtotal: parseFloat(orderData.subtotal || orderData.total),
-      tax_amount: parseFloat(orderData.tax_amount || 0),
-      shipping_amount: parseFloat(orderData.shipping_amount || 0),
-      discount_amount: parseFloat(orderData.discount_amount || 0),
-      status: orderData.status || 'pending',
-      payment_status: orderData.payment_status || 'pending',
-      fulfillment_status: orderData.fulfillment_status || 'unfulfilled',
-      payment_method: orderData.payment_method || '',
-      shipping_address: JSON.stringify(orderData.shipping_address),
-      billing_address: JSON.stringify(orderData.billing_address || orderData.shipping_address),
-      notes: orderData.notes || '',
-      tracking_number: orderData.tracking_number || '',
-      carrier: orderData.carrier || '',
-      shipped_at: orderData.shipped_at || null,
-      delivered_at: orderData.delivered_at || null
-    }
-
-    // Create the order
-    const order = await databases.createDocument(
+    const { documents, total } = await databases.listDocuments(
       DATABASE_ID,
       ORDERS_COLLECTION_ID,
-      'unique()',
-      orderToCreate
+      queries
     )
 
-    return NextResponse.json({ order }, { status: 201 })
-
-  } catch (error: any) {
-    console.error("Error creating order:", error)
+    return NextResponse.json({ orders: documents, total, limit, offset })
+  } catch (error) {
+    console.error("Error fetching orders:", error)
     return NextResponse.json(
-      { error: error.message || "Failed to create order" },
+      { error: "Failed to fetch orders" },
       { status: 500 }
     )
   }
-}
-
-// Helper function to update inventory when products are returned
-async function updateInventoryOnReturn(databases: any, returnItems: any[], orderId: string) {
-  const inventoryMovements: InventoryMovement[] = []
-  
-  for (const item of returnItems) {
-    try {
-      // Get current product
-      const product = await databases.getDocument(DATABASE_ID, PRODUCTS_COLLECTION_ID, item.product_id)
-      
-      // Only add to inventory if the returned item is in good condition
-      if (item.condition === 'new' || item.condition === 'used') {
-        const newQuantity = (product.quantity || 0) + item.quantity
-        
-        // Update product inventory
-        await databases.updateDocument(
-          DATABASE_ID, 
-          PRODUCTS_COLLECTION_ID, 
-          item.product_id,
-          { quantity: newQuantity }
-        )
-        
-        // Create inventory movement record
-        const movement: InventoryMovement = {
-          product_id: item.product_id,
-          sku: item.sku,
-          movement_type: 'return',
-          quantity: item.quantity,
-          reason: `Return from order ${orderId}: ${item.reason}`,
-          order_id: orderId,
-          return_id: item.return_id,
-          created_at: new Date().toISOString(),
-          created_by: 'admin' // يمكن تحسينه لاحقاً لإدراج المستخدم الفعلي
-        }
-        
-        inventoryMovements.push(movement)
-        
-        // Log inventory movement
-        await databases.createDocument(
-          DATABASE_ID,
-          INVENTORY_MOVEMENTS_COLLECTION_ID,
-          'unique()',
-          movement
-        )
-      }
-    } catch (error) {
-      console.error(`Failed to update inventory for product ${item.product_id}:`, error)
-    }
-  }
-  
-  return inventoryMovements
 }
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const orderId = searchParams.get("orderId")
-    const action = searchParams.get("action")
-    const updateData = await request.json()
+    const { searchParams } = new URL(request.url);
+    const orderId = searchParams.get("orderId");
+    const action = searchParams.get("action");
 
-    if (!orderId) {
+    if (!orderId || !action) {
+      console.error('❌ Missing required parameters:', { orderId, action });
       return NextResponse.json(
-        { error: "Order ID is required" },
+        { error: "Order ID and action are required" },
         { status: 400 }
-      )
+      );
     }
 
-    // Create admin client
-    const { databases } = await createAdminClient()
+    // Log received parameters
+    console.log('📝 Received request parameters:', {
+      orderId,
+      action,
+      searchParams: Object.fromEntries(searchParams.entries())
+    });
 
-    // Handle different actions
-    if (action === "process_return") {
-      return await processOrderReturn(databases, orderId, updateData)
-    }
+    console.log(`🔄 Processing ${action} for order: ${orderId}`);
+    const { databases } = await createAdminClient();
 
-    // Regular order update - use only fields that exist
-    const filteredUpdateData: any = {}
-
-    // Handle status updates - use only 'order_status' field
-    if (updateData.status) {
-      filteredUpdateData.order_status = updateData.status
-    }
-    if (updateData.order_status) {
-      filteredUpdateData.order_status = updateData.order_status
-    }
-
-    // Handle payment status
-    if (updateData.payment_status) {
-      filteredUpdateData.payment_status = updateData.payment_status
-    }
-
-    // Handle customer info
-    if (updateData.customer_name) {
-      filteredUpdateData.customer_name = updateData.customer_name
-    }
-    if (updateData.customer_email) {
-      filteredUpdateData.customer_email = updateData.customer_email
-    }
-
-    // Handle tracking info
-    if (updateData.tracking_number) {
-      filteredUpdateData.tracking_number = updateData.tracking_number
-    }
-    if (updateData.carrier) {
-      filteredUpdateData.carrier = updateData.carrier
+    // 1. Get and validate order
+    console.log(`🔍 Fetching order: ${orderId}`);
+    let order;
+    try {
+      order = await databases.getDocument(DATABASE_ID, ORDERS_COLLECTION_ID, orderId);
+      console.log('📝 Order data:', JSON.stringify(order, null, 2));
+      
+      // Print the exact structure of items
+      console.log('🔍 Items structure:', {
+        hasItems: 'items' in order,
+        itemsType: typeof order.items,
+        isArray: Array.isArray(order.items),
+        value: order.items
+      });
+    } catch (error) {
+      console.error('❌ Error fetching order:', error);
+      return NextResponse.json(
+        { error: `Order ${orderId} not found` },
+        { status: 404 }
+      );
     }
 
-    // Add timestamps for status changes
-    if (updateData.status === 'shipped' || updateData.order_status === 'shipped') {
-      filteredUpdateData.shipped_at = new Date().toISOString()
-    }
-    if (updateData.status === 'delivered' || updateData.order_status === 'delivered') {
-      filteredUpdateData.delivered_at = new Date().toISOString()
-
-      // 📦 Reduce inventory when order is delivered
-      console.log('📦 Order delivered, reducing inventory...');
-      const inventoryResult = await reduceInventoryOnDelivery(databases, orderId);
-      if (!inventoryResult.success) {
-        console.warn('⚠️ Inventory reduction failed:', inventoryResult.error);
+    // 2. Parse and validate order items
+    let orderItems = [];
+    try {
+      // Handle both string and array formats
+      if (typeof order.items === 'string') {
+        orderItems = JSON.parse(order.items || '[]');
+        console.log('📦 Parsed items from JSON string');
+      } else if (Array.isArray(order.items)) {
+        orderItems = order.items;
+        console.log('📦 Using items array directly');
+      } else {
+        console.log('❌ Invalid items format:', typeof order.items);
+        return NextResponse.json(
+          { error: `Invalid items format in order ${orderId}` },
+          { status: 400 }
+        );
       }
-    }
-    if (updateData.status === 'cancelled' || updateData.order_status === 'cancelled') {
-      filteredUpdateData.cancelled_at = new Date().toISOString()
 
-      // 📦 Restore inventory when order is cancelled
-      console.log('📦 Order cancelled, restoring inventory...');
-      const inventoryResult = await restoreInventoryOnCancel(databases, orderId);
-      if (!inventoryResult.success) {
-        console.warn('⚠️ Inventory restoration failed:', inventoryResult.error);
+      if (!orderItems.length) {
+        console.log('❌ No items found in order');
+        return NextResponse.json(
+          { error: `Order ${orderId} has no items` },
+          { status: 400 }
+        );
       }
-    }
-    if (updateData.status === 'returned' || updateData.order_status === 'returned') {
-      // 📦 Restore inventory when order is returned
-      console.log('📦 Order returned, restoring inventory...');
-      const inventoryResult = await restoreInventoryOnCancel(databases, orderId);
-      if (!inventoryResult.success) {
-        console.warn('⚠️ Inventory restoration failed:', inventoryResult.error);
-      }
+
+      console.log(`📦 Found ${orderItems.length} items in order`);
+    } catch (error) {
+      console.error('❌ Error parsing order items:', error);
+      return NextResponse.json(
+        { error: `Invalid items data in order ${orderId}` },
+        { status: 400 }
+      );
     }
 
-    // Update the order - only with the fields that exist
-    let updatedOrder = null
-    if (Object.keys(filteredUpdateData).length > 0) {
-      updatedOrder = await databases.updateDocument(
+    // 3. Process order items
+    let orderItems;
+    try {
+      console.log('📦 Processing order items...');
+      orderItems = order.items.map((item: any, index: number) => {
+        console.log(`Processing item ${index + 1}:`, item);
+        
+        if (!item.product_id && !item.id) {
+          throw new Error(`Item at index ${index} is missing product_id`);
+        }
+
+        const processedItem = {
+          order_id: orderId,
+          product_id: item.product_id || item.id,
+          quantity: Number(item.quantity) || 1,
+          product_name: item.product_name || item.title || 'Unknown Product',
+          title: item.title,
+          variant_id: item.variant_id,
+          size: item.size,
+          color: item.color
+        };
+        
+        console.log('✅ Processed item:', processedItem);
+        return processedItem;
+      });
+      
+      console.log(`📦 Successfully processed ${orderItems.length} items`);
+      console.log('Items:', JSON.stringify(orderItems, null, 2));
+    } catch (error) {
+      console.error('❌ Error processing items:', error);
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : 'Failed to process order items' },
+        { status: 400 }
+      );
+    }
+
+    // Log action information
+    console.log(`⚠️ Processing action: ${action}`);
+    console.log('📦 Items that will be affected:', JSON.stringify(orderItems, null, 2));
+
+    // 4. Update order status
+    console.log('🔄 Processing order status update...');
+    
+    // Define valid status mappings with explicit type
+    const statusMappings: Record<OrderAction, string> = {
+      'mark_processing': 'processing',
+      'mark_shipped': 'shipped',
+      'mark_delivered': 'delivered',
+      'mark_cancelled': 'cancelled',
+      'mark_returned': 'returned'
+    };
+    
+    // Validate action
+    if (!(action in statusMappings)) {
+      const error = `Invalid action: ${action}. Must be one of: ${Object.keys(statusMappings).join(', ')}`;
+      console.error('❌', error);
+      return NextResponse.json({ error }, { status: 400 });
+    }
+    
+    const newStatus = statusMappings[action as OrderAction];
+    console.log(`✅ Action "${action}" maps to status "${newStatus}"`);
+    
+    // Define update data type
+    interface OrderUpdate {
+      order_status: string;
+      updated_at: string;
+      delivered_at?: string;
+    }
+    
+    // Prepare update data
+    const updateData: OrderUpdate = {
+      order_status: newStatus,
+      updated_at: new Date().toISOString()
+    };
+    
+    // Add delivered_at for delivery action
+    if (action === 'mark_delivered') {
+      updateData.delivered_at = new Date().toISOString();
+    }
+    
+    console.log('📝 Update data:', updateData);
+
+    // 5. Validate current order status before update
+    const currentStatus = order.order_status;
+    console.log(`📋 Current order status: ${currentStatus}`);
+    
+    // Define valid status transitions
+    const validTransitions: Record<string, string[]> = {
+      'pending': ['mark_processing', 'mark_cancelled'],
+      'processing': ['mark_shipped', 'mark_cancelled'],
+      'shipped': ['mark_delivered', 'mark_returned'],
+      'delivered': ['mark_returned'],
+      'cancelled': [],
+      'returned': []
+    };
+    
+    // Check if status transition is valid
+    if (!validTransitions[currentStatus]?.includes(action)) {
+      const error = `Invalid status transition: Cannot change from '${currentStatus}' to '${newStatus}' using action '${action}'`;
+      console.error('❌', error);
+      return NextResponse.json({ error }, { status: 400 });
+    }
+    
+    // 6. Save the updated order status
+    try {
+      console.log(`💾 Updating order ${orderId} from '${currentStatus}' to '${updateData.order_status}'`);
+      const updatedOrder = await databases.updateDocument(
         DATABASE_ID,
         ORDERS_COLLECTION_ID,
         orderId,
-        filteredUpdateData
-      )
-    } else {
-      console.warn('⚠️ No valid fields to update for order:', orderId)
-      // Get the current order if no updates were made
-      updatedOrder = await databases.getDocument(DATABASE_ID, ORDERS_COLLECTION_ID, orderId)
-    }
+        updateData
+      );
 
-    return NextResponse.json({ order: updatedOrder })
-
-  } catch (error: any) {
-    console.error("Error updating order:", error)
-    return NextResponse.json(
-      { error: error.message || "Failed to update order" },
-      { status: 500 }
-    )
-  }
-}
-
-// Process order return
-async function processOrderReturn(databases: any, orderId: string, returnData: any) {
-  try {
-    // Get the original order
-    const order = await databases.getDocument(DATABASE_ID, ORDERS_COLLECTION_ID, orderId)
-    const orderItems = JSON.parse(order.items || '[]')
-
-    // Generate return number
-    const returnNumber = `RET-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`
-
-    // Create return record
-    const returnRecord: OrderReturn = {
-      order_id: orderId,
-      return_number: returnNumber,
-      return_reason: returnData.return_reason || 'Customer request',
-      return_status: 'processing',
-      return_method: returnData.return_method || 'pickup',
-      items: returnData.items || [],
-      total_refund_amount: calculateRefundAmount(returnData.items),
-      shipping_refund: returnData.shipping_refund || 0,
-      processing_fee: returnData.processing_fee || 0,
-      notes: returnData.notes || '',
-      requested_at: new Date().toISOString(),
-      processed_at: new Date().toISOString()
-    }
-
-    // Save return record
-    const createdReturn = await databases.createDocument(
-      DATABASE_ID,
-      RETURNS_COLLECTION_ID,
-      'unique()',
-      returnRecord
-    )
-
-    // Update inventory for returned items
-    const inventoryMovements = await updateInventoryOnReturn(
-      databases, 
-      returnData.items.map((item: any) => ({
-        ...item,
-        return_id: createdReturn.$id
-      })), 
-      orderId
-    )
-
-    // Update order status
-    const totalOrderItems = orderItems.reduce((sum: number, item: any) => sum + item.quantity, 0)
-    const totalReturnedItems = returnData.items.reduce((sum: number, item: any) => sum + item.quantity, 0)
-    
-    let newOrderStatus = order.status
-    let newPaymentStatus = order.payment_status
-    
-    if (totalReturnedItems >= totalOrderItems) {
-      newOrderStatus = 'returned'
-      newPaymentStatus = 'refunded'
-    } else {
-      newOrderStatus = 'partially_returned'
-      newPaymentStatus = 'partially_refunded'
-    }
-
-    const updatedOrder = await databases.updateDocument(
-      DATABASE_ID,
-      ORDERS_COLLECTION_ID,
-      orderId,
-      {
-        status: newOrderStatus,
-        payment_status: newPaymentStatus,
-        total_returned_amount: (order.total_returned_amount || 0) + returnRecord.total_refund_amount
-      }
-    )
-
-    return NextResponse.json({ 
-      return: createdReturn,
-      order: updatedOrder,
-      inventory_movements: inventoryMovements
-    })
-
-  } catch (error: any) {
-    console.error("Error processing return:", error)
-    return NextResponse.json(
-      { error: error.message || "Failed to process return" },
-      { status: 500 }
-    )
-  }
-}
-
-// Helper function to calculate refund amount
-function calculateRefundAmount(items: any[]): number {
-  return items.reduce((total, item) => {
-    return total + (item.price * item.quantity)
-  }, 0)
-}
-
-// Helper function to reduce inventory when order is delivered
-async function reduceInventoryOnDelivery(databases: any, orderId: string) {
-  try {
-    console.log('📦 Reducing inventory for delivered order:', orderId);
-
-    // Get order details
-    const order = await databases.getDocument(DATABASE_ID, ORDERS_COLLECTION_ID, orderId);
-    const orderItems = JSON.parse(order.items || '[]');
-
-    const reductionResults = [];
-    const reductionErrors = [];
-
-    for (const item of orderItems) {
-      try {
-        // Get current product
-        const product = await databases.getDocument(
-          DATABASE_ID,
-          PRODUCTS_COLLECTION_ID,
-          item.product_id
-        );
-
-        const currentStock = product.units || product.stockQuantity || 0;
-        const newStock = Math.max(0, currentStock - item.quantity); // Don't go below 0
-
-        // Reduce product stock
-        await databases.updateDocument(
-          DATABASE_ID,
-          PRODUCTS_COLLECTION_ID,
-          item.product_id,
-          {
-            units: newStock,
-            stockQuantity: newStock,
-            $updatedAt: new Date().toISOString()
-          }
-        );
-
-        console.log(`✅ Reduced stock for ${item.product_name}: ${currentStock} → ${newStock} (-${item.quantity})`);
-
-        // 📝 Log inventory movement for this sale
-        try {
-          await inventoryMovementService.logSale(
-            item.product_id,
-            item.product_name,
-            item.sku || `SKU-${item.product_id.slice(0, 8)}`,
-            currentStock,
-            item.quantity,
-            orderId,
-            undefined, // customer_id
-            undefined // customer_name
-          );
-          console.log(`📝 Logged sale movement for ${item.product_name}`);
-        } catch (movementError) {
-          console.error(`⚠️ Failed to log sale movement for ${item.product_name}:`, movementError);
-          // Don't fail the reduction if movement logging fails
-        }
-
-        reductionResults.push({
-          productId: item.product_id,
-          productName: item.product_name,
-          previousStock: currentStock,
-          newStock: newStock,
-          quantityReduced: item.quantity
-        });
-
-      } catch (error) {
-        console.error(`❌ Error reducing stock for product ${item.product_id}:`, error);
-        reductionErrors.push({
-          productId: item.product_id,
-          productName: item.product_name,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
-    }
-
-    if (reductionErrors.length > 0) {
-      console.warn('⚠️ Some stock reductions failed:', reductionErrors);
-    }
-
-    console.log('📦 Inventory reduction completed:', reductionResults.length, 'products reduced');
-
-    return {
-      success: reductionErrors.length === 0,
-      reductionResults,
-      reductionErrors
-    };
-
-  } catch (error) {
-    console.error('❌ Failed to reduce inventory:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
-}
-
-// Helper function to restore inventory when order is cancelled/returned
-async function restoreInventoryOnCancel(databases: any, orderId: string) {
-  try {
-    console.log('📦 Restoring inventory for cancelled order:', orderId);
-    
-    // Get order details
-    const order = await databases.getDocument(DATABASE_ID, ORDERS_COLLECTION_ID, orderId);
-    const orderItems = JSON.parse(order.items || '[]');
-    
-    const restorationResults = [];
-    const restorationErrors = [];
-    
-    for (const item of orderItems) {
-      try {
-        // Get current product
-        const product = await databases.getDocument(
-          DATABASE_ID,
-          PRODUCTS_COLLECTION_ID,
-          item.product_id
-        );
-        
-        const currentStock = product.units || product.stockQuantity || 0;
-        const newStock = currentStock + item.quantity;
-        
-        // Restore product stock
-        await databases.updateDocument(
-          DATABASE_ID,
-          PRODUCTS_COLLECTION_ID,
-          item.product_id,
-          {
-            units: newStock,
-            stockQuantity: newStock,
-            $updatedAt: new Date().toISOString()
-          }
-        );
-        
-        console.log(`✅ Restored stock for ${item.product_name}: ${currentStock} → ${newStock} (+${item.quantity})`);
-        
-        // 📝 Log inventory movement for this return
-        try {
-          await inventoryMovementService.logReturn(
-            item.product_id,
-            item.product_name,
-            item.sku || `SKU-${item.product_id.slice(0, 8)}`,
-            currentStock,
-            item.quantity,
-            orderId,
-            'Order cancelled by admin'
-          );
-          console.log(`📝 Logged return movement for ${item.product_name}`);
-        } catch (movementError) {
-          console.error(`⚠️ Failed to log return movement for ${item.product_name}:`, movementError);
-          // Don't fail the restoration if movement logging fails
-        }
-        
-        restorationResults.push({
-          productId: item.product_id,
-          productName: item.product_name,
-          previousStock: currentStock,
-          newStock: newStock,
-          quantityRestored: item.quantity
-        });
-        
-      } catch (error) {
-        console.error(`❌ Error restoring stock for product ${item.product_id}:`, error);
-        restorationErrors.push({
-          productId: item.product_id,
-          productName: item.product_name,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
-    }
-    
-    if (restorationErrors.length > 0) {
-      console.warn('⚠️ Some stock restorations failed:', restorationErrors);
-    }
-    
-    console.log('📦 Inventory restoration completed:', restorationResults.length, 'products restored');
-    
-    return {
-      success: restorationErrors.length === 0,
-      restorationResults,
-      restorationErrors
-    };
-    
-  } catch (error) {
-    console.error('❌ Failed to restore inventory:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    };
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const orderId = searchParams.get("orderId")
-
-    if (!orderId) {
+      console.log('✅ Order updated successfully');
+      return NextResponse.json({
+        success: true,
+        message: `Order ${orderId} status updated from '${currentStatus}' to '${updateData.order_status}'`,
+        order: updatedOrder,
+        items: orderItems
+      });
+    } catch (error) {
+      console.error('❌ Failed to update order status:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update order status';
       return NextResponse.json(
-        { error: "Order ID is required" },
-        { status: 400 }
-      )
+        { error: errorMessage },
+        { status: 500 }
+      );
     }
-
-    // Create admin client
-    const { databases } = await createAdminClient()
-
-    // Delete the order
-    await databases.deleteDocument(DATABASE_ID, ORDERS_COLLECTION_ID, orderId)
-
-    return NextResponse.json({ success: true })
-
-  } catch (error: any) {
-    console.error("Error deleting order:", error)
+  } catch (error) {
+    console.error('❌ Error processing request:', error);
     return NextResponse.json(
-      { error: error.message || "Failed to delete order" },
+      { error: 'Failed to process request' },
       { status: 500 }
-    )
+    );
   }
 }

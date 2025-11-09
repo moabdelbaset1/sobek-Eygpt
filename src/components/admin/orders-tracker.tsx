@@ -223,28 +223,35 @@ export default function OrdersTracker() {
     try {
       // Show loading state
       const currentOrder = orders.find(o => o.$id === orderId)
-      if (currentOrder && (currentOrder.status || currentOrder.order_status) === newStatus) {
+      if (!currentOrder) {
+        console.error('❌ Order not found:', orderId)
+        return
+      }
+
+      if (currentOrder.status === newStatus) {
         console.log('⚠️ Status already set to:', newStatus)
         return // No change needed
       }
 
-      const updateData: any = { order_status: newStatus }
-
-      if (newStatus === 'shipped') {
-        updateData.shipped_at = new Date().toISOString()
+      // Map status to action
+      const actionMap: { [key: string]: string } = {
+        'processing': 'mark_processing',
+        'shipped': 'mark_shipped',
+        'delivered': 'mark_delivered',
+        'cancelled': 'mark_cancelled',
+        'returned': 'mark_returned'
       }
-      if (newStatus === 'delivered') {
-        updateData.delivered_at = new Date().toISOString()
+
+      const action = actionMap[newStatus]
+      if (!action) {
+        console.error('❌ Invalid status:', newStatus)
+        return
       }
 
-      console.log(`🔄 Updating order ${orderId.slice(-8)} to status: ${newStatus}`)
+      console.log(`🔄 Updating order ${orderId.slice(-8)} to status: ${newStatus} using action: ${action}`)
 
-      const response = await fetch(`/api/admin/orders?orderId=${orderId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
+      const response = await fetch(`/api/admin/orders?orderId=${orderId}&action=${action}`, {
+        method: "PATCH"
       })
 
       if (response.ok) {
@@ -255,9 +262,8 @@ export default function OrdersTracker() {
         const updatedOrders = orders.map(o =>
           o.$id === orderId ? {
             ...o,
-            order_status: newStatus,
-            shipped_at: updateData.shipped_at,
-            delivered_at: updateData.delivered_at
+            status: newStatus,
+            order_status: newStatus
           } : o
         )
         setOrders(updatedOrders)
