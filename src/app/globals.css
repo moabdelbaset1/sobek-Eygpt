@@ -91,6 +91,35 @@ body {
   animation: fadeIn 0.3s ease-out;
 }
 
+/* Medical-themed utilities */
+.bg-medical-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-medical-light {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.text-medical-primary {
+  color: #2563eb;
+}
+
+.text-medical-secondary {
+  color: #64748b;
+}
+
+.border-medical {
+  border-color: #e2e8f0;
+}
+
+.shadow-medical {
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+}
+
+.hover\:shadow-medical:hover {
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1), 0 4px 6px -2px rgba(37, 99, 235, 0.05);
+}
+
 /* Mobile menu improvements */
 .mobile-menu-enter {
   transform: translateY(-10px);

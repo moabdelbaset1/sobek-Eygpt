@@ -125,8 +125,13 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-400">
-          © {new Date().getFullYear()} Sobek Egypt. All rights reserved.
+        <div className="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-400 flex items-center justify-center gap-4">
+          <img
+            src="/logo.png"
+            alt="Sobek Egypt"
+            className="h-6 w-auto brightness-0 invert opacity-60"
+          />
+          <span>© {new Date().getFullYear()} Sobek Egypt. All rights reserved.</span>
         </div>
       </div>
     </footer>

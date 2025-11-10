@@ -77,7 +77,7 @@ export const humanProductsAPI = {
       orderBy: { createdAt: 'desc' },
     })
     
-    return products.map(p => ({
+    return products.map((p: any) => ({
       id: p.id,
       name: p.name,
       generic_name: p.genericName,
@@ -212,7 +212,7 @@ export const humanProductsAPI = {
       orderBy: { name: 'asc' },
     })
     
-    return products.map(p => ({
+    return products.map((p: any) => ({
       id: p.id,
       name: p.name,
       generic_name: p.genericName,
@@ -387,7 +387,7 @@ export const veterinaryProductsAPI = {
       orderBy: { name: 'asc' },
     })
     
-    return products.map(p => ({
+    return products.map((p: any) => ({
       id: p.id,
       name: p.name,
       generic_name: p.genericName,
@@ -416,7 +416,7 @@ export const categoriesAPI = {
       orderBy: { name: 'asc' },
     })
     
-    return categories.map(c => ({
+    return categories.map((c: any) => ({
       id: c.id,
       name: c.name,
       name_ar: c.nameAr,
@@ -435,7 +435,7 @@ export const categoriesAPI = {
       orderBy: { name: 'asc' },
     })
     
-    return categories.map(c => ({
+    return categories.map((c: any) => ({
       id: c.id,
       name: c.name,
       name_ar: c.nameAr,
@@ -520,7 +520,7 @@ export const mediaPostsAPI = {
       orderBy: { publishDate: 'desc' },
     })
     
-    return posts.map(p => ({
+    return posts.map((p: any) => ({
       id: p.id,
       title: p.title,
       title_ar: p.titleAr,
@@ -546,7 +546,7 @@ export const mediaPostsAPI = {
       orderBy: { publishDate: 'desc' },
     })
     
-    return posts.map(p => ({
+    return posts.map((p: any) => ({
       id: p.id,
       title: p.title,
       title_ar: p.titleAr,
@@ -651,7 +651,7 @@ export const jobsAPI = {
       }
     })
     
-    return jobs.map(job => ({
+    return jobs.map((job: any) => ({
       id: job.id,
       title: job.title,
       title_ar: job.titleAr,
@@ -685,7 +685,7 @@ export const jobsAPI = {
       orderBy: { publishDate: 'desc' },
     })
     
-    return jobs.map(job => ({
+    return jobs.map((job: any) => ({
       id: job.id,
       title: job.title,
       title_ar: job.titleAr,
@@ -841,7 +841,7 @@ export const jobApplicationsAPI = {
       }
     })
     
-    return applications.map(app => ({
+    return applications.map((app: any) => ({
       id: app.id,
       job_id: app.jobId,
       job_title: app.job?.title || 'General Application',
@@ -862,7 +862,7 @@ export const jobApplicationsAPI = {
       orderBy: { createdAt: 'desc' },
     })
     
-    return applications.map(app => ({
+    return applications.map((app: any) => ({
       id: app.id,
       job_id: app.jobId,
       full_name: app.fullName,

@@ -5,6 +5,8 @@ import { ArrowLeft, Package, Heart, Shield, Activity, Users, Pill } from 'lucide
 import { useEffect, useState, use } from 'react';
 import { humanProductsAPI } from '@/lib/api';
 import Image from 'next/image';
+import ProductCard from '@/components/ProductCard';
+import ProductModal from '@/components/ProductModal';
 
 interface Product {
   id: string;
@@ -43,6 +45,7 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryName, setCategoryName] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { slug } = use(params);
 
   useEffect(() => {
@@ -69,6 +72,14 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
 
   const IconComponent = iconMap[slug] || iconMap['default'];
   const colors = colorMap[slug] || colorMap['default'];
+
+  const handleViewDetails = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedProduct(null);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -116,79 +127,22 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product, index) => (
-              <motion.div
+              <ProductCard
                 key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * index }}
-                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
-              >
-                {/* Product Image */}
-                <div className={`relative h-48 ${colors.light} overflow-hidden`}>
-                  {product.image_url ? (
-                    <Image 
-                      src={product.image_url} 
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package className={`w-20 h-20 ${colors.text} opacity-30`} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Product Info */}
-                <div className="p-6">
-                  <div className="mb-4">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
-                    <p className="text-sm text-gray-600">{product.generic_name}</p>
-                  </div>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-start">
-                      <span className="text-sm font-medium text-gray-500 w-24 flex-shrink-0">Strength:</span>
-                      <span className="text-sm text-gray-900">{product.strength}</span>
-                    </div>
-                    <div className="flex items-start">
-                      <span className="text-sm font-medium text-gray-500 w-24 flex-shrink-0">Form:</span>
-                      <span className="text-sm text-gray-900">{product.dosage_form}</span>
-                    </div>
-                    {product.pack_size && (
-                      <div className="flex items-start">
-                        <span className="text-sm font-medium text-gray-500 w-24 flex-shrink-0">Pack Size:</span>
-                        <span className="text-sm text-gray-900">{product.pack_size}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-sm font-medium text-gray-500 mb-1">Indication:</p>
-                    <p className="text-sm text-gray-700 line-clamp-3">{product.indication}</p>
-                  </div>
-
-                  {product.registration_number && (
-                    <div className="pt-4 border-t border-gray-100">
-                      <p className="text-xs text-gray-500">Reg. No: {product.registration_number}</p>
-                    </div>
-                  )}
-
-                  {product.price && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold text-gray-900">{product.price} EGP</span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${colors.badge}`}>
-                          Available
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
+                product={product}
+                index={index}
+                onViewDetails={handleViewDetails}
+              />
             ))}
           </div>
         )}
+
+        {/* Product Modal */}
+        <ProductModal
+          product={selectedProduct}
+          isOpen={!!selectedProduct}
+          onClose={handleCloseModal}
+        />
       </div>
     </div>
   );

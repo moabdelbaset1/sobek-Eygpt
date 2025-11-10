@@ -12,8 +12,7 @@
     "db:migrate": "npx prisma migrate deploy",
     "db:seed": "node prisma/seed.js",
     "db:studio": "npx prisma studio",
-    "backup": "node scripts/backup-sqlite.js",
-    "import": "node scripts/import-to-mysql.js"
+    "backup": "node scripts/backup-mysql.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

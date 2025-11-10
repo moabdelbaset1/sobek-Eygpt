@@ -127,7 +127,7 @@ export default function Header() {
             <img 
               src="/logo.jpg" 
               alt="Sobek Egypt" 
-              className="h-15 w-auto"
+              className="h-14 w-auto"
             />
           </Link>
 
