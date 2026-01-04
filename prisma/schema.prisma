@@ -93,10 +93,10 @@ model Job {
   location        String
   jobType         String   @map("job_type") // 'full-time', 'part-time', 'contract'
   workingHours    String   @map("working_hours")
-  description     String
-  descriptionAr   String?  @map("description_ar")
-  requirements    String
-  requirementsAr  String?  @map("requirements_ar")
+  description     String   @db.Text
+  descriptionAr   String?  @db.Text @map("description_ar")
+  requirements    String   @db.Text
+  requirementsAr  String?  @db.Text @map("requirements_ar")
   isActive        Boolean  @default(true) @map("is_active")
   publishDate     DateTime @default(now()) @map("publish_date")
   expiryDate      DateTime? @map("expiry_date")

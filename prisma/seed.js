@@ -9,6 +9,7 @@ async function main() {
   console.log('🗑️  Clearing existing data...')
   await prisma.jobApplication.deleteMany()
   await prisma.job.deleteMany()
+  await prisma.leadershipMember.deleteMany()
   await prisma.humanProduct.deleteMany()
   await prisma.veterinaryProduct.deleteMany()
   await prisma.category.deleteMany()
@@ -298,6 +299,91 @@ async function main() {
         isActive: true,
         publishDate: new Date('2024-11-01'),
         expiryDate: new Date('2025-01-31'),
+      },
+    ],
+  })
+
+  // Seed Leadership Team
+  console.log('👔 Seeding Leadership Team...')
+  await prisma.leadershipMember.createMany({
+    data: [
+      {
+        name: 'Dr. Ahmed Hassan',
+        nameAr: 'د. أحمد حسن',
+        title: 'Chief Executive Officer',
+        titleAr: 'الرئيس التنفيذي',
+        department: 'Executive Management',
+        departmentAr: 'الإدارة التنفيذية',
+        bio: 'Leading Sobek Egypt Pharma with over 20 years of pharmaceutical industry experience. Specialized in strategic growth, regulatory affairs, and international market expansion.',
+        bioAr: 'قيادة سوبك مصر فارما بأكثر من 20 عاماً من الخبرة في صناعة الأدوية. متخصص في النمو الاستراتيجي والشؤون التنظيمية والتوسع في الأسواق الدولية.',
+        imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80',
+        isLeadership: true,
+        isActive: true,
+      },
+      {
+        name: 'Dr. Fatima Al-Masri',
+        nameAr: 'د. فاطمة المصري',
+        title: 'Chief Scientific Officer',
+        titleAr: 'الرئيس العلمي',
+        department: 'Research & Development',
+        departmentAr: 'البحث والتطوير',
+        bio: 'Driving innovation in pharmaceutical research and development. Ph.D. in Pharmaceutical Sciences with focus on novel drug delivery systems and biotechnology solutions.',
+        bioAr: 'دفع الابتكار في البحث والتطوير الصيدلاني. دكتوراه في العلوم الصيدلانية مع التركيز على أنظمة توصيل الأدوية الجديدة والحلول البيوتكنولوجية.',
+        imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80',
+        isLeadership: true,
+        isActive: true,
+      },
+      {
+        name: 'Mohamed Salah',
+        nameAr: 'محمد صلاح',
+        title: 'Chief Operations Officer',
+        titleAr: 'الرئيس التنفيذي للعمليات',
+        department: 'Operations',
+        departmentAr: 'العمليات',
+        bio: 'Overseeing manufacturing excellence and supply chain optimization. Expert in GMP compliance, process automation, and quality management systems.',
+        bioAr: 'الإشراف على التميز التصنيعي وتحسين سلسلة التوريد. خبير في الامتثال لـ GMP وأتمتة العمليات وأنظمة إدارة الجودة.',
+        imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80',
+        isLeadership: true,
+        isActive: true,
+      },
+      {
+        name: 'Sara Ibrahim',
+        nameAr: 'سارة إبراهيم',
+        title: 'Chief Financial Officer',
+        titleAr: 'الرئيس المالي',
+        department: 'Finance',
+        departmentAr: 'المالية',
+        bio: 'Managing financial strategy and corporate investments. CPA with 15+ years in pharmaceutical finance, mergers & acquisitions, and strategic planning.',
+        bioAr: 'إدارة الاستراتيجية المالية والاستثمارات المؤسسية. محاسب قانوني معتمد بخبرة أكثر من 15 عاماً في التمويل الصيدلاني وعمليات الاندماج والاستحواذ والتخطيط الاستراتيجي.',
+        imageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80',
+        isLeadership: true,
+        isActive: true,
+      },
+      {
+        name: 'Dr. Khaled Nour',
+        nameAr: 'د. خالد نور',
+        title: 'VP of Regulatory Affairs',
+        titleAr: 'نائب الرئيس للشؤون التنظيمية',
+        department: 'Regulatory Affairs',
+        departmentAr: 'الشؤون التنظيمية',
+        bio: 'Ensuring regulatory compliance across all markets. Expert in EDA, FDA, and EMA regulations with successful track record in product registrations.',
+        bioAr: 'ضمان الامتثال التنظيمي في جميع الأسواق. خبير في لوائح هيئة الدواء المصرية وFDA وEMA مع سجل نجاح في تسجيل المنتجات.',
+        imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80',
+        isLeadership: true,
+        isActive: true,
+      },
+      {
+        name: 'Nadia Youssef',
+        nameAr: 'نادية يوسف',
+        title: 'VP of Human Resources',
+        titleAr: 'نائب الرئيس للموارد البشرية',
+        department: 'Human Resources',
+        departmentAr: 'الموارد البشرية',
+        bio: 'Building world-class teams and fostering organizational culture. HR expert specializing in talent acquisition, employee development, and retention strategies.',
+        bioAr: 'بناء فرق عالمية المستوى وتعزيز الثقافة المؤسسية. خبيرة موارد بشرية متخصصة في استقطاب المواهب وتطوير الموظفين واستراتيجيات الاحتفاظ بهم.',
+        imageUrl: 'https://images.unsplash.com/photo-1598550874175-4d0ef436c909?auto=format&fit=crop&q=80',
+        isLeadership: true,
+        isActive: true,
       },
     ],
   })

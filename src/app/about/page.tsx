@@ -2,8 +2,13 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLanguageContext } from '@/lib/LanguageContext';
 import { t } from '@/lib/translations';
+import { CheckCircle, Award, Globe, Users, TrendingUp, Target, Heart } from 'lucide-react';
+import MissionVision from '@/components/MissionVision';
+import LeadershipSection from '@/components/LeadershipSection';
+import TimelineSection from '@/components/TimelineSection';
 
 // Counter Animation Hook
 function useCounter(end: number, duration: number = 2000) {
@@ -31,494 +36,235 @@ function useCounter(end: number, duration: number = 2000) {
   return { count, ref };
 }
 
-// Timeline Data
-const timelineData = [
-  {
-    year: '2019',
-    title: 'Foundation',
-    description: 'Sobek Egypt Pharma was established in Egypt with a vision to provide quality pharmaceutical products to the region.',
-    image: 'https://images.unsplash.com/photo-1583737097428-af53774819a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwYnVpbGRpbmclMjBpbmR1c3RyaWFsJTIwcGhhcm1hY2V1dGljYWwlMjB2aW50YWdlfGVufDB8MHx8fDE3NjA1MTU4NTR8MA&ixlib=rb-4.1.0&q=85',
-    attribution: 'Birmingham Museums Trust on Unsplash'
-  },
-  {
-    year: '2021',
-    title: 'Expansion & Modernization',
-    description: 'Major facility expansion with state-of-the-art manufacturing equipment and automated production lines.',
-    image: 'https://images.unsplash.com/photo-1655393001768-d946c97d6fd1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxwcm9kdWN0aW9uJTIwbWFudWZhY3R1cmluZyUyMHBoYXJtYWNldXRpY2FsJTIwYXV0b21hdGlvbiUyMHRlY2hub2xvZ3l8ZW58MHwwfHxibHVlfDE3NjA1MTU4NTV8MA&ixlib=rb-4.1.0&q=85',
-    attribution: 'ZHENYU LUO on Unsplash'
-  },
-  {
-    year: '2023',
-    title: 'Innovation & R&D',
-    description: 'Launched dedicated research and development center focusing on innovative pharmaceutical solutions.',
-    image: 'https://images.unsplash.com/photo-1580982331877-489fb58aeade?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxzY2llbnRpc3RzJTIwbGFib3JhdG9yeSUyMHJlc2VhcmNoJTIwaW5ub3ZhdGlvbiUyMHRlc3Rpbmd8ZW58MHwwfHxibHVlfDE3NjA1MTU4NTR8MA&ixlib=rb-4.1.0&q=85',
-    attribution: 'ThisisEngineering on Unsplash'
-  },
-  {
-    year: '2024',
-    title: 'Regional Growth',
-    description: 'Expanded operations across the Middle East and North Africa, establishing strong partnerships with healthcare providers.',
-    image: 'https://images.unsplash.com/photo-1713098965471-d324f294a71d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHx3b3JsZCUyMGdsb2JhbCUyMG5ldHdvcmslMjBpbnRlcm5hdGlvbmFsJTIwY29ubmVjdGlvbnN8ZW58MHwwfHxibHVlfDE3NjA1MTU4NTR8MA&ixlib=rb-4.1.0&q=85',
-    attribution: 'Hartono Creative Studio on Unsplash'
-  }
-];
-
-import { leadershipAPI, LeadershipMember } from '@/lib/api';
-
 // Awards Data
 const awards = [
   {
-    title: 'ISO 9001:2015 Certified',
+    title: 'ISO 9001:2015',
     description: 'Quality Management System Certification',
-    image: 'https://images.unsplash.com/photo-1598284669161-767a63e0ccf0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxJU08lMjBjZXJ0aWZpY2F0aW9uJTIwYmFkZ2UlMjBxdWFsaXR5JTIwc3RhbmRhcmR8ZW58MHwyfHxibHVlfDE3NjA1MTU4NTR8MA&ixlib=rb-4.1.0&q=85',
-    attribution: 'Brent Pace on Unsplash'
+    icon: Award,
   },
   {
     title: 'GMP Certified',
     description: 'Good Manufacturing Practice Standards',
-    image: 'https://images.unsplash.com/photo-1601888221673-626d26f726cd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxJU08lMjBjZXJ0aWZpY2F0aW9uJTIwYmFkZ2UlMjBxdWFsaXR5JTIwc3RhbmRhcmR8ZW58MHwyfHxibHVlfDE3NjA1MTU4NTR8MA&ixlib=rb-4.1.0&q=85',
-    attribution: 'Dylan Calluy on Unsplash'
+    icon: CheckCircle,
   },
   {
-    title: 'Excellence Award 2023',
+    title: 'Excellence Award',
     description: 'Pharmaceutical Industry Leadership',
-    image: 'https://images.unsplash.com/photo-1598284669161-767a63e0ccf0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxJU08lMjBjZXJ0aWZpY2F0aW9uJTIwYmFkZ2UlMjBxdWFsaXR5JTIwc3RhbmRhcmR8ZW58MHwyfHxibHVlfDE3NjA1MTU4NTR8MA&ixlib=rb-4.1.0&q=85',
-    attribution: 'Brent Pace on Unsplash'
+    icon: TrendingUp,
   }
 ];
 
 export default function AboutPage() {
-  const { lang } = useLanguageContext();
-  const [leadershipTeam, setLeadershipTeam] = useState<LeadershipMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { lang, isRTL } = useLanguageContext();
 
-  useEffect(() => {
-    const loadLeadership = async () => {
-      try {
-        const data = await leadershipAPI.getAll();
-        setLeadershipTeam(data);
-      } catch (error) {
-        console.error('Error loading leadership team:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadLeadership();
-  }, []);
   
   return (
-    <>
+    <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative h-[600px] md:h-[700px] lg:h-[800px] w-full overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url(https://images.unsplash.com/photo-1575278617117-86484b220657?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxsYWJvcmF0b3J5JTIwc2NpZW50aXN0cyUyMHBoYXJtYWNldXRpY2FsJTIwcmVzZWFyY2glMjBtZWRpY2FsfGVufDB8MHx8Ymx1ZXwxNzYwNTE1ODU0fDA&ixlib=rb-4.1.0&q=85)`
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/80 to-blue-600/70"></div>
+      <section className="relative h-[85vh] min-h-[600px] w-full overflow-hidden flex items-center">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/Scientific-Inquiry-1.jpg"
+            alt="Sobek Lab"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-900/70 to-transparent"></div>
         </div>
 
-        <div className="relative h-full flex items-center">
-          <div className="container mx-auto px-4 md:px-8 lg:px-16">
-            <div className="max-w-3xl">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-              >
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-                  {lang === 'ar' ? 'حول' : 'About'} <span className="text-red-400">Sobek Egypt Pharma</span>
-                </h1>
-                <p className="text-xl md:text-2xl text-gray-100 leading-relaxed mb-8">
-                  {lang === 'ar' 
-                    ? 'الابتكار والتميز في الحلول الدوائية'
-                    : 'Innovation and Excellence in Pharmaceutical Solutions'
-                  }
-                </p>
-                <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl">
-                  {lang === 'ar'
-                    ? 'ملتزمون بتعزيز الصحة العالمية من خلال الحلول الدوائية المبتكرة والتصنيع عالي الجودة والممارسات المستدامة التي تحسن الحياة في جميع أنحاء العالم.'
-                    : 'Committed to advancing global health through innovative pharmaceutical solutions, quality manufacturing, and sustainable practices that improve lives worldwide.'
-                  }
-                </p>
-              </motion.div>
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, x: isRTL ? 50 : -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl"
+          >
+            <div className="inline-block px-4 py-1 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 rounded-full text-blue-100 font-medium mb-6">
+              {lang === 'ar' ? 'منذ 2019' : 'Since 2019'}
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+              {lang === 'ar' ? 'نبتكر من أجل' : 'Innovating for a'} <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
+                {lang === 'ar' ? 'مستقبل صحي' : 'Healthier Future'}
+              </span>
+            </h1>
+            <p className="text-xl text-gray-200 leading-relaxed max-w-2xl mb-10">
+              {lang === 'ar'
+                ? 'في سوبك، نجمع بين العلم والتكنولوجيا والرحمة لتقديم حلول دوائية تغير حياة الناس.'
+                : 'At Sobek, we combine science, technology, and compassion to deliver pharmaceutical solutions that transform lives.'
+            }
+            </p>
+            
+            <div className="flex flex-wrap gap-4">
+              <Link href="/products/human-new" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-semibold transition-all hover:shadow-lg hover:-translate-y-1">
+                {lang === 'ar' ? 'استكشف منتجاتنا' : 'Explore Products'}
+              </Link>
+              <Link href="/contact-us" className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-full font-semibold transition-all">
+                {lang === 'ar' ? 'تواصل معنا' : 'Contact Us'}
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Stats Strip */}
+        <div className="absolute bottom-0 left-0 w-full bg-white/10 backdrop-blur-md border-t border-white/10 py-6 hidden md:block">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-4 gap-8 divide-x divide-white/20 rtl:divide-x-reverse">
+              <StatItem end={5} suffix="+" label={lang === 'ar' ? 'سنوات خبرة' : 'Years Experience'} />
+              <StatItem end={50} suffix="+" label={lang === 'ar' ? 'منتج دوائي' : 'Pharmaceutical Products'} />
+              <StatItem end={12} suffix="" label={lang === 'ar' ? 'دولة' : 'Countries Served'} />
+              <StatItem end={200} suffix="+" label={lang === 'ar' ? 'موظف' : 'Employees'} />
             </div>
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        <motion.div 
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </motion.div>
       </section>
 
-      {/* Vision, Mission & Values */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Who We Are Section */}
+      <section className="py-24 bg-white overflow-hidden">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {lang === 'ar' ? 'أساسنا' : 'Our'} <span className="text-blue-600">{lang === 'ar' ? '' : 'Foundation'}</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {lang === 'ar'
-                ? 'المبادئ التي توجه كل ما نقوم به'
-                : 'The principles that guide everything we do'
-              }
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Vision Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <motion.div 
+              initial={{ opacity: 0, x: isRTL ? 50 : -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="group relative"
+              transition={{ duration: 0.6 }}
+              className="lg:w-1/2"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              <div className="relative bg-white/70 backdrop-blur-lg p-8 rounded-2xl border border-white/50 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
+              <div className="relative">
+                <div className="absolute -top-4 -left-4 w-24 h-24 bg-blue-100 rounded-full -z-10"></div>
+                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-blue-50 rounded-full -z-10"></div>
+                <Image 
+                  src="/hero-bg-2.jpg" 
+                  alt="About Sobek" 
+                  width={600} 
+                  height={500} 
+                  className="rounded-3xl shadow-2xl w-full object-cover h-[500px]"
+                />
+                <div className="absolute bottom-8 right-8 bg-white p-6 rounded-2xl shadow-xl max-w-xs hidden md:block">
+                  <p className="text-gray-800 font-medium italic">
+                    "{lang === 'ar' ? 'الجودة هي حجر الزاوية في كل ما نقوم به.' : 'Quality is the cornerstone of everything we do.'}"
+                  </p>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  {lang === 'ar' ? 'رؤيتنا' : 'Our Vision'}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {lang === 'ar'
-                    ? 'أن نكون شركة دوائية رائدة عالمياً معروفة بالابتكار والجودة والالتزام بتحسين نتائج الصحة في جميع أنحاء العالم.'
-                    : 'To be a leading global pharmaceutical company recognized for innovation, quality, and commitment to improving health outcomes worldwide.'
-                  }
-                </p>
               </div>
             </motion.div>
 
-            {/* Mission Card */}
-            <motion.div
+            <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="group relative"
+              className="lg:w-1/2"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-red-400/20 to-red-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              <div className="relative bg-white/70 backdrop-blur-lg p-8 rounded-2xl border border-white/50 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
-                <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
+              <h4 className="text-blue-600 font-bold uppercase tracking-wider mb-2">
+                {lang === 'ar' ? 'من نحن' : 'Who We Are'}
+              </h4>
+              <h2 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                {lang === 'ar' ? 'رائدون في الصناعة الدوائية' : 'Pioneering the Future of Pharmaceuticals'}
+              </h2>
+              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                {lang === 'ar' 
+                  ? 'تأسست سوبك مصر فارما برؤية واضحة: توفير أدوية عالية الجودة وبأسعار معقولة للجميع. نحن نلتزم بأعلى معايير التصنيع العالمية ونستثمر باستمرار في البحث والتطوير.'
+                  : 'Sobek Egypt Pharma was founded with a clear vision: to provide high-quality, affordable medicines to everyone. We adhere to the highest global manufacturing standards and continuously invest in research and development.'}
+              </p>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                {lang === 'ar'
+                  ? 'من خلال فريقنا المتفاني وشراكاتنا الاستراتيجية، نسعى جاهدين لتحسين نتائج الرعاية الصحية وتوسيع نطاق وصولنا لخدمة المزيد من المرضى في جميع أنحاء المنطقة.'
+                  : 'Through our dedicated team and strategic partnerships, we strive to improve healthcare outcomes and expand our reach to serve more patients across the region.'}
+              </p>
+              
+              <div className="grid grid-cols-2 gap-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg text-blue-600 mt-1">
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900">{lang === 'ar' ? 'جودة معتمدة' : 'Certified Quality'}</h5>
+                    <p className="text-sm text-gray-500">{lang === 'ar' ? 'معايير ISO و GMP' : 'ISO & GMP Standards'}</p>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  {lang === 'ar' ? 'مهمتنا' : 'Our Mission'}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {lang === 'ar'
-                    ? 'تعزيز الصحة العالمية من خلال توفير حلول دوائية مبتكرة وعالية الجودة يمكن الوصول إليها وبأسعار معقولة للمجتمعات في جميع أنحاء العالم.'
-                    : 'To advance global health by delivering innovative, high-quality pharmaceutical solutions that are accessible and affordable to communities worldwide.'
-                  }
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Values Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="group relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-              <div className="relative bg-white/70 backdrop-blur-lg p-8 rounded-2xl border border-white/50 shadow-xl hover:shadow-2xl transition-all duration-300 h-full">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg text-blue-600 mt-1">
+                    <Globe className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-gray-900">{lang === 'ar' ? 'توسع عالمي' : 'Global Reach'}</h5>
+                    <p className="text-sm text-gray-500">{lang === 'ar' ? 'تصدير لأكثر من 12 دولة' : 'Exporting to 12+ countries'}</p>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Values</h3>
-                <ul className="text-gray-600 leading-relaxed space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-1">•</span>
-                    <span>Excellence in quality and innovation</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-1">•</span>
-                    <span>Integrity and ethical practices</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-1">•</span>
-                    <span>Patient-centered approach</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-1">•</span>
-                    <span>Sustainability and responsibility</span>
-                  </li>
-                </ul>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Company Timeline */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+      {/* Mission, Vision, Values */}
+      <MissionVision />
+
+      {/* Timeline Section */}
+      <TimelineSection />
+
+      {/* Leadership Section */}
+      <LeadershipSection />
+
+      {/* CTA Section */}
+      <section className="py-20 bg-blue-600 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path d="M0 100 L100 0 L100 100 Z" fill="white" />
+           </svg>
+        </div>
+        <div className="container mx-auto px-4 relative z-10 text-center text-white">
+          <h2 className="text-4xl font-bold mb-6">
+            {lang === 'ar' ? 'مستعد للعمل معنا؟' : 'Ready to Work With Us?'}
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            {lang === 'ar' 
+              ? 'اكتشف كيف يمكن لمنتجاتنا وحلولنا أن تحدث فرقاً في مؤسستك.'
+              : 'Discover how our products and solutions can make a difference in your organization.'}
+          </p>
+          <Link 
+            href="/contact-us" 
+            className="inline-block px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:bg-gray-100 transition-colors shadow-lg"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {lang === 'ar' ? 'رحلتنا' : 'Our'} <span className="text-blue-600">{lang === 'ar' ? '' : 'Journey'}</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {lang === 'ar'
-                ? 'سنوات من النمو والابتكار والالتزام بتميز الرعاية الصحية'
-                : 'Years of growth, innovation, and commitment to healthcare excellence'
-              }
-            </p>
-          </motion.div>
-
-          <div className="max-w-5xl mx-auto">
-            {timelineData.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className={`flex flex-col md:flex-row gap-8 mb-16 ${
-                  index % 2 === 1 ? 'md:flex-row-reverse' : ''
-                }`}
-              >
-                {/* Image */}
-                <div className="md:w-1/2">
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
-                    <img
-                      src={item.image}
-                      alt={item.attribution}
-                      className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
-                      style={{ width: '100%', height: '320px' }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="md:w-1/2 flex flex-col justify-center">
-                  <div className="relative">
-                    {/* Timeline Line */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-600 to-blue-400 hidden md:block"></div>
-                    
-                    <div className="md:pl-12">
-                      <div className="inline-block bg-blue-600 text-white px-6 py-2 rounded-full text-lg font-bold mb-4">
-                        {item.year}
-                      </div>
-                      <h3 className="text-3xl font-bold text-gray-900 mb-4">{item.title}</h3>
-                      <p className="text-lg text-gray-600 leading-relaxed">{item.description}</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+            {lang === 'ar' ? 'تواصل معنا الآن' : 'Contact Us Now'}
+          </Link>
         </div>
       </section>
-
-
-      {/* Leadership Team */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {lang === 'ar' ? 'فريق' : 'Our'} <span className="text-blue-600">{lang === 'ar' ? 'القيادة' : 'Leadership'}</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {lang === 'ar'
-                ? 'محترفون ذوو خبرة يقودون الابتكار والتميز'
-                : 'Experienced professionals driving innovation and excellence'
-              }
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {leadershipTeam.filter(member => member.is_leadership).slice(0, 2).map((member, index) => (
-              <motion.div
-                key={member.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group"
-              >
-                <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-                  <div className="relative overflow-hidden">
-                    {member.image_url ? (
-                      <img
-                        src={member.image_url}
-                        alt={member.name}
-                        className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-500"
-                        style={{ width: '100%', height: '320px' }}
-                      />
-                    ) : (
-                      <div className="w-full h-80 bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500">No Image</span>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">
-                      {lang === 'ar' ? (member.name_ar || member.name) : member.name}
-                    </h3>
-                    <p className="text-blue-600 font-medium mb-3">
-                      {lang === 'ar' ? (member.title_ar || member.title) : member.title}
-                    </p>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {lang === 'ar' ? (member.bio_ar || member.bio) : member.bio}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* View Full Team Button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-center mt-12"
-          >
-            <Link
-              href="/team"
-              className="inline-flex items-center px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
-            >
-              {lang === 'ar' ? 'عرض الفريق الكامل' : 'View Full Team'}
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Awards & Certifications */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {lang === 'ar' ? 'الجوائز والشهادات' : 'Awards &'} <span className="text-blue-600">{lang === 'ar' ? '' : 'Certifications'}</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {lang === 'ar'
-                ? 'معترف به للتميز في الجودة والابتكار وقيادة الصناعة'
-                : 'Recognized for excellence in quality, innovation, and industry leadership'
-              }
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {awards.map((award, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group"
-              >
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-8 rounded-2xl border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 hover:shadow-xl text-center h-full flex flex-col items-center justify-center">
-                  <div className="w-32 h-32 mb-6 rounded-full bg-white shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <img
-                      src={award.image}
-                      alt={award.attribution}
-                      className="w-20 h-20 object-contain"
-                      style={{ width: '80px', height: '80px' }}
-                    />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{award.title}</h3>
-                  <p className="text-gray-600">{award.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-    </>
+    </div>
   );
 }
 
-// Stat Card Component
-function StatCard({ end, suffix, label, icon }: { end: number; suffix: string; label: string; icon: string }) {
+function StatItem({ end, suffix, label }: { end: number; suffix: string; label: string }) {
   const { count, ref } = useCounter(end);
+  return (
+    <div ref={ref} className="text-center text-white">
+      <div className="text-4xl font-bold mb-1">{count}{suffix}</div>
+      <div className="text-sm text-blue-200">{label}</div>
+    </div>
+  );
+}
 
-  const icons = {
-    calendar: (
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    ),
-    package: (
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-    ),
-    globe: (
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    ),
-    users: (
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-    )
+function Card({ icon: Icon, title, desc, color }: { icon: any, title: string, desc: string, color: string }) {
+  const colorClasses = {
+    blue: 'bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white',
+    purple: 'bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white',
+    red: 'bg-red-50 text-red-600 group-hover:bg-red-600 group-hover:text-white',
   };
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, scale: 0.8 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      className="text-center"
+    <motion.div 
+      whileHover={{ y: -10 }}
+      className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 group transition-all duration-300"
     >
-      <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mx-auto mb-4">
-        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          {icons[icon as keyof typeof icons]}
-        </svg>
+      <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300 ${colorClasses[color as keyof typeof colorClasses]}`}>
+        <Icon className="w-7 h-7" />
       </div>
-      <div className="text-5xl md:text-6xl font-bold mb-2">
-        {count}{suffix}
-      </div>
-      <div className="text-lg text-blue-100 font-medium">{label}</div>
+      <h3 className="text-2xl font-bold text-gray-900 mb-3">{title}</h3>
+      <p className="text-gray-600 leading-relaxed">
+        {desc}
+      </p>
     </motion.div>
   );
 }

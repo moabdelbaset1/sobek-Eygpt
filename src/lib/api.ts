@@ -61,6 +61,12 @@ export const humanProductsAPI = {
     return res.json()
   },
 
+  getById: async (id: string): Promise<HumanProduct> => {
+    const res = await fetch(`/api/products/human?id=${encodeURIComponent(id)}`)
+    if (!res.ok) throw new Error('Failed to fetch product')
+    return res.json()
+  },
+
   create: async (data: any): Promise<HumanProduct> => {
     const res = await fetch('/api/products/human', {
       method: 'POST',

@@ -14,7 +14,25 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'asc' }
     })
 
-    return NextResponse.json(leadership)
+    // Convert camelCase to snake_case for API response
+    const formattedLeadership = leadership.map(member => ({
+      id: member.id,
+      name: member.name,
+      name_ar: member.nameAr,
+      title: member.title,
+      title_ar: member.titleAr,
+      department: member.department,
+      department_ar: member.departmentAr,
+      bio: member.bio,
+      bio_ar: member.bioAr,
+      image_url: member.imageUrl,
+      is_leadership: member.isLeadership,
+      is_active: member.isActive,
+      created_at: member.createdAt.toISOString(),
+      updated_at: member.updatedAt.toISOString(),
+    }))
+
+    return NextResponse.json(formattedLeadership)
   } catch (error) {
     console.error('Error fetching leadership team:', error)
     return NextResponse.json(

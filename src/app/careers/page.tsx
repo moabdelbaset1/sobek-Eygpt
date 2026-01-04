@@ -1,14 +1,19 @@
 "use client";
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Briefcase, MapPin, Clock, Calendar, Users, Send, Upload, FileText, CheckCircle } from 'lucide-react';
+import Image from 'next/image';
+import { Briefcase, MapPin, Clock, Calendar, Users, Send, Upload, FileText, CheckCircle, Search, Sparkles, ArrowRight, GraduationCap, HeartHandshake } from 'lucide-react';
 import { jobsAPI, type Job } from '@/lib/api';
 import { uploadCV } from '@/lib/uploadHelpers';
 import toast from 'react-hot-toast';
+import { useLanguageContext } from '@/lib/LanguageContext';
 
 export default function CareersPage() {
+  const { lang, isRTL } = useLanguageContext();
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [formData, setFormData] = useState({
     full_name: '',
@@ -23,14 +28,29 @@ export default function CareersPage() {
     loadJobs();
   }, []);
 
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredJobs(jobs);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = jobs.filter(job => 
+        job.title.toLowerCase().includes(query) || 
+        job.department.toLowerCase().includes(query) ||
+        job.location.toLowerCase().includes(query)
+      );
+      setFilteredJobs(filtered);
+    }
+  }, [searchQuery, jobs]);
+
   const loadJobs = async () => {
     try {
       setLoading(true);
       const data = await jobsAPI.getActive();
       setJobs(data);
+      setFilteredJobs(data);
     } catch (error) {
       console.error('Error loading jobs:', error);
-      toast.error('فشل تحميل الوظائف');
+      toast.error(lang === 'ar' ? 'فشل تحميل الوظائف' : 'Failed to load jobs');
     } finally {
       setLoading(false);
     }
@@ -38,13 +58,16 @@ export default function CareersPage() {
 
   const handleApply = (job: Job) => {
     setSelectedJob(job);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const formElement = document.getElementById('application-form');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleSubmitApplication = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cvFile) {
-      toast.error('من فضلك ارفع السيرة الذاتية');
+      toast.error(lang === 'ar' ? 'من فضلك ارفع السيرة الذاتية' : 'Please upload your CV');
       return;
     }
 
@@ -65,13 +88,13 @@ export default function CareersPage() {
       });
 
       if (!response.ok) throw new Error('Failed to submit');
-      toast.success('تم إرسال طلبك بنجاح! سنتواصل معك قريباً');
+      toast.success(lang === 'ar' ? 'تم إرسال طلبك بنجاح!' : 'Application submitted successfully!');
       setFormData({ full_name: '', email: '', phone: '', cover_letter: '' });
       setCvFile(null);
       setSelectedJob(null);
     } catch (error: any) {
       console.error('Error submitting application:', error);
-      toast.error(error.message || 'فشل إرسال الطلب');
+      toast.error(error.message || (lang === 'ar' ? 'فشل إرسال الطلب' : 'Failed to submit application'));
     } finally {
       setSubmitting(false);
     }
@@ -80,117 +103,154 @@ export default function CareersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 text-white py-24 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-            backgroundSize: '40px 40px'
-          }} />
+      <div className="relative h-[50vh] min-h-[400px] bg-slate-900 overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80"
+            alt="Careers at Sobek"
+            fill
+            className="object-cover opacity-30"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-gray-50"></div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center"
           >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="inline-block mb-6"
-            >
-              <div className="bg-red-600 p-4 rounded-2xl shadow-2xl">
-                <Briefcase className="w-16 h-16" />
-              </div>
-            </motion.div>
-            <h1 className="text-6xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-red-200">
-              Join Sobek Pharma
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/50 backdrop-blur-sm rounded-full text-slate-200 mb-6 border border-slate-700/50">
+              <Briefcase className="w-4 h-4" />
+              <span className="text-sm font-medium uppercase tracking-wider">
+                {lang === 'ar' ? 'انضم لفريقنا' : 'Join Our Team'}
+              </span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+              {lang === 'ar' ? 'ابنِ مستقبلك المهني' : 'Build Your Career'}
             </h1>
-            <p className="text-2xl text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">
-              Build your career with Egypt's leading pharmaceutical company
+            <p className="text-xl text-slate-100 max-w-2xl mx-auto leading-relaxed">
+              {lang === 'ar' 
+                ? 'انضم إلى شركة الأدوية الرائدة في مصر وكن جزءاً من قصة نجاحنا.'
+                : 'Join Egypt\'s leading pharmaceutical company and be part of our success story.'}
             </p>
-            <div className="flex justify-center gap-4">
-              <div className="bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20">
-                <span className="text-white font-semibold">{jobs.length} Open Positions</span>
+          </motion.div>
+
+          {/* Search Bar */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="w-full max-w-xl mt-10 relative"
+          >
+            <div className="relative group">
+              <div className="absolute inset-0 bg-red-500 rounded-full blur opacity-25 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="relative bg-white rounded-full shadow-xl flex items-center p-2">
+                <div className="pl-4 text-gray-400">
+                  <Search className="w-5 h-5" />
+                </div>
+                <input
+                  type="text"
+                  placeholder={lang === 'ar' ? 'ابحث عن وظيفة...' : 'Search for jobs...'}
+                  className={`w-full px-4 py-3 bg-transparent border-none focus:ring-0 text-gray-800 placeholder-gray-400 ${isRTL ? 'text-right' : 'text-left'}`}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button className="bg-red-600 text-white px-6 py-2 rounded-full font-medium hover:bg-red-700 transition-colors shadow-md">
+                  {lang === 'ar' ? 'بحث' : 'Search'}
+                </button>
               </div>
             </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Main Content - Form Left, Jobs Right */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-16 -mt-20 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
           {/* Application Form - Left Side (Sticky) */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-1"
+            className="lg:col-span-1 order-2 lg:order-1"
           >
-            <div className="lg:sticky lg:top-8">
-              <div className="bg-gradient-to-br from-red-600 to-red-700 rounded-3xl shadow-2xl overflow-hidden">
-                <div className="p-6 bg-black/10">
+            <div className="lg:sticky lg:top-8" id="application-form">
+              <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 text-white">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="bg-white/20 p-2 rounded-lg">
+                    <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
                       <Send className="w-6 h-6 text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white">
-                      {selectedJob ? 'Apply Now' : 'Submit Application'}
+                    <h2 className="text-2xl font-bold">
+                      {lang === 'ar' ? 'قدم الآن' : 'Apply Now'}
                     </h2>
                   </div>
-                  {selectedJob && (
-                    <p className="text-red-100 text-sm">
-                      Applying for: <span className="font-semibold">{selectedJob.title}</span>
-                    </p>
-                  )}
+                  <p className="text-red-100 text-sm opacity-90">
+                    {selectedJob 
+                      ? (lang === 'ar' ? `التقديم لوظيفة: ${selectedJob.title}` : `Applying for: ${selectedJob.title}`)
+                      : (lang === 'ar' ? 'تقديم طلب عام' : 'General Application')}
+                  </p>
                 </div>
 
-                <form onSubmit={handleSubmitApplication} className="p-6 space-y-4 bg-white">
+                <form onSubmit={handleSubmitApplication} className="p-6 space-y-5" suppressHydrationWarning>
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Full Name *</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {lang === 'ar' ? 'الاسم الكامل *' : 'Full Name *'}
+                    </label>
                     <input
                       type="text"
                       required
                       value={formData.full_name}
                       onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                      placeholder="Your full name"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                      placeholder={lang === 'ar' ? 'اسمك الكامل' : 'Your full name'}
+                      suppressHydrationWarning
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Email *</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {lang === 'ar' ? 'البريد الإلكتروني *' : 'Email *'}
+                    </label>
                     <input
                       type="email"
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                       placeholder="your@email.com"
+                      suppressHydrationWarning
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Phone *</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {lang === 'ar' ? 'رقم الهاتف *' : 'Phone *'}
+                    </label>
                     <input
                       type="tel"
                       required
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                       placeholder="+20 123 456 7890"
+                      suppressHydrationWarning
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Upload CV * (Max 10MB)</label>
-                    <label className="flex flex-col items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-red-500 hover:bg-red-50 transition-all">
-                      <Upload className="w-10 h-10 text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600 text-center">
-                        {cvFile ? cvFile.name : 'Click to upload'}
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {lang === 'ar' ? 'السيرة الذاتية * (PDF/Word)' : 'Upload CV * (PDF/Word)'}
+                    </label>
+                    <label className="flex flex-col items-center justify-center w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-red-500 hover:bg-red-50 transition-all group">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 group-hover:bg-red-100 transition-colors">
+                        <Upload className="w-6 h-6 text-gray-400 group-hover:text-red-600" />
+                      </div>
+                      <p className="text-sm text-gray-600 text-center font-medium">
+                        {cvFile ? cvFile.name : (lang === 'ar' ? 'اضغط للرفع' : 'Click to upload')}
                       </p>
                       <input
                         type="file"
@@ -201,7 +261,7 @@ export default function CareersPage() {
                       />
                     </label>
                     {cvFile && (
-                      <div className="mt-2 flex items-center gap-2 text-green-600 text-sm">
+                      <div className="mt-2 flex items-center gap-2 text-emerald-600 text-sm bg-emerald-50 p-2 rounded-lg">
                         <CheckCircle className="w-4 h-4" />
                         <span>{(cvFile.size / 1024 / 1024).toFixed(2)} MB</span>
                       </div>
@@ -209,30 +269,33 @@ export default function CareersPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">Cover Letter (Optional)</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {lang === 'ar' ? 'رسالة تعريفية (اختياري)' : 'Cover Letter (Optional)'}
+                    </label>
                     <textarea
                       value={formData.cover_letter}
                       onChange={(e) => setFormData({ ...formData, cover_letter: e.target.value })}
                       rows={3}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all resize-none"
-                      placeholder="Why are you a great fit?"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all resize-none"
+                      placeholder={lang === 'ar' ? 'لماذا أنت مناسب لهذه الوظيفة؟' : 'Why are you a great fit?'}
+                      suppressHydrationWarning
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-xl hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-bold shadow-lg"
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-4 rounded-xl hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                   >
                     {submitting ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-3 border-white border-t-transparent mr-2"></div>
-                        Submitting...
+                        {lang === 'ar' ? 'جاري الإرسال...' : 'Submitting...'}
                       </>
                     ) : (
                       <>
-                        <Send className="w-5 h-5 mr-2" />
-                        Submit Application
+                        <Send className={`w-5 h-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                        {lang === 'ar' ? 'إرسال الطلب' : 'Submit Application'}
                       </>
                     )}
                   </button>
@@ -241,9 +304,9 @@ export default function CareersPage() {
                     <button
                       type="button"
                       onClick={() => setSelectedJob(null)}
-                      className="w-full text-gray-600 hover:text-gray-900 py-2 text-sm font-medium"
+                      className="w-full text-gray-500 hover:text-gray-800 py-2 text-sm font-medium transition-colors"
                     >
-                      Clear Selection
+                      {lang === 'ar' ? 'إلغاء التحديد' : 'Clear Selection'}
                     </button>
                   )}
                 </form>
@@ -252,155 +315,189 @@ export default function CareersPage() {
           </motion.div>
 
           {/* Jobs List - Right Side */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 order-1 lg:order-2">
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-4xl font-bold text-gray-900 flex items-center">
-                  <div className="bg-red-600 p-3 rounded-xl mr-4">
-                    <Briefcase className="w-8 h-8 text-white" />
-                  </div>
-                  Open Positions
+                <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                  <Sparkles className="w-8 h-8 text-red-600" />
+                  {lang === 'ar' ? 'الوظائف المتاحة' : 'Open Positions'}
                 </h2>
-                {jobs.length > 0 && (
-                  <span className="bg-red-100 text-red-700 px-4 py-2 rounded-full font-semibold">
-                    {jobs.length} {jobs.length === 1 ? 'Position' : 'Positions'}
+                {filteredJobs.length > 0 && (
+                  <span className="bg-red-100 text-red-700 px-4 py-2 rounded-full font-bold text-sm">
+                    {filteredJobs.length} {lang === 'ar' ? 'وظيفة' : 'Positions'}
                   </span>
                 )}
               </div>
 
               {loading ? (
-                <div className="text-center py-20">
-                  <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-red-600 border-t-transparent"></div>
-                  <p className="mt-6 text-xl text-gray-600 font-medium">Loading opportunities...</p>
+                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
+                  <div className="w-16 h-16 border-4 border-red-200 border-t-red-600 rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-500 font-medium">{lang === 'ar' ? 'جاري تحميل الوظائف...' : 'Loading opportunities...'}</p>
                 </div>
-              ) : jobs.length === 0 ? (
-                <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-xl p-12 text-center border border-gray-200">
-                  <div className="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Briefcase className="w-12 h-12 text-gray-400" />
+              ) : filteredJobs.length === 0 ? (
+                <div className="bg-white rounded-3xl shadow-xl p-12 text-center border border-gray-100">
+                  <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Briefcase className="w-10 h-10 text-gray-400" />
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-4">No Open Positions Right Now</h3>
-                  <p className="text-gray-600 text-lg">
-                    Fill out the form on the left to submit a general application
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    {lang === 'ar' ? 'لا توجد وظائف متاحة حالياً' : 'No Open Positions Right Now'}
+                  </h3>
+                  <p className="text-gray-500 max-w-md mx-auto">
+                    {lang === 'ar' 
+                      ? 'املأ النموذج لتقديم طلب عام وسنتواصل معك عند توفر فرص مناسبة.'
+                      : 'Fill out the form to submit a general application and we will contact you when suitable opportunities arise.'}
                   </p>
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {jobs.map((job, index) => (
-                    <motion.div
-                      key={job.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-red-200"
-                    >
-                      <div className="p-8">
-                        <div className="flex items-start justify-between mb-6">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                              <h3 className="text-3xl font-bold text-gray-900 group-hover:text-red-600 transition-colors">
-                                {job.title}
-                              </h3>
-                              <span className="px-4 py-1 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-full text-sm font-bold">
-                                OPEN
-                              </span>
+                  <AnimatePresence mode="popLayout">
+                    {filteredJobs.map((job, index) => (
+                      <motion.div
+                        key={job.id}
+                        layout
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ delay: index * 0.1 }}
+                        className={`group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 ${selectedJob?.id === job.id ? 'border-red-500 ring-4 ring-red-50' : 'border-transparent hover:border-red-100'}`}
+                      >
+                        <div className="p-8">
+                          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
+                            <div>
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="text-2xl font-bold text-gray-900 group-hover:text-red-600 transition-colors">
+                                  {job.title}
+                                </h3>
+                                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-wider">
+                                  {lang === 'ar' ? 'متاح' : 'Open'}
+                                </span>
+                              </div>
+                              <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                                <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                  <Briefcase className="w-4 h-4 text-red-500" />
+                                  {job.department}
+                                </span>
+                                <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                  <MapPin className="w-4 h-4 text-red-500" />
+                                  {job.location}
+                                </span>
+                                <span className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                  <Clock className="w-4 h-4 text-red-500" />
+                                  {job.working_hours}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex flex-wrap gap-4 text-gray-600">
-                              <span className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
-                                <Briefcase className="w-4 h-4 text-red-600" />
-                                <span className="font-medium">{job.department}</span>
-                              </span>
-                              <span className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
-                                <MapPin className="w-4 h-4 text-red-600" />
-                                <span className="font-medium">{job.location}</span>
-                              </span>
-                              <span className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
-                                <Clock className="w-4 h-4 text-red-600" />
-                                <span className="font-medium">{job.working_hours}</span>
-                              </span>
-                              <span className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg">
-                                <Calendar className="w-4 h-4 text-red-600" />
-                                <span className="font-medium capitalize">{job.job_type.replace('-', ' ')}</span>
-                              </span>
+                            <button
+                              onClick={() => handleApply(job)}
+                              className={`px-6 py-3 rounded-xl font-bold transition-all shadow-md flex items-center gap-2 whitespace-nowrap ${
+                                selectedJob?.id === job.id 
+                                  ? 'bg-red-600 text-white' 
+                                  : 'bg-gray-100 text-gray-700 hover:bg-red-600 hover:text-white'
+                              }`}
+                            >
+                              {selectedJob?.id === job.id ? (
+                                <>
+                                  <CheckCircle className="w-5 h-5" />
+                                  {lang === 'ar' ? 'تم الاختيار' : 'Selected'}
+                                </>
+                              ) : (
+                                <>
+                                  {lang === 'ar' ? 'قدم الآن' : 'Apply Now'}
+                                  <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          <div className="space-y-6 border-t border-gray-100 pt-6">
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-red-500" />
+                                {lang === 'ar' ? 'الوصف الوظيفي' : 'Job Description'}
+                              </h4>
+                              <p className="text-gray-600 leading-relaxed text-sm whitespace-pre-line">
+                                {job.description}
+                              </p>
+                            </div>
+
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-blue-500" />
+                                {lang === 'ar' ? 'المتطلبات' : 'Requirements'}
+                              </h4>
+                              <p className="text-gray-600 leading-relaxed text-sm whitespace-pre-line">
+                                {job.requirements}
+                              </p>
                             </div>
                           </div>
                         </div>
-
-                        <div className="space-y-6 mb-8">
-                          <div>
-                            <h4 className="text-lg font-bold text-gray-900 mb-3 flex items-center">
-                              <div className="w-1 h-6 bg-red-600 rounded-full mr-3"></div>
-                              Job Description
-                            </h4>
-                            <p className="text-gray-700 leading-relaxed pl-6 whitespace-pre-line">{job.description}</p>
-                          </div>
-
-                          <div>
-                            <h4 className="text-lg font-bold text-gray-900 mb-3 flex items-center">
-                              <div className="w-1 h-6 bg-blue-600 rounded-full mr-3"></div>
-                              Requirements
-                            </h4>
-                            <p className="text-gray-700 leading-relaxed pl-6 whitespace-pre-line">{job.requirements}</p>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => handleApply(job)}
-                          className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl hover:from-red-700 hover:to-red-800 transition-all flex items-center justify-center font-bold text-lg shadow-lg transform hover:-translate-y-1"
-                        >
-                          <Send className="w-6 h-6 mr-3" />
-                          Apply for this Position
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
             </motion.div>
+
+            {/* Why Join Us Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-16"
+            >
+              <h2 className="text-3xl font-bold text-center text-gray-900 mb-10">
+                {lang === 'ar' ? 'لماذا تنضم إلينا؟' : 'Why Join Sobek Pharma?'}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4 text-red-600">
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {lang === 'ar' ? 'فريق متميز' : 'Great Team'}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {lang === 'ar' 
+                      ? 'اعمل مع أكثر من 500 محترف موهوب مكرسين للتميز.'
+                      : 'Work with 500+ talented professionals dedicated to excellence.'}
+                  </p>
+                </div>
+                
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 text-blue-600">
+                    <GraduationCap className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {lang === 'ar' ? 'فرص للنمو' : 'Growth Opportunities'}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {lang === 'ar' 
+                      ? 'تعلم مستمر ومسارات واضحة للتقدم الوظيفي.'
+                      : 'Continuous learning and clear career advancement paths.'}
+                  </p>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:-translate-y-1 transition-transform duration-300">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4 text-emerald-600">
+                    <HeartHandshake className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {lang === 'ar' ? 'بيئة داعمة' : 'Supportive Environment'}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {lang === 'ar' 
+                      ? 'بيئة عمل تشجع على الابتكار والتعاون.'
+                      : 'A work environment that encourages innovation and collaboration.'}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
-
-        {/* Why Join Us Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-16"
-        >
-          <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">Why Join Sobek Pharma?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-t-4 border-red-600">
-              <div className="bg-red-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Users className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Great Team</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Work with 500+ talented professionals dedicated to excellence
-              </p>
-            </div>
-            <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-t-4 border-blue-600">
-              <div className="bg-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <CheckCircle className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Growth Opportunities</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Continuous learning and clear career advancement paths
-              </p>
-            </div>
-            <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 border-t-4 border-green-600">
-              <div className="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Briefcase className="w-8 h-8 text-green-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">25+ Years Legacy</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Proven track record in quality healthcare solutions
-              </p>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </div>
   );

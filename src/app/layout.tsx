@@ -25,9 +25,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      </head>
       <body className={`${poppins.variable} antialiased`} suppressHydrationWarning>
         <LanguageProvider>
           {/* Google Tag Manager */}
@@ -46,7 +43,7 @@ export default function RootLayout({
             </>
           ) : null}
           <Header />
-          <main id="content" className="min-h-dvh pt-16">
+          <main id="content" className="min-h-dvh">
             {children}
           </main>
           <Footer />

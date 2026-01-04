@@ -28,7 +28,13 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: '10mb' }
   },
   images: {
-    formats: ['image/avif', 'image/webp']
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
   async headers() {
     return [

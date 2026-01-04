@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Package, Pill, Eye } from 'lucide-react';
+import Link from 'next/link';
+import { Package, Pill, Eye, ArrowRight, Activity, ShieldCheck } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -24,109 +25,99 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, index, onViewDetails }: ProductCardProps) {
-  const hasMoreData = product.indication && product.indication.length > 50;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 * index }}
-      className="bg-white rounded-lg shadow-medical hover:shadow-medical transition-all duration-300 overflow-hidden border border-medical"
+      transition={{ delay: 0.05 * index, duration: 0.4 }}
+      className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full"
     >
-      {/* Product Image */}
-      <div className="relative h-48 bg-medical-light overflow-hidden">
+      {/* Image Section */}
+      <div className="relative h-56 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden group-hover:from-blue-50 group-hover:to-indigo-50 transition-colors duration-500">
         {product.image_url ? (
           <Image
             src={product.image_url}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="bg-white rounded-full p-4 shadow-sm">
-              <Pill className="w-12 h-12 text-blue-600" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-400 blur-2xl opacity-20 rounded-full"></div>
+              <Pill className="relative w-16 h-16 text-slate-300 group-hover:text-blue-500 transition-colors duration-300" />
             </div>
           </div>
         )}
-        {/* Status Badge */}
-        <div className="absolute top-3 right-3">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+        
+        {/* Overlay Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+
+        {/* Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-bold rounded-full shadow-sm border border-white/50">
+            {product.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+          </span>
+        </div>
+
+        <div className="absolute top-4 right-4">
+           <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md border border-white/20 ${
             product.is_active
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-600'
+              ? 'bg-emerald-500/90 text-white'
+              : 'bg-slate-500/90 text-white'
           }`}>
             {product.is_active ? 'Active' : 'Inactive'}
           </span>
         </div>
-      </div>
 
-      {/* Product Information */}
-      <div className="p-6">
-        {/* Drug Name */}
-        <div className="mb-4">
-          <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight">
-            {product.name}
-          </h3>
-          {/* Active Ingredient */}
-          <p className="text-sm text-medical-primary font-medium">
+        {/* Quick Info Overlay */}
+        <div className="absolute bottom-4 left-4 right-4 text-white">
+          <h3 className="text-xl font-bold mb-1 drop-shadow-md">{product.name}</h3>
+          <p className="text-sm text-white/90 font-medium drop-shadow-sm flex items-center gap-2">
+            <Activity className="w-3 h-3" />
             {product.generic_name}
           </p>
         </div>
+      </div>
 
-        {/* Product Details Grid */}
-        <div className="space-y-3 mb-4">
-          {/* Dosage Form */}
-          <div className="flex items-center justify-between py-2 border-b border-gray-50">
-            <span className="text-sm font-medium text-gray-500">Dosage Form:</span>
-            <span className="text-sm text-gray-900 font-medium">{product.dosage_form}</span>
+      {/* Content Section */}
+      <div className="p-5 flex-1 flex flex-col">
+        {/* Specs Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:border-blue-100 transition-colors">
+            <span className="text-xs text-slate-500 font-medium block mb-1">Dosage Form</span>
+            <span className="text-sm font-bold text-slate-800 line-clamp-1" title={product.dosage_form}>
+              {product.dosage_form}
+            </span>
           </div>
-
-          {/* Concentration / Strength */}
-          <div className="flex items-center justify-between py-2 border-b border-gray-50">
-            <span className="text-sm font-medium text-gray-500">Strength:</span>
-            <span className="text-sm text-gray-900 font-medium">{product.strength}</span>
+          <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:border-blue-100 transition-colors">
+            <span className="text-xs text-slate-500 font-medium block mb-1">Strength</span>
+            <span className="text-sm font-bold text-slate-800 line-clamp-1" title={product.strength}>
+              {product.strength}
+            </span>
           </div>
-
-          {/* Pack Size (if available) */}
-          {product.pack_size && (
-            <div className="flex items-center justify-between py-2 border-b border-gray-50">
-              <span className="text-sm font-medium text-gray-500">Pack Size:</span>
-              <span className="text-sm text-gray-900 font-medium">{product.pack_size}</span>
-            </div>
-          )}
-
-          {/* Registration Number (if available) */}
-          {product.registration_number && (
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm font-medium text-gray-500">Reg. No:</span>
-              <span className="text-sm text-gray-900 font-medium">{product.registration_number}</span>
-            </div>
-          )}
         </div>
 
-        {/* Price (if available) */}
-        {product.price && (
-          <div className="mb-4 pt-3 border-t border-gray-100">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-gray-900">{product.price} EGP</span>
-            </div>
-          </div>
-        )}
+        {/* Indication Preview */}
+        <div className="mb-6 flex-1">
+          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+            <ShieldCheck className="w-3 h-3" /> Indication
+          </h4>
+          <p className="text-sm text-slate-600 leading-relaxed line-clamp-2">
+            {product.indication}
+          </p>
+        </div>
 
-        {/* View Details Button */}
-        <button
-          onClick={() => onViewDetails?.(product)}
-          disabled={!hasMoreData}
-          className={`w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-            hasMoreData
-              ? 'bg-medical-gradient hover:opacity-90 text-white shadow-medical hover:shadow-medical'
-              : 'bg-gray-100 text-medical-secondary cursor-not-allowed'
-          }`}
+        {/* Action Button */}
+        <Link
+          href={`/products/human-new/${product.category}/${product.id}`}
+          className="w-full group/btn relative overflow-hidden rounded-xl bg-slate-900 text-white px-4 py-3.5 font-medium transition-all hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30 active:scale-[0.98] block text-center"
         >
-          <Eye className="w-4 h-4 mr-2" />
-          View Details
-        </button>
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            View Full Details
+            <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+          </span>
+        </Link>
       </div>
     </motion.div>
   );
