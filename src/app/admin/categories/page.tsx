@@ -1,86 +1,25 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useForm } from 'react-hook-form';
 import {
-  LayoutDashboard,
-  Package,
-  Users,
-  Settings,
-  LogOut,
   Plus,
   Edit,
   Trash2,
   Search,
-  Filter
+  Save,
+  X,
+  Users,
+  Filter,
+  Check,
+  Tag
 } from 'lucide-react';
-import { categoriesAPI } from '../../../lib/api';
+import Link from 'next/link';
+import { categoriesAPI } from '@/lib/api';
+import toast from 'react-hot-toast';
+import AdminSidebar from '@/components/admin/AdminSidebar';
 
-// Sidebar Component (same as dashboard)
-function AdminSidebar({ currentPage }: { currentPage: string }) {
-  const router = useRouter();
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminLoggedIn');
-    localStorage.removeItem('adminEmail');
-    router.push('/admin/login');
-  };
-
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/admin/dashboard' },
-    { id: 'human-products', label: 'Human Products', icon: Package, href: '/admin/products/human' },
-    { id: 'vet-products', label: 'Veterinary Products', icon: Package, href: '/admin/products/veterinary' },
-    { id: 'categories', label: 'Categories', icon: Users, href: '/admin/categories' },
-    { id: 'settings', label: 'Settings', icon: Settings, href: '/admin/settings' },
-  ];
-
-  return (
-    <div className="bg-gray-900 text-white w-64 min-h-screen p-4">
-      <div className="flex items-center mb-8">
-        <div className="bg-red-600 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
-          <Package className="w-6 h-6" />
-        </div>
-        <div>
-          <h2 className="font-bold text-lg">Sobek Pharma</h2>
-          <p className="text-gray-400 text-sm">Admin Panel</p>
-        </div>
-      </div>
-
-      <nav className="space-y-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors text-right ${
-                currentPage === item.id
-                  ? 'bg-red-600 text-white'
-                  : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-              }`}
-            >
-              <Icon className="w-5 h-5 ml-3" />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="absolute bottom-4 w-56">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors"
-        >
-          <LogOut className="w-5 h-5 ml-3" />
-          Logout
-        </button>
-      </div>
-    </div>
-  );
-}
-
+// Types
 interface Category {
   id: string;
   name: string;
@@ -92,393 +31,370 @@ interface Category {
   created_at?: string;
 }
 
-export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [filterType, setFilterType] = useState<'all' | 'human' | 'veterinary'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const router = useRouter();
-
-  const [formData, setFormData] = useState({
-    name: '',
-    name_ar: '',
-    slug: '',
-    type: 'human' as 'human' | 'veterinary',
-    icon: '',
-    description: ''
+// Category Form Modal
+function CategoryFormModal({ 
+  isOpen, 
+  onClose, 
+  category, 
+  onSave
+}: { 
+  isOpen: boolean;
+  onClose: () => void;
+  category?: Category | null;
+  onSave: (data: Partial<Category>) => void;
+}) {
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    defaultValues: category || {}
   });
 
   useEffect(() => {
-    const adminLoggedIn = localStorage.getItem('adminLoggedIn');
-    if (!adminLoggedIn) {
-      router.push('/admin/login');
+    if (category) {
+      reset(category);
     } else {
-      setIsAuthenticated(true);
-      loadCategories();
+      reset({
+        name: '',
+        slug: '',
+        type: 'human',
+        description: ''
+      });
     }
-  }, [router]);
+  }, [category, reset]);
 
-  const loadCategories = async () => {
+  const onSubmit = (data: Partial<Category>) => {
+    onSave({
+      ...data,
+      id: category?.id || Date.now().toString()
+    });
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl"
+      >
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+              {category ? 'Edit Category' : 'Add New Category'}
+              <Tag className="w-6 h-6 text-red-600" />
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">Organize your products with categories</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">
+              Category Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              {...register('name', { required: 'Category name is required' })}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+              placeholder="e.g. Cardiovascular"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-xs mt-1">{String(errors.name.message)}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">
+              Slug <span className="text-red-500">*</span>
+            </label>
+            <input
+              {...register('slug', { required: 'Slug is required' })}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 font-mono text-sm"
+              placeholder="e.g. cardiovascular"
+            />
+            <p className="text-xs text-slate-400">Used in URL (e.g. /products/human/cardiovascular)</p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">
+              Type <span className="text-red-500">*</span>
+            </label>
+            <div className="flex gap-4">
+               <label className="flex-1 cursor-pointer">
+                  <input type="radio" value="human" {...register('type')} className="peer sr-only" />
+                  <div className="text-center py-3 px-4 rounded-xl border border-slate-200 peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition-all">
+                     <span className="font-medium">Human</span>
+                  </div>
+               </label>
+               <label className="flex-1 cursor-pointer">
+                  <input type="radio" value="veterinary" {...register('type')} className="peer sr-only" />
+                  <div className="text-center py-3 px-4 rounded-xl border border-slate-200 peer-checked:border-red-500 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition-all">
+                     <span className="font-medium">Veterinary</span>
+                  </div>
+               </label>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">
+              Description
+            </label>
+            <textarea
+              {...register('description')}
+              rows={3}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 resize-none"
+              placeholder="Optional description..."
+            />
+          </div>
+
+          <div className="flex gap-4 pt-4 border-t border-slate-100 mt-8">
+            <button
+              type="submit"
+              className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 font-medium transition-all shadow-lg shadow-red-500/20"
+            >
+              <Save className="w-5 h-5" />
+              {category ? 'Save Changes' : 'Create Category'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-6 py-3 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
+
+export default function CategoriesAdmin() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
     try {
       setLoading(true);
       const data = await categoriesAPI.getAll();
-      setCategories(data as Category[]);
-    } catch (error) {
+      setCategories(data as any);
+    } catch (error: any) {
       console.error('Error loading categories:', error);
-      // Don't alert, just show empty state
-      setCategories([]);
+      toast.error('Failed to load categories');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      if (editingCategory) {
-        // Update existing category
-        await categoriesAPI.update(editingCategory.id, {
-          name: formData.name,
-          name_ar: formData.name_ar,
-          slug: formData.slug,
-          type: formData.type,
-          icon: formData.icon,
-          description: formData.description
-        });
-        toast.success('Category updated successfully!');
-      } else {
-        // Create new category
-        await categoriesAPI.create({
-          name: formData.name,
-          name_ar: formData.name_ar,
-          slug: formData.slug,
-          type: formData.type,
-          icon: formData.icon,
-          description: formData.description
-        });
-        toast.success('Category created successfully!');
-      }
-      await loadCategories();
-      setShowModal(false);
-      resetForm();
-    } catch (error) {
-      console.error('Error saving category:', error);
-      toast.error('Failed to save category');
+  useEffect(() => {
+    let filtered = categories;
+
+    if (searchTerm) {
+      filtered = filtered.filter(cat =>
+        cat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cat.slug.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
+
+    if (selectedType !== 'all') {
+      filtered = filtered.filter(cat => cat.type === selectedType);
+    }
+
+    setFilteredCategories(filtered);
+  }, [categories, searchTerm, selectedType]);
+
+  const handleAddCategory = () => {
+    setEditingCategory(null);
+    setIsModalOpen(true);
   };
 
-  const handleEdit = (category: Category) => {
+  const handleEditCategory = (category: Category) => {
     setEditingCategory(category);
-    setFormData({
-      name: category.name,
-      name_ar: category.name_ar || '',
-      slug: category.slug,
-      type: category.type,
-      icon: category.icon || '',
-      description: category.description || ''
-    });
-    setShowModal(true);
+    setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete the category "${name}"?\n\nThis action cannot be undone.`)) {
+  const handleDeleteCategory = async (id: string) => {
+    if (confirm('⚠️ Are you sure you want to delete this category?\n\nThis will NOT delete products in this category, but they will become un-categorized.')) {
       try {
         await categoriesAPI.delete(id);
+        await loadData();
         toast.success('Category deleted successfully!');
-        await loadCategories();
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting category:', error);
         toast.error('Failed to delete category');
       }
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      name_ar: '',
-      slug: '',
-      type: 'human',
-      icon: '',
-      description: ''
-    });
-    setEditingCategory(null);
+  const handleSaveCategory = async (categoryData: Partial<Category>) => {
+    try {
+      if (editingCategory) {
+        await categoriesAPI.update(editingCategory.id, categoryData as any);
+        toast.success('Category updated successfully');
+      } else {
+        await categoriesAPI.create(categoryData as any);
+        toast.success('Category created successfully');
+      }
+      await loadData();
+      setIsModalOpen(false);
+      setEditingCategory(null);
+    } catch (error: any) {
+      console.error('Error saving category:', error);
+      toast.error('Failed to save category');
+    }
   };
 
-  const filteredCategories = categories.filter(cat => {
-    const matchesType = filterType === 'all' || cat.type === filterType;
-    const matchesSearch = cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (cat.name_ar && cat.name_ar.includes(searchQuery));
-    return matchesType && matchesSearch;
-  });
-
-  if (!isAuthenticated) {
-    return <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="text-center">Verifying authentication...</div>
-    </div>;
-  }
-
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar currentPage="categories" />
-      
-      <main className="flex-1 p-8">
-        <div className="max-w-7xl mx-auto">
+    <div className="flex min-h-screen bg-slate-50 font-sans">
+      <AdminSidebar />
+      <div className="flex-1 ml-72 p-10">
+        <div className="max-w-6xl mx-auto space-y-8">
+          
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex items-end justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Categories Management</h1>
-              <p className="text-gray-600 mt-2">Manage product categories for human and veterinary products</p>
+              <h1 className="text-3xl font-bold text-slate-800">Categories</h1>
+              <p className="text-slate-500 mt-2">Manage product categories structure</p>
             </div>
             <button
-              onClick={() => {
-                resetForm();
-                setShowModal(true);
-              }}
-              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
-            >
-              <Plus className="w-5 h-5" />
-              Add Category
-            </button>
-          </div>
-
-          {/* Filters */}
-          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search categories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Filter className="w-5 h-5 text-gray-400" />
-                <select
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value as any)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                >
-                  <option value="all">All Types</option>
-                  <option value="human">Human Products</option>
-                  <option value="veterinary">Veterinary Products</option>
-                </select>
-              </div>
-
-              <div className="text-right text-gray-600">
-                Total: <span className="font-bold text-gray-900">{filteredCategories.length}</span> categories
-              </div>
-            </div>
-          </div>
-
-          {/* Categories Grid */}
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-              <p className="mt-4 text-gray-600">Loading categories...</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCategories.map((category, index) => (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all p-6"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      category.type === 'human' 
-                        ? 'bg-blue-100 text-blue-700' 
-                        : 'bg-green-100 text-green-700'
-                    }`}>
-                      {category.type === 'human' ? 'Human' : 'Veterinary'}
-                    </div>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleEdit(category)}
-                        className="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(category.id, category.name)}
-                        className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 mb-3">
-                    {category.icon && (
-                      <div className="text-3xl">{category.icon}</div>
-                    )}
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-900">{category.name}</h3>
-                      {category.name_ar && (
-                        <p className="text-gray-600 text-sm">{category.name_ar}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <p className="text-sm text-gray-500 mb-3">
-                    <span className="font-medium">Slug:</span> {category.slug}
-                  </p>
-                  {category.description && (
-                    <p className="text-sm text-gray-600">{category.description}</p>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          {filteredCategories.length === 0 && !loading && (
-            <div className="text-center py-12 bg-white rounded-xl">
-              <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No categories found</h3>
-              <p className="text-gray-500 mb-4">Create your first category to get started</p>
-              <button
-                onClick={() => setShowModal(true)}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2"
+                onClick={handleAddCategory}
+                className="flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-500/20 font-medium"
               >
                 <Plus className="w-5 h-5" />
-                Add Category
+                Add New Category
               </button>
-            </div>
-          )}
-        </div>
-
-        {/* Add/Edit Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            >
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {editingCategory ? 'Edit Category' : 'Add New Category'}
-                </h2>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category Name (English) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="e.g., Cardiovascular"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category Name (Arabic)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name_ar}
-                    onChange={(e) => setFormData({...formData, name_ar: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="e.g., أدوية القلب"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Slug (URL-friendly) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.slug}
-                    onChange={(e) => setFormData({...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="e.g., cardiovascular"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Type *
-                  </label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value as any})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    <option value="human">Human Products</option>
-                    <option value="veterinary">Veterinary Products</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Icon (Emoji)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.icon}
-                    onChange={(e) => setFormData({...formData, icon: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="e.g., ❤️, 🐄, 🐔, 🐟"
-                    maxLength={2}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Add an emoji to represent this category</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="Brief description of this category"
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors"
-                  >
-                    {editingCategory ? 'Update Category' : 'Create Category'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowModal(false);
-                      resetForm();
-                    }}
-                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-medium transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </motion.div>
           </div>
+
+          {/* Filters & Search */}
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-4 items-center">
+             <div className="relative flex-1 w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input 
+                  type="text" 
+                  placeholder="Search categories..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
+                />
+             </div>
+             <div className="relative w-full sm:w-64">
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full pl-4 pr-8 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all appearance-none text-slate-700 font-medium cursor-pointer hover:bg-slate-50"
+                >
+                  <option value="all">All Types</option>
+                  <option value="human">Human</option>
+                  <option value="veterinary">Veterinary</option>
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+                </div>
+             </div>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-6">
+             {loading ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mb-4"></div>
+                   <p className="text-slate-500">Loading categories...</p>
+                </div>
+             ) : filteredCategories.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   <AnimatePresence>
+                      {filteredCategories.map((category) => (
+                        <motion.div
+                          layout
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          key={category.id}
+                          className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group p-5 flex flex-col relative overflow-hidden"
+                        >
+                           <div className={`absolute top-0 right-0 p-2 rounded-bl-xl text-xs font-bold uppercase tracking-wider ${category.type === 'human' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600'}`}>
+                              {category.type}
+                           </div>
+
+                           <div className="flex items-start justify-between mb-4">
+                              <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors">
+                                 <Tag className="w-6 h-6" />
+                              </div>
+                           </div>
+
+                           <h3 className="text-lg font-bold text-slate-800 mb-1">{category.name}</h3>
+                           <code className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded w-fit mb-3">{category.slug}</code>
+                           
+                           {category.description && (
+                              <p className="text-slate-500 text-sm mb-4 line-clamp-2">{category.description}</p>
+                           )}
+
+                           <div className="mt-auto pt-4 border-t border-slate-50 flex gap-2">
+                              <button
+                                 onClick={() => handleEditCategory(category)}
+                                 className="flex-1 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 text-sm font-medium transition-colors"
+                              >
+                                 Edit
+                              </button>
+                              <button
+                                 onClick={() => handleDeleteCategory(category.id)}
+                                 className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                              >
+                                 <Trash2 className="w-4 h-4" />
+                              </button>
+                           </div>
+                        </motion.div>
+                      ))}
+                   </AnimatePresence>
+                </div>
+             ) : (
+                <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+                   <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Users className="w-10 h-10 text-slate-300" />
+                   </div>
+                   <h3 className="text-xl font-bold text-slate-800 mb-2">No categories found</h3>
+                   <p className="text-slate-500 max-w-sm mx-auto mb-8">
+                     Start organizing your products by creating categories.
+                   </p>
+                   <button
+                     onClick={handleAddCategory}
+                     className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-all font-medium"
+                   >
+                     <Plus className="w-5 h-5" />
+                     Add Category
+                   </button>
+                </div>
+             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <CategoryFormModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            category={editingCategory}
+            onSave={handleSaveCategory}
+          />
         )}
-      </main>
+      </AnimatePresence>
     </div>
   );
 }

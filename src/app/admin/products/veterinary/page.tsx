@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import {
   Plus,
@@ -12,12 +12,17 @@ import {
   Package,
   ArrowLeft,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Filter,
+  Check,
+  MoreVertical,
+  Stethoscope
 } from 'lucide-react';
 import Link from 'next/link';
 import { veterinaryProductsAPI, categoriesAPI } from '@/lib/api';
 import { uploadProductImage } from '@/lib/uploadHelpers';
 import toast from 'react-hot-toast';
+import AdminSidebar from '@/components/admin/AdminSidebar';
 
 // Types
 interface VeterinaryProduct {
@@ -102,17 +107,13 @@ function ProductFormModal({
       // Set the image URL in form
       setValue('image_url', imageUrl);
       
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewImage(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      // Set preview to the actual uploaded URL
+      setPreviewImage(imageUrl);
       
       toast.success('Image uploaded successfully!');
       
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Image upload error');
+      toast.error(error instanceof Error ? error.message : 'Error uploading image');
     } finally {
       setIsUploading(false);
     }
@@ -121,7 +122,7 @@ function ProductFormModal({
   const onSubmit = (data: Partial<VeterinaryProduct>) => {
     onSave({
       ...data,
-      price: data.price ? parseFloat(String(data.price)) : undefined,
+      price: parseFloat(String(data.price || 0)),
       id: product?.id || Date.now().toString()
     });
     onClose();
@@ -130,50 +131,78 @@ function ProductFormModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="bg-white rounded-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl"
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-900">
-            {product ? 'Edit Veterinary Product' : 'Add New Veterinary Product'}
-          </h2>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+              {product ? 'Edit Veterinary Product' : 'Add Veterinary Product'}
+              <Stethoscope className="w-6 h-6 text-red-600" />
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">Fill in the details below</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Hidden input for image_url */}
+          <input type="hidden" {...register('image_url')} />
+
           {/* Image Upload Section */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
+          <div className="space-y-3">
+            <label className="block text-sm font-semibold text-slate-700">
               Product Image
             </label>
-            <div className="flex items-center space-x-4 space-x-reverse">
-              {previewImage && (
-                <div className="w-20 h-20 border rounded-lg overflow-hidden">
-                  <img
-                    src={previewImage}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
+            <div className="flex items-start gap-6">
+              {previewImage ? (
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-xl overflow-hidden border border-slate-200">
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <button
+                     type="button"
+                     onClick={() => {
+                        setPreviewImage('');
+                        setValue('image_url', '');
+                     }}
+                     className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
-              )}
+              ) : null}
+              
               <div className="flex-1">
-                <label className="cursor-pointer">
-                  <div className="flex items-center justify-center w-full h-20 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 transition-colors">
-                    <div className="text-center">
+                <label className="cursor-pointer block">
+                  <div className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl transition-all duration-200 ${isUploading ? 'bg-slate-50 border-slate-300' : 'border-slate-300 hover:border-red-400 hover:bg-red-50/10'}`}>
+                    <div className="text-center p-4">
                       {isUploading ? (
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600 mx-auto"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
                       ) : (
                         <>
-                          <Upload className="w-6 h-6 text-gray-400 mx-auto mb-1" />
-                          <span className="text-sm text-gray-500">Choose Image</span>
+                          <div className="bg-red-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <Upload className="w-6 h-6 text-red-600" />
+                          </div>
+                          <span className="text-sm font-medium text-slate-700 block">
+                            Click to upload image
+                          </span>
+                          <span className="text-xs text-slate-400 mt-1 block">
+                            SVG, PNG, JPG or GIF (max. 3MB)
+                          </span>
                         </>
                       )}
                     </div>
@@ -190,171 +219,181 @@ function ProductFormModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Product Name *
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                Product Name <span className="text-red-500">*</span>
               </label>
               <input
                 {...register('name', { required: 'Product name is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="e.g., SOBEK-VET OXYTETRACYCLINE"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                placeholder="Product commercial name"
               />
               {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{String(errors.name.message)}</p>
+                <p className="text-red-500 text-xs mt-1">{String(errors.name.message)}</p>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Generic Name *
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                Generic Name <span className="text-red-500">*</span>
               </label>
               <input
                 {...register('generic_name', { required: 'Generic name is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="e.g., Oxytetracycline HCl"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                placeholder="Active ingredient"
               />
               {errors.generic_name && (
-                <p className="text-red-500 text-sm mt-1">{String(errors.generic_name.message)}</p>
+                <p className="text-red-500 text-xs mt-1">{String(errors.generic_name.message)}</p>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Strength *
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                Strength <span className="text-red-500">*</span>
               </label>
               <input
                 {...register('strength', { required: 'Strength is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="e.g., 200mg/ml"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                placeholder="e.g. 500mg"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Dosage Form *
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                Dosage Form <span className="text-red-500">*</span>
               </label>
               <input
                 {...register('dosage_form', { required: 'Dosage form is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="e.g., Injectable Solution"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                placeholder="e.g. Tablets"
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Target Species *
-              </label>
-              <input
-                {...register('species', { required: 'Species is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="e.g., Cattle, Sheep, Goats"
-              />
+            
+            {/* Veterinary Specific Fields */}
+            <div className="space-y-2">
+               <label className="block text-sm font-semibold text-slate-700">
+                 Target Species <span className="text-red-500">*</span>
+               </label>
+               <input
+                 {...register('species', { required: 'Species is required' })}
+                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                 placeholder="e.g. Cattle, Sheep, Goats"
+               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Withdrawal Period
-              </label>
-              <input
-                {...register('withdrawal_period')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="e.g., Meat: 28 days, Milk: 7 days"
-              />
+            <div className="space-y-2">
+               <label className="block text-sm font-semibold text-slate-700">
+                 Withdrawal Period <span className="text-red-500">*</span>
+               </label>
+               <input
+                 {...register('withdrawal_period', { required: 'Withdrawal period is required' })}
+                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                 placeholder="e.g. Meat: 5 days, Milk: 3 days"
+               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
                 Pack Size
               </label>
               <input
                 {...register('pack_size')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="e.g., 100ml vial"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                placeholder="e.g. 100ml Bottle"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
                 Registration Number
               </label>
               <input
                 {...register('registration_number')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                placeholder="e.g., GOVS-VET-001/2023"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                placeholder="e.g. 12345/2026"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category *
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                Category <span className="text-red-500">*</span>
               </label>
-              <select
-                {...register('category', { required: 'Category is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                <option value="">Select Category</option>
-                {categories.map((category: string) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  {...register('category', { required: 'Category is required' })}
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all appearance-none bg-white font-medium text-slate-700"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((category: string) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+                   <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-700">
                 Price (EGP)
               </label>
               <input
                 type="number"
                 step="0.01"
                 {...register('price')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
                 placeholder="0.00"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Indication *
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">
+              Indication <span className="text-red-500">*</span>
             </label>
             <textarea
               {...register('indication', { required: 'Indication is required' })}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="Enter indications for veterinary use..."
+              rows={4}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 resize-none"
+              placeholder="Enter indications for use..."
             />
             {errors.indication && (
-              <p className="text-red-500 text-sm mt-1">{String(errors.indication.message)}</p>
+              <p className="text-red-500 text-xs mt-1">{String(errors.indication.message)}</p>
             )}
           </div>
 
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              {...register('is_active')}
-              className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-            />
-            <label className="mr-2 block text-sm text-gray-900">
-              Active Product
+          <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div className="relative flex items-center">
+              <input
+                type="checkbox"
+                id="is_active"
+                {...register('is_active')}
+                className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-300 bg-white transition-all checked:border-red-500 checked:bg-red-500 hover:border-red-400"
+              />
+              <Check className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-all" />
+            </div>
+            <label htmlFor="is_active" className="cursor-pointer select-none text-sm font-medium text-slate-700">
+              Active Status (Visible on website)
             </label>
           </div>
 
-          <div className="flex gap-3 pt-6">
+          <div className="flex gap-4 pt-4 border-t border-slate-100 mt-8">
             <button
               type="submit"
               disabled={isUploading}
-              className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 font-medium transition-all shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:shadow-none"
             >
-              <Save className="w-4 h-4" />
-              {product ? 'Save Changes' : 'Add Product'}
+              <Save className="w-5 h-5" />
+              {product ? 'Save Changes' : 'Create Product'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="flex-1 px-6 py-3 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 font-medium transition-all"
             >
               Cancel
             </button>
@@ -392,8 +431,9 @@ export default function VeterinaryProductsAdmin() {
       if (categoriesData && categoriesData.length > 0) {
         setCategories(categoriesData.map((cat: any) => cat.slug));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading data:', error);
+      toast.error('Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -406,8 +446,7 @@ export default function VeterinaryProductsAdmin() {
     if (searchTerm) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.generic_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.species?.toLowerCase().includes(searchTerm.toLowerCase())
+        product.generic_name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -432,11 +471,11 @@ export default function VeterinaryProductsAdmin() {
     if (confirm('⚠️ Are you sure you want to delete this product?\n\nThis action cannot be undone.')) {
       try {
         await veterinaryProductsAPI.delete(id);
-        await loadData(); // Reload products
+        await loadData();
         toast.success('Product deleted successfully!');
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error deleting product:', error);
-        toast.error('Failed to delete product. Please try again.');
+        toast.error('Failed to delete product');
       }
     }
   };
@@ -444,205 +483,194 @@ export default function VeterinaryProductsAdmin() {
   const handleSaveProduct = async (productData: Partial<VeterinaryProduct>) => {
     try {
       if (editingProduct) {
-        // Update existing product
         await veterinaryProductsAPI.update(editingProduct.id, productData as any);
-        toast.success('Product updated successfully!');
+        toast.success('Product updated successfully');
       } else {
-        // Add new product
         await veterinaryProductsAPI.create(productData as any);
-        toast.success('Product added successfully!');
+        toast.success('Product created successfully');
       }
-      await loadData(); // Reload products to show in admin panel
+      await loadData();
       setIsModalOpen(false);
       setEditingProduct(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving product:', error);
-      toast.error('Failed to save product. Please try again.');
+      toast.error('Failed to save product');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/admin/dashboard"
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                Back to Dashboard
-              </Link>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <div className="flex items-center gap-2">
-                <Package className="w-6 h-6 text-red-600" />
-                <h1 className="text-xl font-bold text-gray-900">Veterinary Products Management</h1>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
-          </div>
-        ) : (
-          <>
-            {/* Actions Bar */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                />
-              </div>
+    <div className="flex min-h-screen bg-slate-50 font-sans">
+      <AdminSidebar />
+      <div className="flex-1 ml-72 p-10">
+        <div className="max-w-7xl mx-auto space-y-8">
           
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                <option value="">All Categories</option>
-                {categories.map((category: string) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-
-              <button
+          {/* Header */}
+          <div className="flex items-end justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-800">Veterinary Products</h1>
+              <p className="text-slate-500 mt-2">Manage your veterinary pharmaceutical products</p>
+            </div>
+            <button
                 onClick={handleAddProduct}
-                className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                className="flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-500/20 font-medium"
               >
                 <Plus className="w-5 h-5" />
                 Add New Product
               </button>
-            </div>
+          </div>
 
-            {/* Products Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Product
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Species
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredProducts.map((product) => (
-                      <tr key={product.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {product.image_url ? (
-                              <img
-                                src={product.image_url}
-                                alt={product.name}
-                                className="w-10 h-10 rounded-md object-cover ml-4"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 bg-gray-200 rounded-md flex items-center justify-center ml-4">
-                                <ImageIcon className="w-5 h-5 text-gray-400" />
-                              </div>
-                            )}
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {product.name}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {product.generic_name}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {product.category}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {product.species}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {product.price ? `${product.price} EGP` : '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            product.is_active 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {product.is_active ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleEditProduct(product)}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteProduct(product.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {filteredProducts.length === 0 && (
-                <div className="text-center py-12">
-                  <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-                  <p className="text-gray-500">Start by adding your first veterinary product</p>
+          {/* Filters & Search */}
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row gap-4 items-center">
+             <div className="relative flex-1 w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input 
+                  type="text" 
+                  placeholder="Search by product name or active ingredient..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
+                />
+             </div>
+             <div className="relative w-full sm:w-64">
+                <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full pl-10 pr-8 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all appearance-none text-slate-700 font-medium cursor-pointer hover:bg-slate-50"
+                  style={{ backgroundImage: 'none' }}
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
                 </div>
-              )}
-            </div>
+             </div>
+          </div>
 
-            {/* Product Modal */}
-            <ProductFormModal
-              isOpen={isModalOpen}
-              onClose={() => {
-                setIsModalOpen(false);
-                setEditingProduct(null);
-              }}
-              product={editingProduct}
-              onSave={handleSaveProduct}
-              categories={categories}
-            />
-          </>
-        )}
+          {/* Content */}
+          <div className="space-y-6">
+             {loading ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mb-4"></div>
+                   <p className="text-slate-500">Loading veterinary catalog...</p>
+                </div>
+             ) : filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                   <AnimatePresence>
+                      {filteredProducts.map((product) => (
+                        <motion.div
+                          layout
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          key={product.id}
+                          className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden flex flex-col"
+                        >
+                           <div className="relative h-48 bg-slate-100 overflow-hidden">
+                              {product.image_url ? (
+                                <img
+                                  src={product.image_url}
+                                  alt={product.name}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-300 bg-slate-50">
+                                   <ImageIcon className="w-12 h-12" />
+                                </div>
+                              )}
+                              <div className="absolute top-3 right-3 flex gap-2">
+                                 <span className={`px-2.5 py-1 rounded-lg text-xs font-bold backdrop-blur-md ${product.is_active ? 'bg-emerald-500/90 text-white' : 'bg-slate-500/90 text-white'}`}>
+                                    {product.is_active ? 'Active' : 'Inactive'}
+                                 </span>
+                              </div>
+                           </div>
+                           
+                           <div className="p-5 flex-1 flex flex-col">
+                              <div className="flex items-start justify-between mb-2">
+                                 <div>
+                                    <h3 className="font-bold text-slate-800 text-lg group-hover:text-red-600 transition-colors line-clamp-1" title={product.name}>{product.name}</h3>
+                                    <p className="text-slate-500 text-sm font-medium line-clamp-1" title={product.generic_name}>{product.generic_name}</p>
+                                 </div>
+                              </div>
+                              
+                              <div className="my-4 space-y-2 flex-1">
+                                 <div className="flex items-center text-xs text-slate-500 bg-slate-50 p-2 rounded-lg">
+                                    <span className="font-semibold text-slate-700 w-20">Category:</span>
+                                    <span className="truncate">{product.category}</span>
+                                 </div>
+                                 <div className="flex items-center text-xs text-slate-500 bg-slate-50 p-2 rounded-lg">
+                                    <span className="font-semibold text-slate-700 w-20">Species:</span>
+                                    <span className="truncate">{product.species}</span>
+                                 </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 mt-auto pt-4 border-t border-slate-50">
+                                 <button
+                                    onClick={() => handleEditProduct(product)}
+                                    className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-slate-600 bg-white border border-slate-200 hover:border-red-500 hover:text-red-500 transition-all text-sm font-medium"
+                                 >
+                                    <Edit className="w-4 h-4" />
+                                    Edit
+                                 </button>
+                                 <button
+                                    onClick={() => handleDeleteProduct(product.id)}
+                                    className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                    title="Delete Product"
+                                 >
+                                    <Trash2 className="w-4 h-4" />
+                                 </button>
+                              </div>
+                           </div>
+                        </motion.div>
+                      ))}
+                   </AnimatePresence>
+                </div>
+             ) : (
+                <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+                   <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Package className="w-10 h-10 text-slate-300" />
+                   </div>
+                   <h3 className="text-xl font-bold text-slate-800 mb-2">No products found</h3>
+                   <p className="text-slate-500 max-w-sm mx-auto mb-8">
+                     {searchTerm ? `No matches found for "${searchTerm}"` : "Get started by adding your first veterinary product to the catalog."}
+                   </p>
+                   {searchTerm ? (
+                      <button 
+                        onClick={() => setSearchTerm('')}
+                        className="text-red-600 font-medium hover:underline"
+                      >
+                        Clear search
+                      </button>
+                   ) : (
+                      <button
+                        onClick={handleAddProduct}
+                        className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-all font-medium"
+                      >
+                        <Plus className="w-5 h-5" />
+                        Add Product
+                      </button>
+                   )}
+                </div>
+             )}
+          </div>
+        </div>
       </div>
+
+      {/* Modals */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <ProductFormModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            product={editingProduct}
+            onSave={handleSaveProduct}
+            categories={categories}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

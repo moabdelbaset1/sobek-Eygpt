@@ -40,6 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Prisma (Legacy - No longer used)
 /src/generated/prisma
+/prisma/*.db
+/prisma/*.db-journal
 
 .vercel
+.env*.local

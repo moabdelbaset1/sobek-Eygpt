@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -71,8 +71,8 @@ model MediaPost {
   id          String   @id @default(uuid())
   title       String
   titleAr     String?  @map("title_ar")
-  content     String   @db.LongText // Main text content - can be very long
-  contentAr   String?  @db.LongText @map("content_ar")
+  content     String   // Main text content - can be very long
+  contentAr   String?  @map("content_ar")
   type        String   // 'news' or 'event'
   mediaType   String?  @map("media_type") // 'image' or 'video'
   mediaUrl    String?  @map("media_url")  // URL to image or video
@@ -93,10 +93,10 @@ model Job {
   location        String
   jobType         String   @map("job_type") // 'full-time', 'part-time', 'contract'
   workingHours    String   @map("working_hours")
-  description     String   @db.Text
-  descriptionAr   String?  @db.Text @map("description_ar")
-  requirements    String   @db.Text
-  requirementsAr  String?  @db.Text @map("requirements_ar")
+  description     String
+  descriptionAr   String?  @map("description_ar")
+  requirements    String
+  requirementsAr  String?  @map("requirements_ar")
   isActive        Boolean  @default(true) @map("is_active")
   publishDate     DateTime @default(now()) @map("publish_date")
   expiryDate      DateTime? @map("expiry_date")
@@ -117,8 +117,8 @@ model LeadershipMember {
   titleAr       String?  @map("title_ar")
   department    String   @map("department")
   departmentAr  String?  @map("department_ar")
-  bio           String   @db.LongText
-  bioAr         String?  @db.LongText @map("bio_ar")
+  bio           String
+  bioAr         String?  @map("bio_ar")
   imageUrl      String?  @map("image_url")
   isLeadership  Boolean  @default(false) @map("is_leadership")
   isActive      Boolean  @default(true) @map("is_active")

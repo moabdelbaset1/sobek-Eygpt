@@ -1,18 +1,49 @@
 import { NextResponse } from 'next/server'
-import { veterinaryProductsAPI } from '@/lib/prisma'
+import { veterinaryProductsAPI } from '@/lib/appwrite'
+
+// Transform camelCase from Appwrite to snake_case for frontend
+function transformProduct(product: any) {
+  return {
+    id: product.$id || product.id,
+    name: product.name,
+    generic_name: product.genericName || product.generic_name,
+    strength: product.strength,
+    dosage_form: product.dosageForm || product.dosage_form,
+    indication: product.indication,
+    species: product.species,
+    withdrawal_period: product.withdrawalPeriod || product.withdrawal_period,
+    pack_size: product.packSize || product.pack_size,
+    registration_number: product.registrationNumber || product.registration_number,
+    category: product.category,
+    image_url: product.imageUrl || product.image_url,
+    price: product.price,
+    is_active: product.isActive !== undefined ? product.isActive : product.is_active,
+    created_at: product.$createdAt || product.created_at,
+    updated_at: product.$updatedAt || product.updated_at
+  }
+}
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
+    const id = searchParams.get('id')
 
-    if (category) {
-      const products = await veterinaryProductsAPI.getByCategory(category)
-      return NextResponse.json(products)
+    // Get single product by ID
+    if (id) {
+      const product = await veterinaryProductsAPI.getById(id)
+      return NextResponse.json(transformProduct(product))
     }
 
+    // Get products by category
+    if (category) {
+      const products = await veterinaryProductsAPI.getByCategory(category)
+      return NextResponse.json(products.map(transformProduct))
+    }
+
+    // Get all products
     const products = await veterinaryProductsAPI.getAll()
-    return NextResponse.json(products)
+    return NextResponse.json(products.map(transformProduct))
   } catch (error: any) {
     console.error('Error fetching products:', error)
     return NextResponse.json(
@@ -26,7 +57,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const product = await veterinaryProductsAPI.create(body)
-    return NextResponse.json(product)
+    return NextResponse.json(transformProduct(product))
   } catch (error: any) {
     console.error('Error creating product:', error)
     return NextResponse.json(
@@ -40,7 +71,7 @@ export async function PUT(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
-    
+
     if (!id) {
       return NextResponse.json(
         { error: 'Product ID is required' },
@@ -50,7 +81,7 @@ export async function PUT(request: Request) {
 
     const body = await request.json()
     const product = await veterinaryProductsAPI.update(id, body)
-    return NextResponse.json(product)
+    return NextResponse.json(transformProduct(product))
   } catch (error: any) {
     console.error('Error updating product:', error)
     return NextResponse.json(
@@ -64,7 +95,7 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
-    
+
     if (!id) {
       return NextResponse.json(
         { error: 'Product ID is required' },

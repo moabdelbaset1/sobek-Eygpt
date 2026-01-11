@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { jobApplicationsAPI, jobsAPI } from '@/lib/prisma';
+import { jobApplicationsAPI, jobsAPI } from '@/lib/appwrite';
 import { sendApplicationNotificationEmail } from '@/lib/emailService';
 
 // GET /api/applications - Get all applications or by job ID
@@ -7,11 +7,11 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const jobId = searchParams.get('jobId');
-    
-    const applications = jobId 
+
+    const applications = jobId
       ? await jobApplicationsAPI.getByJobId(jobId)
       : await jobApplicationsAPI.getAll();
-    
+
     return NextResponse.json(applications);
   } catch (error) {
     console.error('Error fetching applications:', error);
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    
+
     // Validate required fields
     if (!data.full_name || !data.email || !data.phone || !data.cv_url) {
       return NextResponse.json(
@@ -34,9 +34,9 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    
+
     const application = await jobApplicationsAPI.create(data);
-    
+
     // Get job title if job_id exists
     let jobTitle = null;
     if (data.job_id) {
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         console.warn('Could not fetch job title:', error);
       }
     }
-    
+
     // Send email notification to company
     try {
       await sendApplicationNotificationEmail({
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       console.error('Failed to send email notification:', emailError);
       // Don't fail the request if email fails
     }
-    
+
     return NextResponse.json(application, { status: 201 });
   } catch (error) {
     console.error('Error creating application:', error);
@@ -79,25 +79,25 @@ export async function PUT(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    
+
     if (!id) {
       return NextResponse.json(
         { error: 'Application ID is required' },
         { status: 400 }
       );
     }
-    
+
     const { status } = await request.json();
-    
+
     if (!status) {
       return NextResponse.json(
         { error: 'Status is required' },
         { status: 400 }
       );
     }
-    
+
     const application = await jobApplicationsAPI.updateStatus(id, status);
-    
+
     return NextResponse.json(application);
   } catch (error) {
     console.error('Error updating application:', error);
@@ -113,16 +113,16 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    
+
     if (!id) {
       return NextResponse.json(
         { error: 'Application ID is required' },
         { status: 400 }
       );
     }
-    
+
     await jobApplicationsAPI.delete(id);
-    
+
     return NextResponse.json({ message: 'Application deleted successfully' });
   } catch (error) {
     console.error('Error deleting application:', error);

@@ -33,43 +33,43 @@ const iconMap: { [key: string]: any } = {
 
 // Color mapping for categories
 const colorMap: { [key: string]: any } = {
-  'cardiovascular': { 
+  'cardiovascular': {
     gradient: 'from-red-600 to-rose-800',
-    bg: 'bg-red-500', 
-    light: 'bg-red-50', 
-    text: 'text-red-600', 
+    bg: 'bg-red-500',
+    light: 'bg-red-50',
+    text: 'text-red-600',
     badge: 'bg-red-100 text-red-700',
     border: 'border-red-200'
   },
-  'anti-infectives': { 
+  'anti-infectives': {
     gradient: 'from-cyan-600 to-blue-800',
-    bg: 'bg-blue-500', 
-    light: 'bg-blue-50', 
-    text: 'text-blue-600', 
+    bg: 'bg-blue-500',
+    light: 'bg-blue-50',
+    text: 'text-blue-600',
     badge: 'bg-blue-100 text-blue-700',
     border: 'border-blue-200'
   },
-  'endocrinology-diabetes': { 
+  'endocrinology-diabetes': {
     gradient: 'from-emerald-600 to-green-800',
-    bg: 'bg-green-500', 
-    light: 'bg-green-50', 
-    text: 'text-green-600', 
+    bg: 'bg-green-500',
+    light: 'bg-green-50',
+    text: 'text-green-600',
     badge: 'bg-green-100 text-green-700',
     border: 'border-green-200'
   },
-  'gastroenterology': { 
+  'gastroenterology': {
     gradient: 'from-orange-500 to-amber-700',
-    bg: 'bg-orange-500', 
-    light: 'bg-orange-50', 
-    text: 'text-orange-600', 
+    bg: 'bg-orange-500',
+    light: 'bg-orange-50',
+    text: 'text-orange-600',
     badge: 'bg-orange-100 text-orange-700',
     border: 'border-orange-200'
   },
-  'default': { 
+  'default': {
     gradient: 'from-slate-700 to-slate-900',
-    bg: 'bg-slate-500', 
-    light: 'bg-slate-50', 
-    text: 'text-slate-600', 
+    bg: 'bg-slate-500',
+    light: 'bg-slate-50',
+    text: 'text-slate-600',
     badge: 'bg-slate-100 text-slate-700',
     border: 'border-slate-200'
   }
@@ -92,8 +92,8 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
       setFilteredProducts(products);
     } else {
       const query = searchQuery.toLowerCase();
-      setFilteredProducts(products.filter(p => 
-        p.name.toLowerCase().includes(query) || 
+      setFilteredProducts(products.filter(p =>
+        p.name.toLowerCase().includes(query) ||
         p.generic_name.toLowerCase().includes(query) ||
         p.indication.toLowerCase().includes(query)
       ));
@@ -106,9 +106,9 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
       const data = await humanProductsAPI.getByCategory(slug);
       setProducts(data);
       setFilteredProducts(data);
-      
+
       // Set category name from slug
-      const name = slug.split('-').map(word => 
+      const name = slug.split('-').map(word =>
         word.charAt(0).toUpperCase() + word.slice(1)
       ).join(' ');
       setCategoryName(name);
@@ -126,25 +126,25 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
       <div className={`relative overflow-hidden bg-gradient-to-br ${colors.gradient} text-white pb-32 pt-24`}>
-        <div className="absolute inset-0 bg-[url('/grid-pattern.png')] opacity-10"></div>
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Link 
-                href="/products/human-new" 
+              <Link
+                href="/products/human-new"
                 className="inline-flex items-center text-white/80 hover:text-white transition-colors mb-6 group"
               >
                 <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
                 Back to Categories
               </Link>
-              
+
               <div className="flex items-center gap-4 mb-2">
                 <div className="p-3 bg-white/20 backdrop-blur-md rounded-xl shadow-inner">
                   <IconComponent className="w-8 h-8 text-white" />
@@ -156,7 +156,7 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
               </p>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -175,7 +175,7 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
 
       {/* Search and Filter Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -191,7 +191,7 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
             />
           </div>
-          
+
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Filter className="w-4 h-4" />
             <span>Showing {filteredProducts.length} results</span>
@@ -215,7 +215,7 @@ export default function CategoryProductsPage({ params }: { params: Promise<{ slu
             <p className="text-gray-500 max-w-md mx-auto">
               We couldn't find any products matching your search. Try adjusting your filters or search query.
             </p>
-            <button 
+            <button
               onClick={() => setSearchQuery('')}
               className={`mt-6 px-6 py-2 rounded-lg font-medium ${colors.bg} text-white hover:opacity-90 transition-opacity`}
             >

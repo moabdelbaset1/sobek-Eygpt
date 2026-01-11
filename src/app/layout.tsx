@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Toaster } from 'react-hot-toast';
 import Script from 'next/script';
 import { LanguageProvider } from '@/lib/LanguageContext';
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 const poppins = Poppins({
   variable: "--font-sans",
-  weight: ['300','400','500','600','700'],
+  weight: ['300', '400', '500', '600', '700'],
   subsets: ["latin"],
 });
 
@@ -38,27 +37,26 @@ export default function RootLayout({
                 })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');`}
               </Script>
               <noscript>
-                <iframe src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`} height="0" width="0" style={{display:'none',visibility:'hidden'}} />
+                <iframe src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`} height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
               </noscript>
             </>
           ) : null}
-          <Header />
-          <main id="content" className="min-h-dvh">
+          <LayoutWrapper>
             {children}
-          </main>
-          <Footer />
-          <Toaster 
+          </LayoutWrapper>
+          <Toaster
             position="top-right"
             toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
-          }}
-        />
+              duration: 4000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+            }}
+          />
         </LanguageProvider>
       </body>
     </html>
   );
 }
+

@@ -3,15 +3,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
-import Link from 'next/link';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import {
-  LayoutDashboard,
-  Package,
-  Users,
-  Settings,
-  LogOut,
   Newspaper,
   Plus,
   Edit,
@@ -19,77 +13,11 @@ import {
   Search,
   X,
   Upload,
-  Image as ImageIcon,
-  Video,
   Calendar,
-  Eye
+  Filter
 } from 'lucide-react';
 import { mediaPostsAPI } from '@/lib/api';
-import { uploadProductImage } from '@/lib/uploadHelpers';
-
-// Sidebar Component
-function AdminSidebar({ currentPage }: { currentPage: string }) {
-  const router = useRouter();
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminLoggedIn');
-    localStorage.removeItem('adminEmail');
-    router.push('/admin/login');
-  };
-
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/admin/dashboard' },
-    { id: 'human-products', label: 'Human Products', icon: Package, href: '/admin/products/human' },
-    { id: 'vet-products', label: 'Veterinary Products', icon: Package, href: '/admin/products/veterinary' },
-    { id: 'categories', label: 'Categories', icon: Users, href: '/admin/categories' },
-    { id: 'media', label: 'Media & News', icon: Newspaper, href: '/admin/media' },
-    { id: 'settings', label: 'Settings', icon: Settings, href: '/admin/settings' },
-  ];
-
-  return (
-    <div className="bg-gray-900 text-white w-64 min-h-screen p-4">
-      <div className="flex items-center mb-8">
-        <div className="bg-red-600 w-10 h-10 rounded-lg flex items-center justify-center mr-3">
-          <Package className="w-6 h-6" />
-        </div>
-        <div>
-          <h2 className="font-bold text-lg">Sobek Pharma</h2>
-          <p className="text-gray-400 text-sm">Admin Panel</p>
-        </div>
-      </div>
-
-      <nav className="space-y-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors text-right ${
-                currentPage === item.id
-                  ? 'bg-red-600 text-white'
-                  : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-              }`}
-            >
-              <Icon className="w-5 h-5 ml-3" />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="absolute bottom-4 w-56">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition-colors"
-        >
-          <LogOut className="w-5 h-5 ml-3" />
-          Logout
-        </button>
-      </div>
-    </div>
-  );
-}
+import AdminSidebar from '@/components/admin/AdminSidebar';
 
 interface MediaPost {
   id: string;
@@ -139,6 +67,18 @@ function PostFormModal({
     if (post) {
       reset(post);
       setPreviewMedia(post.media_url || '');
+    } else {
+      reset({
+        title: '',
+        title_ar: '',
+        content: '',
+        content_ar: '',
+        type: 'news',
+        media_type: null,
+        media_url: null,
+        is_active: true,
+      });
+      setPreviewMedia('');
     }
   }, [post, reset]);
 
@@ -148,7 +88,7 @@ function PostFormModal({
 
     try {
       setIsUploading(true);
-      // Use uploadMedia function instead of uploadProductImage
+      // Use uploadMedia function
       const { uploadMedia } = await import('@/lib/uploadHelpers');
       const mediaUrl = await uploadMedia(file);
       setValue('media_url', mediaUrl);
@@ -180,125 +120,134 @@ function PostFormModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
       >
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <h2 className="text-2xl font-bold text-gray-900">
             {post ? 'Edit Post' : 'Create New Post'}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X className="w-6 h-6" />
+          <button onClick={onClose} className="text-gray-400 hover:text-red-600 transition-colors bg-white p-2 rounded-lg border border-gray-200 hover:border-red-200">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6">
           {/* Type Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Post Type *
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <label className="block text-sm font-semibold text-gray-900 mb-3">
+              Post Type
             </label>
             <div className="flex gap-4">
-              <label className="flex items-center">
+              <label className="flex-1 relative cursor-pointer group">
                 <input
                   type="radio"
                   value="news"
                   {...register('type')}
-                  className="mr-2"
+                  className="peer sr-only"
                 />
-                <Newspaper className="w-4 h-4 mr-1" />
-                News
+                <div className="flex items-center justify-center gap-2 p-3 bg-white border border-gray-200 rounded-lg peer-checked:border-red-500 peer-checked:text-red-700 peer-checked:bg-red-50 transition-all group-hover:border-red-200">
+                  <Newspaper className="w-4 h-4" />
+                  <span className="font-medium">News</span>
+                </div>
               </label>
-              <label className="flex items-center">
+              <label className="flex-1 relative cursor-pointer group">
                 <input
                   type="radio"
                   value="event"
                   {...register('type')}
-                  className="mr-2"
+                  className="peer sr-only"
                 />
-                <Calendar className="w-4 h-4 mr-1" />
-                Event
+                <div className="flex items-center justify-center gap-2 p-3 bg-white border border-gray-200 rounded-lg peer-checked:border-red-500 peer-checked:text-red-700 peer-checked:bg-red-50 transition-all group-hover:border-red-200">
+                  <Calendar className="w-4 h-4" />
+                  <span className="font-medium">Event</span>
+                </div>
               </label>
             </div>
           </div>
 
-          {/* Title (English) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Title (English) *
-            </label>
-            <input
-              type="text"
-              required
-              {...register('title')}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="Enter post title"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Title (English) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Title (English) *
+              </label>
+              <input
+                type="text"
+                required
+                {...register('title')}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow outline-none"
+                placeholder="Enter post title"
+              />
+            </div>
+
+            {/* Title (Arabic) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
+                Title (Arabic)
+              </label>
+              <input
+                type="text"
+                {...register('title_ar')}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow outline-none text-right"
+                placeholder="???? ????? ???????"
+                dir="rtl"
+              />
+            </div>
           </div>
 
-          {/* Title (Arabic) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Title (Arabic)
-            </label>
-            <input
-              type="text"
-              {...register('title_ar')}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-right"
-              placeholder="أدخل عنوان المنشور"
-              dir="rtl"
-            />
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             {/* Content (English) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Content (English) *
+              </label>
+              <textarea
+                required
+                {...register('content')}
+                rows={6}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow outline-none resize-none"
+                placeholder="Enter post content..."
+              />
+            </div>
 
-          {/* Content (English) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content (English) *
-            </label>
-            <textarea
-              required
-              {...register('content')}
-              rows={6}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="Enter post content..."
-            />
-          </div>
-
-          {/* Content (Arabic) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content (Arabic)
-            </label>
-            <textarea
-              {...register('content_ar')}
-              rows={6}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-right"
-              placeholder="أدخل محتوى المنشور..."
-              dir="rtl"
-            />
+            {/* Content (Arabic) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2 text-right">
+                Content (Arabic)
+              </label>
+              <textarea
+                {...register('content_ar')}
+                rows={6}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow outline-none resize-none text-right"
+                placeholder="???? ????? ???????..."
+                dir="rtl"
+              />
+            </div>
           </div>
 
           {/* Media Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Media (Image or Video)
+          <div className="border-t border-gray-100 pt-6">
+            <label className="block text-sm font-medium text-gray-700 mb-4">
+              Media Attachment (Image or Video)
             </label>
             
-            {previewMedia && (
-              <div className="mb-4 relative">
+            {previewMedia ? (
+              <div className="mb-4 relative rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
                 {mediaType === 'video' ? (
-                  <video src={previewMedia} controls className="w-full h-64 object-cover rounded-lg" />
+                  <video src={previewMedia} controls className="w-full h-64 object-cover" />
                 ) : (
-                  <Image
-                    src={previewMedia}
-                    alt="Preview"
-                    width={800}
-                    height={400}
-                    className="w-full h-64 object-cover rounded-lg"
-                  />
+                  <div className="relative w-full h-64">
+                    <Image
+                      src={previewMedia}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 )}
                 <button
                   type="button"
@@ -307,63 +256,66 @@ function PostFormModal({
                     setValue('media_url', null);
                     setValue('media_type', null);
                   }}
-                  className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700"
+                  className="absolute top-3 right-3 bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 shadow-lg transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
-            )}
-
-            <label className="cursor-pointer">
-              <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 transition-colors">
-                <div className="text-center">
-                  {isUploading ? (
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
-                  ) : (
-                    <>
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <span className="text-sm text-gray-500">Upload Image or Video</span>
-                      <p className="text-xs text-gray-400 mt-1">Max 10MB</p>
-                    </>
-                  )}
+            ) : (
+              <label className="cursor-pointer group">
+                <div className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl group-hover:border-red-500 group-hover:bg-red-50/50 transition-all">
+                  <div className="text-center p-6">
+                    {isUploading ? (
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+                    ) : (
+                      <>
+                        <div className="bg-gray-100 p-3 rounded-full inline-block mb-3 group-hover:bg-red-100 transition-colors">
+                            <Upload className="w-6 h-6 text-gray-500 group-hover:text-red-600" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-700 group-hover:text-red-700">Click to upload media</p>
+                        <p className="text-xs text-gray-400 mt-1">Images or Videos (Max 10MB)</p>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <input
-                type="file"
-                accept="image/*,video/*"
-                onChange={handleMediaUpload}
-                className="hidden"
-                disabled={isUploading}
-              />
-            </label>
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleMediaUpload}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+              </label>
+            )}
           </div>
 
           {/* Active Status */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
             <input
               type="checkbox"
               {...register('is_active')}
-              className="mr-2"
+              id="is_active"
+              className="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500"
             />
-            <label className="text-sm text-gray-700">
+            <label htmlFor="is_active" className="text-sm font-medium text-gray-700 select-none cursor-pointer">
               Publish immediately (visible to public)
             </label>
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition-colors"
-            >
-              {post ? 'Update Post' : 'Publish Post'}
-            </button>
+          <div className="flex gap-4 pt-4 border-t border-gray-100">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg font-medium transition-colors"
+              className="flex-1 bg-white border border-gray-200 text-gray-700 py-3.5 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all"
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white py-3.5 rounded-xl font-medium hover:from-red-700 hover:to-red-800 shadow-lg shadow-red-600/20 transition-all"
+            >
+              {post ? 'Update Post' : 'Publish Post'}
             </button>
           </div>
         </form>
@@ -376,7 +328,6 @@ export default function MediaManagementPage() {
   const [posts, setPosts] = useState<MediaPost[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<MediaPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingPost, setEditingPost] = useState<MediaPost | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'news' | 'event'>('all');
@@ -384,11 +335,11 @@ export default function MediaManagementPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Basic auth check
     const adminLoggedIn = localStorage.getItem('adminLoggedIn');
     if (!adminLoggedIn) {
       router.push('/admin/login');
     } else {
-      setIsAuthenticated(true);
       loadPosts();
     }
   }, [router]);
@@ -429,7 +380,7 @@ export default function MediaManagementPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`)) {
+    if (confirm(\Are you sure you want to delete "\"?\n\nThis action cannot be undone.\)) {
       try {
         await mediaPostsAPI.delete(id);
         toast.success('Post deleted successfully!');
@@ -459,159 +410,172 @@ export default function MediaManagementPage() {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">Verifying authentication...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar currentPage="media" />
+      <AdminSidebar/>
 
-      <main className="flex-1 p-8">
+      <div className="flex-1 ml-64 p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Media & News Management</h1>
-              <p className="text-gray-600 mt-2">Manage news articles and events</p>
+            <div className="flex items-center gap-4">
+               <div className="bg-red-600 p-4 rounded-xl shadow-lg">
+                <Newspaper className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Media & News</h1>
+                <p className="text-gray-500 mt-1">Manage news articles and community events</p>
+              </div>
             </div>
+            
             <button
               onClick={() => {
                 setEditingPost(null);
                 setShowModal(true);
               }}
-              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all shadow-lg shadow-gray-900/10 font-medium"
             >
               <Plus className="w-5 h-5" />
-              Create Post
+              <span>Create Post</span>
             </button>
           </div>
 
           {/* Filters */}
-          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative col-span-2">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Search posts..."
+                  placeholder="Search titles or content..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all outline-none"
                 />
               </div>
 
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as any)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
-                <option value="all">All Types</option>
-                <option value="news">News Only</option>
-                <option value="event">Events Only</option>
-              </select>
+              <div className="flex items-center gap-3 w-full md:w-auto">
+                <Filter className="w-5 h-5 text-gray-400" />
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value as any)}
+                  className="w-full md:w-48 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all outline-none bg-white"
+                >
+                  <option value="all">All Types</option>
+                  <option value="news">News Only</option>
+                  <option value="event">Events Only</option>
+                </select>
+              </div>
             </div>
-
-            <div className="mt-4 text-sm text-gray-600">
-              Total: <span className="font-bold text-gray-900">{filteredPosts.length}</span> posts
+            
+             <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-sm text-gray-500">
+               <span>Showing results for <span className="font-semibold text-gray-900">{filterType === 'all' ? 'All Types' : filterType}</span></span>
+               <span>Total: <span className="font-bold text-gray-900">{filteredPosts.length}</span> posts</span>
             </div>
           </div>
 
           {/* Posts List */}
           {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-              <p className="mt-4 text-gray-600">Loading posts...</p>
+            <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
+              <p className="mt-4 text-gray-500 text-lg">Loading content...</p>
             </div>
           ) : filteredPosts.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl">
-              <Newspaper className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-medium text-gray-900 mb-2">No posts found</h3>
-              <p className="text-gray-500 mb-4">Create your first post to get started</p>
+            <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+              <Newspaper className="w-20 h-20 text-gray-200 mx-auto mb-6" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">No posts found</h3>
+              <p className="text-gray-500 mb-8 max-w-md mx-auto">It looks like the media library is empty. Create your first news article or event using the button below.</p>
               <button
                 onClick={() => setShowModal(true)}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2"
+                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl inline-flex items-center gap-2 font-medium transition-all shadow-lg shadow-red-600/20"
               >
                 <Plus className="w-5 h-5" />
-                Create Post
+                Create First Post
               </button>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
               {filteredPosts.map((post, index) => (
                 <motion.div
                   key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden"
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all overflow-hidden group"
                 >
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            post.type === 'news' 
-                              ? 'bg-blue-100 text-blue-700' 
-                              : 'bg-purple-100 text-purple-700'
-                          }`}>
-                            {post.type === 'news' ? '📰 News' : '📅 Event'}
-                          </span>
-                          {!post.is_active && (
-                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">
-                              Draft
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{post.title}</h3>
-                        {post.title_ar && (
-                          <p className="text-lg text-gray-600 mb-2" dir="rtl">{post.title_ar}</p>
-                        )}
-                        <p className="text-gray-600 line-clamp-3 mb-3">{post.content}</p>
-                        <p className="text-sm text-gray-500">
-                          Published: {new Date(post.publish_date).toLocaleDateString()}
-                        </p>
-                      </div>
-
-                      <div className="flex gap-2 ml-4">
-                        <button
-                          onClick={() => handleEdit(post)}
-                          className="text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(post.id, post.title)}
-                          className="text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-
+                  <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8">
+                    {/* Media Preview (Left side) */}
                     {post.media_url && (
-                      <div className="mt-4">
-                        {post.media_type === 'video' ? (
-                          <video
-                            src={post.media_url}
-                            controls
-                            className="w-full h-64 object-cover rounded-lg"
-                          />
-                        ) : (
-                          <Image
-                            src={post.media_url}
-                            alt={post.title}
-                            width={800}
-                            height={400}
-                            className="w-full h-64 object-cover rounded-lg"
-                          />
-                        )}
-                      </div>
+                        <div className="w-full md:w-64 h-48 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
+                             {post.media_type === 'video' ? (
+                                <video
+                                    src={post.media_url}
+                                    className="w-full h-full object-cover"
+                                />
+                                ) : (
+                                <Image
+                                    src={post.media_url}
+                                    alt={post.title}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                                )}
+                              <div className="absolute top-2 left-2 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-white text-xs font-medium">
+                                  {post.media_type === 'video' ? 'Video' : 'Image'}
+                              </div>
+                        </div>
                     )}
+
+                    {/* Content (Right side) */}
+                    <div className="flex-1 flex flex-col">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <span className={\px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide \\}>
+                                    {post.type.toUpperCase()}
+                                </span>
+                                {!post.is_active && (
+                                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-gray-100 text-gray-600 border border-gray-200">
+                                        Draft
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                onClick={() => handleEdit(post)}
+                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Edit"
+                                >
+                                <Edit className="w-5 h-5" />
+                                </button>
+                                <button
+                                onClick={() => handleDelete(post.id, post.title)}
+                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Delete"
+                                >
+                                <Trash2 className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-red-600 transition-colors">{post.title}</h3>
+                        
+                        {post.title_ar && (
+                            <p className="text-lg text-gray-500 mb-3 text-right font-serif" dir="rtl">{post.title_ar}</p>
+                        )}
+                        
+                        <p className="text-gray-600 line-clamp-2 mb-auto leading-relaxed">{post.content}</p>
+                        
+                        <div className="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4 text-sm text-gray-400">
+                            <div className="flex items-center gap-1.5">
+                                <Calendar className="w-4 h-4" />
+                                <span>Published: {new Date(post.publish_date).toLocaleDateString(undefined, {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}</span>
+                            </div>
+                        </div>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -629,7 +593,7 @@ export default function MediaManagementPage() {
           post={editingPost}
           onSave={handleSave}
         />
-      </main>
+      </div>
     </div>
   );
 }

@@ -7,19 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "production": "NODE_ENV=production npm run build && npm start",
-    "deploy": "npm install --production && npx prisma generate && npm run build",
-    "db:migrate": "npx prisma migrate deploy",
-    "db:seed": "node prisma/seed.js",
-    "db:studio": "npx prisma studio",
-    "backup": "node scripts/backup-mysql.js"
+    "production": "NODE_ENV=production npm run build && npm start"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
-    "@prisma/client": "^6.17.1",
     "@react-google-maps/api": "^2.20.7",
     "@sanity/client": "^7.12.0",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "appwrite": "^21.5.0",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
@@ -30,7 +23,6 @@
     "next-intl": "^4.3.12",
     "next-seo": "^6.8.0",
     "next-sitemap": "^4.2.3",
-    "prisma": "^6.17.1",
     "react": "^19.2.3",
     "react-countup": "^6.5.3",
     "react-dom": "^19.2.3",

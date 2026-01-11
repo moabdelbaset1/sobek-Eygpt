@@ -77,16 +77,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 text-white pb-20 pt-24 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/grid-pattern.png')] opacity-5"></div>
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl"></div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Link 
+            <Link
               href={`/products/human-new/${slug || ''}`}
               className="inline-flex items-center text-white/70 hover:text-white transition-colors mb-6 group"
             >
@@ -100,11 +100,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   <span className="px-3 py-1 bg-white/10 backdrop-blur-md text-white text-sm font-bold rounded-full border border-white/20">
                     {product.category ? product.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Product'}
                   </span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                    product.is_active
+                  <span className={`px-3 py-1 rounded-full text-sm font-bold ${product.is_active
                       ? 'bg-emerald-500/90 text-white'
                       : 'bg-slate-500/90 text-white'
-                  }`}>
+                    }`}>
                     {product.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </div>
@@ -164,13 +163,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <Shield className="w-6 h-6 text-blue-600" />
                 Product Specifications
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <span className="text-sm font-medium text-slate-500 uppercase tracking-wider">Dosage Form</span>
                   <p className="text-lg font-bold text-slate-900">{product.dosage_form}</p>
                 </div>
-                
+
                 <div className="space-y-2">
                   <span className="text-sm font-medium text-slate-500 uppercase tracking-wider">Strength</span>
                   <p className="text-lg font-bold text-slate-900">{product.strength}</p>
@@ -211,7 +210,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <FileText className="w-6 h-6 text-blue-600" />
                 Additional Information
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
@@ -220,7 +219,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     <p className="text-slate-600 text-sm">All products are manufactured under strict quality control standards.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
                   <div>
@@ -228,7 +227,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                     <p className="text-slate-600 text-sm">Compliant with international pharmaceutical standards and regulations.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
                   <div>
