@@ -93,14 +93,14 @@ function PostFormModal({
       const mediaUrl = await uploadMedia(file);
       setValue('media_url', mediaUrl);
       setPreviewMedia(mediaUrl);
-      
+
       // Detect media type
       if (file.type.startsWith('image/')) {
         setValue('media_type', 'image');
       } else if (file.type.startsWith('video/')) {
         setValue('media_type', 'video');
       }
-      
+
       toast.success('Media uploaded successfully!');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to upload media');
@@ -200,7 +200,7 @@ function PostFormModal({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             {/* Content (English) */}
+            {/* Content (English) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Content (English) *
@@ -234,7 +234,7 @@ function PostFormModal({
             <label className="block text-sm font-medium text-gray-700 mb-4">
               Media Attachment (Image or Video)
             </label>
-            
+
             {previewMedia ? (
               <div className="mb-4 relative rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
                 {mediaType === 'video' ? (
@@ -270,7 +270,7 @@ function PostFormModal({
                     ) : (
                       <>
                         <div className="bg-gray-100 p-3 rounded-full inline-block mb-3 group-hover:bg-red-100 transition-colors">
-                            <Upload className="w-6 h-6 text-gray-500 group-hover:text-red-600" />
+                          <Upload className="w-6 h-6 text-gray-500 group-hover:text-red-600" />
                         </div>
                         <p className="text-sm font-medium text-gray-700 group-hover:text-red-700">Click to upload media</p>
                         <p className="text-xs text-gray-400 mt-1">Images or Videos (Max 10MB)</p>
@@ -412,14 +412,14 @@ export default function MediaManagementPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar/>
+      <AdminSidebar />
 
       <div className="flex-1 ml-64 p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
-               <div className="bg-red-600 p-4 rounded-xl shadow-lg">
+              <div className="bg-red-600 p-4 rounded-xl shadow-lg">
                 <Newspaper className="w-8 h-8 text-white" />
               </div>
               <div>
@@ -427,7 +427,7 @@ export default function MediaManagementPage() {
                 <p className="text-gray-500 mt-1">Manage news articles and community events</p>
               </div>
             </div>
-            
+
             <button
               onClick={() => {
                 setEditingPost(null);
@@ -467,10 +467,10 @@ export default function MediaManagementPage() {
                 </select>
               </div>
             </div>
-            
-             <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-sm text-gray-500">
-               <span>Showing results for <span className="font-semibold text-gray-900">{filterType === 'all' ? 'All Types' : filterType}</span></span>
-               <span>Total: <span className="font-bold text-gray-900">{filteredPosts.length}</span> posts</span>
+
+            <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center text-sm text-gray-500">
+              <span>Showing results for <span className="font-semibold text-gray-900">{filterType === 'all' ? 'All Types' : filterType}</span></span>
+              <span>Total: <span className="font-bold text-gray-900">{filteredPosts.length}</span> posts</span>
             </div>
           </div>
 
@@ -506,94 +506,94 @@ export default function MediaManagementPage() {
                   <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8">
                     {/* Media Preview (Left side) */}
                     {post.media_url && (
-                        <div className="w-full md:w-64 h-48 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
-                             {post.media_type === 'video' ? (
-                                <video
-                                    src={post.media_url}
-                                    className="w-full h-full object-cover"
-                                />
-                                ) : (
-                                <Image
-                                    src={post.media_url}
-                                    alt={post.title}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                                )}
-                              <div className="absolute top-2 left-2 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-white text-xs font-medium">
-                                  {post.media_type === 'video' ? 'Video' : 'Image'}
-                              </div>
+                      <div className="w-full md:w-64 h-48 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
+                        {post.media_type === 'video' ? (
+                          <video
+                            src={post.media_url}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Image
+                            src={post.media_url}
+                            alt={post.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        )}
+                        <div className="absolute top-2 left-2 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-white text-xs font-medium">
+                          {post.media_type === 'video' ? 'Video' : 'Image'}
                         </div>
+                      </div>
                     )}
 
                     {/* Content (Right side) */}
                     <div className="flex-1 flex flex-col">
-                        <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-2">
-                                <span className={\px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide \\}>
-                                    {post.type.toUpperCase()}
-                                </span>
-                                {!post.is_active && (
-                                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-gray-100 text-gray-600 border border-gray-200">
-                                        Draft
-                                    </span>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                onClick={() => handleEdit(post)}
-                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Edit"
-                                >
-                                <Edit className="w-5 h-5" />
-                                </button>
-                                <button
-                                onClick={() => handleDelete(post.id, post.title)}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Delete"
-                                >
-                                <Trash2 className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-red-600 transition-colors">{post.title}</h3>
-                        
-                        {post.title_ar && (
-                            <p className="text-lg text-gray-500 mb-3 text-right font-serif" dir="rtl">{post.title_ar}</p>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${post.type === 'news' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-purple-100 text-purple-700 border border-purple-200'}`}>
+                            {post.type.toUpperCase()}
+                          </span>
+                        {!post.is_active && (
+                          <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-gray-100 text-gray-600 border border-gray-200">
+                            Draft
+                          </span>
                         )}
-                        
-                        <p className="text-gray-600 line-clamp-2 mb-auto leading-relaxed">{post.content}</p>
-                        
-                        <div className="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4 text-sm text-gray-400">
-                            <div className="flex items-center gap-1.5">
-                                <Calendar className="w-4 h-4" />
-                                <span>Published: {new Date(post.publish_date).toLocaleDateString(undefined, {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}</span>
-                            </div>
-                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEdit(post)}
+                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(post.id, post.title)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-red-600 transition-colors">{post.title}</h3>
+
+                    {post.title_ar && (
+                      <p className="text-lg text-gray-500 mb-3 text-right font-serif" dir="rtl">{post.title_ar}</p>
+                    )}
+
+                    <p className="text-gray-600 line-clamp-2 mb-auto leading-relaxed">{post.content}</p>
+
+                    <div className="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4 text-sm text-gray-400">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4" />
+                        <span>Published: {new Date(post.publish_date).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}</span>
+                      </div>
                     </div>
                   </div>
+                </div>
                 </motion.div>
-              ))}
-            </div>
-          )}
+          ))}
         </div>
-
-        {/* Modal */}
-        <PostFormModal
-          isOpen={showModal}
-          onClose={() => {
-            setShowModal(false);
-            setEditingPost(null);
-          }}
-          post={editingPost}
-          onSave={handleSave}
-        />
+          )}
       </div>
+
+      {/* Modal */}
+      <PostFormModal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setEditingPost(null);
+        }}
+        post={editingPost}
+        onSave={handleSave}
+      />
     </div>
+    </div >
   );
 }
