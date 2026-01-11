@@ -226,7 +226,7 @@ function ProductFormModal({
               </label>
               <input
                 {...register('name', { required: 'Product name is required' })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                 placeholder="Product commercial name"
               />
               {errors.name && (
@@ -240,7 +240,7 @@ function ProductFormModal({
               </label>
               <input
                 {...register('generic_name', { required: 'Generic name is required' })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                 placeholder="Active ingredient"
               />
               {errors.generic_name && (
@@ -254,7 +254,7 @@ function ProductFormModal({
               </label>
               <input
                 {...register('strength', { required: 'Strength is required' })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                 placeholder="e.g. 500mg"
               />
             </div>
@@ -265,7 +265,7 @@ function ProductFormModal({
               </label>
               <input
                 {...register('dosage_form', { required: 'Dosage form is required' })}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                 placeholder="e.g. Tablets"
               />
             </div>
@@ -277,7 +277,7 @@ function ProductFormModal({
                </label>
                <input
                  {...register('species', { required: 'Species is required' })}
-                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                  placeholder="e.g. Cattle, Sheep, Goats"
                />
             </div>
@@ -288,7 +288,7 @@ function ProductFormModal({
                </label>
                <input
                  {...register('withdrawal_period', { required: 'Withdrawal period is required' })}
-                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                 className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                  placeholder="e.g. Meat: 5 days, Milk: 3 days"
                />
             </div>
@@ -299,7 +299,7 @@ function ProductFormModal({
               </label>
               <input
                 {...register('pack_size')}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                 placeholder="e.g. 100ml Bottle"
               />
             </div>
@@ -310,7 +310,7 @@ function ProductFormModal({
               </label>
               <input
                 {...register('registration_number')}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                 placeholder="e.g. 12345/2026"
               />
             </div>
@@ -345,7 +345,7 @@ function ProductFormModal({
                 type="number"
                 step="0.01"
                 {...register('price')}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all placeholder:text-slate-400 text-gray-900 bg-white"
                 placeholder="0.00"
               />
             </div>

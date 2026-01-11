@@ -179,7 +179,7 @@ function PostFormModal({
                 type="text"
                 required
                 {...register('title')}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow outline-none"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-shadow outline-none text-gray-900 bg-white"
                 placeholder="Enter post title"
               />
             </div>
