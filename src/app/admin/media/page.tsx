@@ -380,7 +380,7 @@ export default function MediaManagementPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (confirm(\Are you sure you want to delete "\"?\n\nThis action cannot be undone.\)) {
+    if (confirm(`Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`)) {
       try {
         await mediaPostsAPI.delete(id);
         toast.success('Post deleted successfully!');

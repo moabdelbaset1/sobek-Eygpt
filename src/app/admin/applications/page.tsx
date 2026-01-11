@@ -32,7 +32,7 @@ export default function AdminApplicationsPage() {
 
   const updateApplicationStatus = async (id: string, status: string) => {
     try {
-      const res = await fetch(\/api/applications?id=\\, {
+      const res = await fetch(`/api/applications?id=${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
