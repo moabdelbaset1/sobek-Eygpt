@@ -533,67 +533,67 @@ export default function MediaManagementPage() {
                           <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${post.type === 'news' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-purple-100 text-purple-700 border border-purple-200'}`}>
                             {post.type.toUpperCase()}
                           </span>
-                        {!post.is_active && (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-gray-100 text-gray-600 border border-gray-200">
-                            Draft
-                          </span>
-                        )}
+                          {!post.is_active && (
+                            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-gray-100 text-gray-600 border border-gray-200">
+                              Draft
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEdit(post)}
+                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(post.id, post.title)}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(post)}
-                          className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(post.id, post.title)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
 
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-red-600 transition-colors">{post.title}</h3>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-red-600 transition-colors">{post.title}</h3>
 
-                    {post.title_ar && (
-                      <p className="text-lg text-gray-500 mb-3 text-right font-serif" dir="rtl">{post.title_ar}</p>
-                    )}
+                      {post.title_ar && (
+                        <p className="text-lg text-gray-500 mb-3 text-right font-serif" dir="rtl">{post.title_ar}</p>
+                      )}
 
-                    <p className="text-gray-600 line-clamp-2 mb-auto leading-relaxed">{post.content}</p>
+                      <p className="text-gray-600 line-clamp-2 mb-auto leading-relaxed">{post.content}</p>
 
-                    <div className="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4 text-sm text-gray-400">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4" />
-                        <span>Published: {new Date(post.publish_date).toLocaleDateString(undefined, {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}</span>
+                      <div className="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4 text-sm text-gray-400">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4" />
+                          <span>Published: {new Date(post.publish_date).toLocaleDateString(undefined, {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
                 </motion.div>
-          ))}
-        </div>
+              ))}
+            </div>
           )}
-      </div>
+        </div>
 
-      {/* Modal */}
-      <PostFormModal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          setEditingPost(null);
-        }}
-        post={editingPost}
-        onSave={handleSave}
-      />
-    </div>
+        {/* Modal */}
+        <PostFormModal
+          isOpen={showModal}
+          onClose={() => {
+            setShowModal(false);
+            setEditingPost(null);
+          }}
+          post={editingPost}
+          onSave={handleSave}
+        />
+      </div>
     </div >
   );
 }
