@@ -1,11 +1,14 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Briefcase, Plus, Edit2, Trash2, Users, Calendar, X, Save, MapPin, Clock, FileText } from 'lucide-react';
 import { jobsAPI, type Job } from '@/lib/api';
 import toast from 'react-hot-toast';
+import AdminSidebar from '@/components/admin/AdminSidebar';
 
 export default function AdminJobsPage() {
+  const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -26,6 +29,14 @@ export default function AdminJobsPage() {
     expiry_date: '',
   });
   const [submitting, setSubmitting] = useState(false);
+
+  // Authentication check
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('adminLoggedIn');
+    if (!isLoggedIn) {
+      router.push('/admin/login');
+    }
+  }, [router]);
 
   useEffect(() => {
     loadJobs();
@@ -131,8 +142,10 @@ export default function AdminJobsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-red-900 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-red-900">
+      <AdminSidebar />
+      <div className="flex-1 ml-72 p-8">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -541,6 +554,7 @@ export default function AdminJobsPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );

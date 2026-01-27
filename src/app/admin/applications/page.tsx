@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FileText, Download, Mail, Phone, Calendar, Briefcase, User, Filter, CheckCircle, Clock, XCircle, Eye } from 'lucide-react';
 import { type JobApplication } from '@/lib/api';
@@ -7,9 +8,18 @@ import toast from 'react-hot-toast';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 
 export default function AdminApplicationsPage() {
+  const router = useRouter();
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+
+  // Authentication check
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('adminLoggedIn');
+    if (!isLoggedIn) {
+      router.push('/admin/login');
+    }
+  }, [router]);
 
   useEffect(() => {
     loadApplications();

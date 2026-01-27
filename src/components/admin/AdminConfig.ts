@@ -14,7 +14,7 @@ export const menuItems = [
     { id: 'human-products', label: 'Human Products', icon: Package, href: '/admin/products/human' },
     { id: 'vet-products', label: 'Veterinary Products', icon: Package, href: '/admin/products/veterinary' },
     { id: 'categories', label: 'Categories', icon: Users, href: '/admin/categories' },
-    { id: 'applications', label: 'Job Applications', icon: FileText, href: '/admin/applications' },
+    { id: 'careers', label: 'Careers & Jobs', icon: Briefcase, href: '/admin/careers' },
     { id: 'media', label: 'Media & News', icon: Newspaper, href: '/admin/media' },
     { id: 'settings', label: 'Settings', icon: Settings, href: '/admin/settings' },
 ];
