@@ -49,9 +49,6 @@ export default function ProductCard({ product, index, onViewDetails }: ProductCa
             </div>
           </div>
         )}
-        
-        {/* Overlay Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
 
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -61,22 +58,23 @@ export default function ProductCard({ product, index, onViewDetails }: ProductCa
         </div>
 
         <div className="absolute top-4 right-4">
-           <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md border border-white/20 ${
-            product.is_active
+          <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md border border-white/20 ${product.is_active
               ? 'bg-emerald-500/90 text-white'
               : 'bg-slate-500/90 text-white'
-          }`}>
+            }`}>
             {product.is_active ? 'Active' : 'Inactive'}
           </span>
         </div>
 
         {/* Quick Info Overlay */}
-        <div className="absolute bottom-4 left-4 right-4 text-white">
-          <h3 className="text-xl font-bold mb-1 drop-shadow-md">{product.name}</h3>
-          <p className="text-sm text-white/90 font-medium drop-shadow-sm flex items-center gap-2">
-            <Activity className="w-3 h-3" />
-            {product.generic_name}
-          </p>
+        <div className="absolute bottom-4 left-4 right-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+            <h3 className="text-lg font-bold text-gray-900 mb-1">{product.name}</h3>
+            <p className="text-sm text-gray-600 font-medium flex items-center gap-2">
+              <Activity className="w-3 h-3 text-red-600" />
+              {product.generic_name}
+            </p>
+          </div>
         </div>
       </div>
 

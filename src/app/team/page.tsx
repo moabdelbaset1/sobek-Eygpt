@@ -90,11 +90,10 @@ export default function TeamPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={() => setSelectedDepartment('all')}
-              className={`px-6 py-2 rounded-full font-medium transition-colors ${
-                selectedDepartment === 'all'
+              className={`px-6 py-2 rounded-full font-medium transition-colors ${selectedDepartment === 'all'
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               {lang === 'ar' ? 'جميع الأقسام' : 'All Departments'}
             </button>
@@ -102,11 +101,10 @@ export default function TeamPage() {
               <button
                 key={department}
                 onClick={() => setSelectedDepartment(department)}
-                className={`px-6 py-2 rounded-full font-medium transition-colors ${
-                  selectedDepartment === department
+                className={`px-6 py-2 rounded-full font-medium transition-colors ${selectedDepartment === department
                     ? 'bg-red-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 {lang === 'ar'
                   ? (teamMembers.find(m => m.department === department)?.department_ar || department)
@@ -165,7 +163,6 @@ export default function TeamPage() {
                           <Users className="w-16 h-16 text-gray-400" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-gray-900 mb-1">

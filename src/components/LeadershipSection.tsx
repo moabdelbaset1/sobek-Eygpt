@@ -118,37 +118,35 @@ export default function LeadershipSection() {
                           <Users className="w-20 h-20" />
                         </div>
                       )}
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
                     </div>
 
-                    {/* Content */}
-                    <div className="absolute bottom-0 left-0 w-full p-8 text-white transform transition-transform duration-500 translate-y-4 group-hover:translate-y-0">
+                    {/* Content - Below Image */}
+                    <div className="absolute bottom-0 left-0 w-full p-6 bg-white/95 backdrop-blur-sm transform transition-transform duration-500">
                       <div className="relative z-10">
-                        <h3 className="text-2xl font-bold mb-1">
+                        <h3 className="text-xl font-bold mb-1 text-gray-900">
                           {lang === 'ar' ? (member.name_ar || member.name) : member.name}
                         </h3>
-                        <p className="text-blue-300 font-medium mb-4 text-lg">
+                        <p className="text-red-600 font-medium text-sm">
                           {lang === 'ar' ? (member.title_ar || member.title) : member.title}
                         </p>
-                        
-                        <div className={`overflow-hidden transition-all duration-500 ${hoveredMember === member.id ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                          <p className="text-gray-300 text-sm leading-relaxed mb-4 line-clamp-4">
+
+                        <div className={`overflow-hidden transition-all duration-500 ${hoveredMember === member.id ? 'max-h-40 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}>
+                          <p className="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-3">
                             {lang === 'ar' ? (member.bio_ar || member.bio) : member.bio}
                           </p>
-                          
-                          <div className="flex items-center gap-4 pt-2 border-t border-white/20">
-                            <button className="p-2 rounded-full bg-white/10 hover:bg-blue-600 transition-colors text-white">
+
+                          <div className="flex items-center gap-3 pt-2 border-t border-gray-200">
+                            <button className="p-2 rounded-full bg-gray-100 hover:bg-blue-600 hover:text-white transition-colors text-gray-600">
                               <Linkedin className="w-4 h-4" />
                             </button>
-                            <button className="p-2 rounded-full bg-white/10 hover:bg-blue-600 transition-colors text-white">
+                            <button className="p-2 rounded-full bg-gray-100 hover:bg-blue-600 hover:text-white transition-colors text-gray-600">
                               <Mail className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Decorative Line */}
                     <div className="absolute bottom-0 left-0 h-1 bg-blue-600 transition-all duration-500 w-0 group-hover:w-full"></div>
                   </div>
@@ -181,9 +179,8 @@ export default function LeadershipSection() {
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      currentIndex === index ? 'bg-blue-600 w-8' : 'bg-gray-300 hover:bg-gray-400'
-                    }`}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${currentIndex === index ? 'bg-blue-600 w-8' : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
                 ))}
