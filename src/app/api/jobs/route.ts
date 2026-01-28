@@ -42,13 +42,29 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const job = await jobsAPI.create(data);
+    
+    // Transform snake_case from frontend to camelCase for Appwrite
+    const appwriteData = {
+      title: data.title,
+      titleAr: data.title_ar || data.titleAr || null,
+      department: data.department,
+      location: data.location,
+      jobType: data.job_type || data.jobType,
+      workingHours: data.working_hours || data.workingHours,
+      description: data.description,
+      descriptionAr: data.description_ar || data.descriptionAr || null,
+      requirements: data.requirements,
+      requirementsAr: data.requirements_ar || data.requirementsAr || null,
+      isActive: data.is_active !== undefined ? data.is_active : (data.isActive !== undefined ? data.isActive : true),
+    };
+    
+    const job = await jobsAPI.create(appwriteData);
 
     return NextResponse.json(transformJob(job), { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating job:', error);
     return NextResponse.json(
-      { error: 'Failed to create job' },
+      { error: error.message || 'Failed to create job' },
       { status: 500 }
     );
   }
@@ -68,13 +84,28 @@ export async function PUT(request: Request) {
     }
 
     const data = await request.json();
-    const job = await jobsAPI.update(id, data);
+    
+    // Transform snake_case from frontend to camelCase for Appwrite
+    const appwriteData: any = {};
+    if (data.title) appwriteData.title = data.title;
+    if (data.title_ar !== undefined || data.titleAr !== undefined) appwriteData.titleAr = data.title_ar || data.titleAr;
+    if (data.department) appwriteData.department = data.department;
+    if (data.location) appwriteData.location = data.location;
+    if (data.job_type || data.jobType) appwriteData.jobType = data.job_type || data.jobType;
+    if (data.working_hours || data.workingHours) appwriteData.workingHours = data.working_hours || data.workingHours;
+    if (data.description) appwriteData.description = data.description;
+    if (data.description_ar !== undefined || data.descriptionAr !== undefined) appwriteData.descriptionAr = data.description_ar || data.descriptionAr;
+    if (data.requirements) appwriteData.requirements = data.requirements;
+    if (data.requirements_ar !== undefined || data.requirementsAr !== undefined) appwriteData.requirementsAr = data.requirements_ar || data.requirementsAr;
+    if (data.is_active !== undefined) appwriteData.isActive = data.is_active;
+    
+    const job = await jobsAPI.update(id, appwriteData);
 
     return NextResponse.json(transformJob(job));
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating job:', error);
     return NextResponse.json(
-      { error: 'Failed to update job' },
+      { error: error.message || 'Failed to update job' },
       { status: 500 }
     );
   }

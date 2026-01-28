@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Client, Storage, ID } from 'node-appwrite'
-
-// Initialize Appwrite client for server-side
-const client = new Client()
-  .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1')
-  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '')
-
-const storage = new Storage(client)
-
-// Using a single bucket for all uploads (Appwrite Free plan limitation)
-const BUCKET_ID = process.env.NEXT_PUBLIC_APPWRITE_BUCKET_ID || 'cvs'
+import { writeFile, mkdir } from 'fs/promises'
+import { join } from 'path'
+import { existsSync } from 'fs'
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File
-    const type = formData.get('type') as string || 'image'
+    const type = formData.get('type') as string || 'image' // 'image' or 'cv'
     
     if (!file) {
       return NextResponse.json(
@@ -26,6 +18,7 @@ export async function POST(request: NextRequest) {
 
     let allowedTypes: string[]
     let maxSize: number
+    let uploadSubDir: string
     let filePrefix: string
     let allowedExtensions: string[] = []
 
@@ -37,29 +30,36 @@ export async function POST(request: NextRequest) {
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ]
       allowedExtensions = ['.pdf', '.doc', '.docx']
-      maxSize = 10 * 1024 * 1024
+      maxSize = 10 * 1024 * 1024 // 10MB for CVs
+      uploadSubDir = 'cvs'
       filePrefix = 'cv'
     } else if (type === 'media') {
+      // Media upload (images and videos)
       allowedTypes = [
         'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
         'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo', 'video/mpeg'
       ]
       allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.mp4', '.webm', '.ogv', '.mov', '.avi', '.mpeg', '.mkv']
-      maxSize = 100 * 1024 * 1024
+      maxSize = 100 * 1024 * 1024 // 100MB for media files
+      uploadSubDir = 'media'
       filePrefix = 'media'
     } else if (type === 'leadership') {
+      // Leadership image upload
       allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
       allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp']
-      maxSize = 5 * 1024 * 1024
+      maxSize = 5 * 1024 * 1024 // 5MB for leadership images
+      uploadSubDir = 'leadership'
       filePrefix = 'leadership'
     } else {
+      // Default: image upload
       allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
       allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp']
-      maxSize = 5 * 1024 * 1024
+      maxSize = 5 * 1024 * 1024 // 5MB for images
+      uploadSubDir = 'products'
       filePrefix = 'product'
     }
 
-    // Validate file type
+    // Validate file type - check both MIME type and extension
     const originalFileName = file.name.toLowerCase()
     const fileExtension = '.' + originalFileName.split('.').pop()
     const hasValidMimeType = allowedTypes.includes(file.type)
@@ -80,35 +80,40 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Read file as buffer
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+
     // Create unique filename
     const ext = file.name.split('.').pop()
     const fileName = `${filePrefix}_${Date.now()}.${ext}`
     
-    // Try to upload to Appwrite Storage
-    try {
-      const result = await storage.createFile(
-        BUCKET_ID,
-        ID.unique(),
-        file
-      )
-      
-      // Generate public URL from Appwrite
-      const imageUrl = `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${result.$id}/view?project=${process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID}`
-      
-      return NextResponse.json({ 
-        success: true,
-        imageUrl,
-        fileId: result.$id
-      })
-    } catch (appwriteError: any) {
-      console.error('Appwrite upload error:', appwriteError)
-      
-      // Return user-friendly error message
-      return NextResponse.json(
-        { error: 'File storage is temporarily unavailable. Please send your CV directly to hr@sobek.com.eg' },
-        { status: 503 }
-      )
+    // Define upload directory
+    const uploadDir = (type === 'cv' || type === 'media' || type === 'leadership')
+      ? join(process.cwd(), 'public', 'uploads', uploadSubDir)
+      : join(process.cwd(), 'public', 'images', uploadSubDir)
+    
+    // Create directory if it doesn't exist
+    if (!existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true })
     }
+
+    // Write file to public directory
+    const filePath = join(uploadDir, fileName)
+    await writeFile(filePath, buffer)
+
+    // Return the public URL
+    let imageUrl: string
+    if (type === 'cv' || type === 'media' || type === 'leadership') {
+      imageUrl = `/uploads/${uploadSubDir}/${fileName}`
+    } else {
+      imageUrl = `/images/${uploadSubDir}/${fileName}`
+    }
+    
+    return NextResponse.json({ 
+      success: true,
+      imageUrl 
+    })
   } catch (error: any) {
     console.error('Upload error:', error)
     return NextResponse.json(
@@ -117,3 +122,4 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
