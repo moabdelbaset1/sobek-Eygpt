@@ -134,6 +134,7 @@ export default function MissionVision() {
                       src={activeContent.image}
                       alt={activeContent.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>

@@ -11,6 +11,8 @@ export const translations = {
     distributors: 'Distributors',
     legal: 'Legal',
     rd: 'R&D',
+    overview: 'Overview',
+    quality: 'Quality',
     
     // Sections
     news: 'News',
@@ -73,6 +75,8 @@ export const translations = {
     distributors: 'الموزعون',
     legal: 'القانونية',
     rd: 'البحث والتطوير',
+    overview: 'نظرة عامة',
+    quality: 'الجودة',
     
     // Sections
     news: 'الأخبار',

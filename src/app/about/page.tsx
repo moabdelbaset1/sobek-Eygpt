@@ -68,6 +68,7 @@ export default function AboutPage() {
             src="/Scientific-Inquiry-1.jpg"
             alt="Sobek Lab"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
           />

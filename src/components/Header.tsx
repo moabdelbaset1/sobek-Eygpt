@@ -6,14 +6,14 @@ import LangSwitcher from './LangSwitcher';
 import TopBar from './TopBar';
 import { useLanguageContext } from '@/lib/LanguageContext';
 import { t } from '@/lib/translations';
-import { Menu, X, ChevronDown, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronRight, Activity, Zap, Newspaper, Calendar, Factory, ShieldCheck, Info, Briefcase } from 'lucide-react';
 import ScrollToTop from './ScrollToTop';
 
 interface SubMenuItem {
   title: string;
   href: string;
   description?: string;
-  subItems?: SubMenuItem[];
+  icon?: any;
 }
 
 interface MenuItem {
@@ -21,34 +21,6 @@ interface MenuItem {
   href?: string;
   subItems?: SubMenuItem[];
 }
-
-const menuItems: MenuItem[] = [
-  { titleKey: 'home', href: '/' },
-  { titleKey: 'about', href: '/about' },
-  {
-    titleKey: 'products',
-    subItems: [
-      {
-        title: 'Human Health',
-        href: '/products/human-new',
-        description: 'Pharmaceutical products for humans',
-      },
-      {
-        title: 'Animal Health',
-        href: '/products/veterinary-new',
-        description: 'Veterinary pharmaceutical products',
-      },
-    ]
-  },
-  {
-    titleKey: 'media',
-    subItems: [
-      { title: 'Events', href: '/media/events' },
-      { title: 'News', href: '/media/news' },
-    ]
-  },
-  { titleKey: 'careers', href: '/careers' },
-];
 
 export default function Header() {
   const { lang, isRTL } = useLanguageContext();
@@ -59,6 +31,59 @@ export default function Header() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const getMenuLabel = (key: string) => t(key, lang);
+
+  // Dynamic Menu Items with proper translations and icons
+  const menuItems: MenuItem[] = [
+    { titleKey: 'home', href: '/' },
+    {
+      titleKey: 'products',
+      subItems: [
+        {
+          title: t('humanHealth', lang),
+          href: '/products/human-new',
+          description: lang === 'ar' ? 'منتجات صيدلانية للبشر' : 'Pharmaceutical products for humans',
+          icon: Activity
+        },
+        {
+          title: t('animalHealth', lang),
+          href: '/products/veterinary-new',
+          description: lang === 'ar' ? 'منتجات بيطرية' : 'Veterinary pharmaceutical products',
+          icon: Zap
+        },
+      ]
+    },
+    {
+      titleKey: 'media',
+      subItems: [
+        { title: t('events', lang), href: '/media/events', icon: Calendar },
+        { title: t('news', lang), href: '/media/news', icon: Newspaper },
+      ]
+    },
+    { titleKey: 'careers', href: '/careers' },
+    { 
+      titleKey: 'about',
+      subItems: [
+        {
+          title: t('overview', lang),
+          href: '/about',
+          description: t('about', lang),
+          icon: Info
+        },
+        {
+          title: t('manufacturing', lang),
+          href: '/manufacturing',
+          description: lang === 'ar' ? 'مصانعنا المتقدمة' : 'Our advanced facilities',
+          icon: Factory
+        },
+        {
+          title: t('quality', lang),
+          href: '/quality',
+          description: lang === 'ar' ? 'معايير الجودة العالمية' : 'World-class standards',
+          icon: ShieldCheck
+        }
+      ]
+    },
+  ];
 
   const clearMenuTimeout = () => {
     if (timeoutRef.current) {
@@ -189,29 +214,32 @@ export default function Header() {
             >
               <div className="container mx-auto px-4 lg:px-8 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {menuItems.find(i => i.titleKey === activeMenu)?.subItems?.map((subItem) => (
-                    <Link
-                      key={subItem.title}
-                      href={subItem.href}
-                      className="group block p-4 rounded-xl hover:bg-blue-50 transition-all duration-300"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                          <ChevronRight className="w-5 h-5" />
+                  {menuItems.find(i => i.titleKey === activeMenu)?.subItems?.map((subItem, idx) => {
+                    const Icon = subItem.icon || ChevronRight;
+                    return (
+                      <Link
+                        key={idx}
+                        href={subItem.href}
+                        className="group block p-4 rounded-xl hover:bg-blue-50 transition-all duration-300 border border-transparent hover:border-blue-100"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="p-3 bg-blue-100/50 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                            <Icon className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors mb-1">
+                              {subItem.title}
+                            </h3>
+                            {subItem.description && (
+                              <p className="text-sm text-gray-500 group-hover:text-gray-600 leading-relaxed">
+                                {subItem.description}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors mb-1">
-                            {subItem.title}
-                          </h3>
-                          {subItem.description && (
-                            <p className="text-sm text-gray-500 group-hover:text-gray-600 leading-relaxed">
-                              {subItem.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>
@@ -266,16 +294,20 @@ export default function Header() {
                       {getMenuLabel(item.titleKey)}
                     </div>
                     <div className={`space-y-2 ${isRTL ? 'pr-4 border-r-2' : 'pl-4 border-l-2'} border-gray-100`}>
-                      {item.subItems.map((subItem) => (
-                        <Link
-                          key={subItem.title}
-                          href={subItem.href}
-                          className="block py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg px-3 transition-all text-sm font-medium"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {subItem.title}
-                        </Link>
-                      ))}
+                      {item.subItems.map((subItem, idx) => {
+                        const Icon = subItem.icon;
+                        return (
+                          <Link
+                            key={idx}
+                            href={subItem.href}
+                            className="flex items-center gap-3 py-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg px-3 transition-all text-sm font-medium"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {Icon && <Icon className="w-4 h-4 text-blue-500" />}
+                            {subItem.title}
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 ) : (

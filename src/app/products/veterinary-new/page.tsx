@@ -74,6 +74,8 @@ export default function VeterinaryCategoriesPage() {
             src="https://images.unsplash.com/photo-1623366302587-b38b1ddaefd9?auto=format&fit=crop&q=80"
             alt="Veterinary Medicine"
             fill
+            sizes="100vw"
+            unoptimized
             className="object-cover opacity-20"
             priority
           />

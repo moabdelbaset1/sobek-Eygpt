@@ -115,6 +115,7 @@ export default function DiscoverMore() {
                       src={card.image}
                       alt={lang === 'ar' ? card.titleAr : card.titleEn}
                       fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-30 group-hover:opacity-20 transition-opacity duration-500`} />

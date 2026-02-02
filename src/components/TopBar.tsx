@@ -11,9 +11,9 @@ export default function TopBar() {
       <div className="container mx-auto px-4 lg:px-8 flex justify-between items-center">
         {/* Contact Info */}
         <div className="flex items-center gap-6">
-          <a href="mailto:info@sobek-pharma.com" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+          <a href="mailto:info@sobek.com.eg" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
             <Mail className="w-3.5 h-3.5" />
-            <span>info@sobek-pharma.com</span>
+            <span>info@sobek.com.eg</span>
           </a>
           <a href="tel:+20554411823" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
             <Phone className="w-3.5 h-3.5" />
@@ -38,7 +38,7 @@ export default function TopBar() {
              <a href="/careers" className="hover:text-blue-400 transition-colors">
                {lang === 'ar' ? 'الوظائف' : 'Careers'}
              </a>
-             <a href="/news" className="hover:text-blue-400 transition-colors">
+             <a href="/media/news" className="hover:text-blue-400 transition-colors">
                {lang === 'ar' ? 'الأخبار' : 'News'}
              </a>
           </div>

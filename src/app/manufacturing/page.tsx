@@ -1,549 +1,381 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/useLanguage";
+import { productionLines } from "@/lib/manufacturingData";
 import {
   ArrowRight,
-  Check,
   Shield,
   CheckCircle,
   Eye,
   Activity,
-  Mail,
-  X,
+  ChevronRight,
   ChevronLeft,
-  Droplets,
-  Package,
-  Zap,
+  Factory
 } from "lucide-react";
-
-// Production lines data with correct images
-const productionLines = {
-  liquid: {
-    id: "liquid",
-    title: "Liquid Line",
-    titleAr: "خط السوائل",
-    description: "High-precision liquid filling and packaging systems for pharmaceutical production",
-    icon: Droplets,
-    color: "blue",
-    machines: [
-      {
-        name: "Liquid Filling Machine",
-        nameAr: "ماكينة تعبئة السوائل",
-        image: "/images/manfactoring/liqued linee/liquid filling machine.jpeg",
-        description: "High-speed automated liquid filling system",
-      },
-      {
-        name: "Air Rinsing Machine",
-        nameAr: "ماكينة الشطف بالهواء",
-        image: "/images/manfactoring/liqued linee/Air rinsing machine.jpeg",
-        description: "Bottle cleaning and sterilization unit",
-      },
-      {
-        name: "Air Blowing",
-        nameAr: "النفخ بالهواء",
-        image: "/images/manfactoring/liqued linee/air plowing.jpeg",
-        description: "Air blowing system for bottle preparation",
-      },
-      {
-        name: "Capping Machine",
-        nameAr: "ماكينة الغطاء",
-        image: "/images/manfactoring/liqued linee/capping machine.jpeg",
-        description: "Automated bottle capping system",
-      },
-      {
-        name: "CIP Tank",
-        nameAr: "خزان التنظيف المكاني",
-        image: "/images/manfactoring/liqued linee/cip tank.jpeg",
-        description: "Clean-In-Place sterilization tank",
-      },
-      {
-        name: "Inspection Unit",
-        nameAr: "وحدة الفحص",
-        image: "/images/manfactoring/liqued linee/incpection unit.jpeg",
-        description: "Quality inspection and verification system",
-      },
-      {
-        name: "Liquid Preparation Tanks",
-        nameAr: "خزانات تحضير السوائل",
-        image: "/images/manfactoring/liqued linee/liquid prefration tanks.jpeg",
-        description: "Stainless steel mixing and preparation tanks",
-      },
-    ],
-  },
-  powder: {
-    id: "powder",
-    title: "Powder Line",
-    titleAr: "خط المساحيق",
-    description: "Advanced powder processing and filling equipment for pharmaceutical formulations",
-    icon: Package,
-    color: "green",
-    machines: [
-      {
-        name: "Vet Powder Filling Machine",
-        nameAr: "ماكينة تعبئة المساحيق البيطرية",
-        image: "/images/manfactoring/POWDER LINE/vet powfer filling machine.jpeg",
-        description: "Precision powder filling for veterinary products",
-      },
-      {
-        name: "Human Powder Line",
-        nameAr: "خط المساحيق البشرية",
-        image: "/images/manfactoring/POWDER LINE/humen powder.jpeg",
-        description: "GMP-compliant human pharmaceutical powder processing",
-      },
-      {
-        name: "Bin Lifter",
-        nameAr: "رافعة الحاويات",
-        image: "/images/manfactoring/POWDER LINE/bin lifter.jpeg",
-        description: "Automated bin lifting and transfer system",
-      },
-      {
-        name: "Sifter",
-        nameAr: "الغربال",
-        image: "/images/manfactoring/POWDER LINE/sifter.jpeg",
-        description: "Industrial powder sifting equipment",
-      },
-    ],
-  },
-  utility: {
-    id: "utility",
-    title: "Utility Systems",
-    titleAr: "أنظمة المرافق",
-    description: "Essential support systems ensuring optimal manufacturing conditions",
-    icon: Zap,
-    color: "amber",
-    machines: [
-      {
-        name: "Water Station",
-        nameAr: "محطة المياه",
-        image: "/images/manfactoring/utility/water station.jpeg",
-        description: "Purified water generation and distribution system",
-      },
-      {
-        name: "HVAC System",
-        nameAr: "نظام التكييف",
-        image: "/images/manfactoring/utility/WhatsApp Image 2026-01-18 at 9.43.30 AM.jpeg",
-        description: "Climate control and air handling unit",
-      },
-      {
-        name: "Power Distribution",
-        nameAr: "توزيع الطاقة",
-        image: "/images/manfactoring/utility/WhatsApp Image 2026-01-18 at 9.43.32 AM.jpeg",
-        description: "Electrical power management system",
-      },
-    ],
-  },
-};
-
-const features = [
-  "Veterinary pharmaceutical production (Primary focus)",
-  "Liquid, powder, and semi-solid dosage forms",
-  "High-capacity automated machinery",
-  "GMP-compliant production environment",
-];
 
 const qualityFeatures = [
   {
     icon: Shield,
-    title: "GMP Standards",
-    titleAr: "معايير GMP",
-    description:
-      "Full compliance with Good Manufacturing Practice regulations for pharmaceutical production",
+    title: "GMP Compliant",
+    titleAr: "متوافق مع GMP",
+    description: "Our facilities adhere strictly to Good Manufacturing Practices, ensuring product safety and consistency.",
   },
   {
     icon: CheckCircle,
-    title: "Quality Control Procedures",
-    titleAr: "إجراءات مراقبة الجودة",
-    description:
-      "Rigorous testing protocols and quality assurance at every production stage",
+    title: "Rigorous QA/QC",
+    titleAr: "مراقبة جودة صارمة",
+    description: "From raw material testing to final product release, every step is monitored and validated.",
   },
   {
     icon: Eye,
-    title: "Safety & Hygiene",
-    titleAr: "السلامة والنظافة",
-    description:
-      "Advanced cleanroom facilities and strict contamination control measures",
+    title: "Full Traceability",
+    titleAr: "تتبع كامل",
+    description: "Advanced batch tracking systems allow for complete transparency throughout the supply chain.",
   },
   {
     icon: Activity,
-    title: "Production Monitoring",
-    titleAr: "مراقبة الإنتاج",
-    description:
-      "Real-time tracking and documentation of all manufacturing processes",
+    title: "Clean Technology",
+    titleAr: "تكنولوجيا نظيفة",
+    description: "Utilization of HVAC and water systems designed to exceed international pharma standards.",
   },
 ];
 
-type LineKey = keyof typeof productionLines;
-
 export default function ManufacturingPage() {
-  const [selectedLine, setSelectedLine] = useState<LineKey | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { lang } = useLanguage();
+  const router = useRouter();
+  const [activeFeature, setActiveFeature] = useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const heroRef = useRef(null);
+  
+  const linesArray = Object.values(productionLines);
 
-  const scrollToProduction = () => {
-    document
-      .getElementById("production-lines")
-      ?.scrollIntoView({ behavior: "smooth" });
-  };
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
 
-  // If a line is selected, show the detailed view
-  if (selectedLine) {
-    const line = productionLines[selectedLine];
-    const Icon = line.icon;
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
-    return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-8">
-          <div className="max-w-7xl mx-auto px-6">
-            <button
-              onClick={() => setSelectedLine(null)}
-              className="flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              Back to Manufacturing
-            </button>
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/10 rounded-xl flex items-center justify-center">
-                <Icon className="w-8 h-8" />
-              </div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold">{line.title}</h1>
-                <p className="text-xl text-red-100">{line.titleAr}</p>
-              </div>
-            </div>
-            <p className="mt-4 text-lg text-red-100 max-w-2xl">
-              {line.description}
-            </p>
-          </div>
-        </div>
-
-        {/* Machines Grid */}
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {line.machines.map((machine, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all cursor-pointer group"
-                onClick={() => setSelectedImage(machine.image)}
-              >
-                <div className="relative h-64 overflow-hidden">
-                  <Image
-                    src={machine.image}
-                    alt={machine.name}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="p-5">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-1">{machine.name}</h3>
-                  <p className="text-red-600 text-sm mb-2">{machine.nameAr}</p>
-                  <p className="text-gray-600">{machine.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Lightbox */}
-        <AnimatePresence>
-          {selectedImage && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-              onClick={() => setSelectedImage(null)}
-            >
-              <motion.div
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.8 }}
-                className="relative max-w-5xl w-full aspect-[4/3]"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Image
-                  src={selectedImage}
-                  alt="Manufacturing Equipment"
-                  fill
-                  className="object-contain rounded-lg"
-                  sizes="100vw"
-                />
-                <button
-                  onClick={() => setSelectedImage(null)}
-                  className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
+  const nextSlide = () => setActiveSlide((prev) => (prev + 1) % linesArray.length);
+  const prevSlide = () => setActiveSlide((prev) => (prev - 1 + linesArray.length) % linesArray.length);
 
   // Main page view
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-red-50 via-white to-gray-50 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-red-400 rounded-full filter blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-gray-400 rounded-full filter blur-3xl"></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-6 py-24 md:py-32">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center"
-          >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-900">
-              Advanced Pharmaceutical Manufacturing Lines
-            </h1>
-
-            <h2 className="text-xl md:text-2xl mb-4 text-red-600 font-semibold">
-              خطوط تصنيع الأدوية المتقدمة
-            </h2>
-
-            <p className="text-2xl md:text-3xl mb-8 text-red-600">
-              Specialized in Veterinary Medicine Production with High Quality
-              Standards
-            </p>
-
-            <p className="text-lg md:text-xl text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Our facility is equipped with modern machinery and fully
-              integrated production lines designed to ensure safety, efficiency,
-              and compliance.
-            </p>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={scrollToProduction}
-              className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
-            >
-              View Our Production Lines
-              <ArrowRight className="h-5 w-5" />
-            </motion.button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Manufacturing Focus Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left: Text */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
-                Our Manufacturing Expertise
-              </h2>
-              <p className="text-xl text-red-600 mb-8">خبرتنا في التصنيع</p>
-
-              <ul className="space-y-4">
-                {features.map((feature, index) => (
-                  <motion.li
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="flex items-start"
-                  >
-                    <div className="flex-shrink-0 mr-4 mt-1">
-                      <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
-                        <Check className="h-4 w-4 text-red-600" />
-                      </div>
-                    </div>
-                    <span className="text-lg text-gray-700">{feature}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Right: Visual */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="rounded-2xl overflow-hidden shadow-xl relative aspect-[4/3]"
-            >
-              <Image
-                src="/images/manfactoring/liqued linee/liquid filling machine.jpeg"
-                alt="Pharmaceutical machinery"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Production Lines */}
-      <section id="production-lines" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-900">
-              Production Lines
-            </h2>
-            <p className="text-xl text-red-600 mb-2">خطوط الإنتاج</p>
-            <p className="text-xl text-gray-600">
-              Click on a production line to explore its machinery
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {Object.values(productionLines).map((line, index) => {
-              const Icon = line.icon;
-              return (
-                <motion.div
-                  key={line.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  onClick={() => setSelectedLine(line.id as LineKey)}
-                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all cursor-pointer group"
-                >
-                  <div className="relative h-56 overflow-hidden">
-                    <Image
-                      src={line.machines[0].image}
-                      alt={line.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900">{line.title}</h3>
-                        <p className="text-red-600 text-sm">{line.titleAr}</p>
-                      </div>
-                    </div>
-                    <p className="text-gray-600 mb-4">{line.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        {line.machines.length} machines
-                      </span>
-                      <span className="text-red-600 font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
-                        View Details
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Quality & Compliance */}
-      <section className="py-20 bg-gradient-to-br from-red-50 to-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-gray-900">
-              Quality & Compliance
-            </h2>
-            <p className="text-xl text-red-600 mb-2">الجودة والامتثال</p>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Committed to the highest standards of pharmaceutical manufacturing
-              excellence
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {qualityFeatures.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow"
-                >
-                  <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-50 rounded-xl flex items-center justify-center mb-6">
-                    <Icon className="h-8 w-8 text-red-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-1 text-gray-900">
-                    {feature.title}
-                  </h3>
-                  <p className="text-red-600 text-sm mb-3">{feature.titleAr}</p>
-                  <p className="text-gray-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-24 bg-gradient-to-r from-red-600 to-red-700">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto px-6 text-center"
-        >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">
-            Reliable Manufacturing You Can Trust
-          </h2>
-          <p className="text-xl text-red-100 mb-2">
-            تصنيع موثوق يمكنك الاعتماد عليه
-          </p>
-
-          <p className="text-xl text-red-100 mb-10 leading-relaxed">
-            Our production lines are designed to meet international
-            pharmaceutical standards with a strong focus on veterinary medicine.
-          </p>
-
-          <Link
-            href="/contact-us"
-            className="inline-flex items-center gap-2 bg-white text-red-600 hover:bg-red-50 px-10 py-4 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all font-semibold"
-          >
-            <Mail className="h-5 w-5" />
-            Contact Our Manufacturing Team
-          </Link>
+      <section ref={heroRef} className="relative h-[90vh] flex items-center overflow-hidden bg-gray-900">
+        <motion.div style={{ y, opacity }} className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50 z-10"></div>
+          {/* Pharmaceutical Manufacturing Machinery - Industrial Production Line */}
+          <Image 
+            src="https://images.unsplash.com/photo-1563213126-a4273aed2016?q=80&w=2070&auto=format&fit=crop"
+            alt="Pharmaceutical Manufacturing Machinery"
+            fill
+            sizes="100vw"
+            unoptimized
+            className="object-cover"
+            priority
+          />
         </motion.div>
+
+        <div className="relative z-20 max-w-7xl mx-auto px-6 w-full">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-600 text-white text-xs font-bold uppercase tracking-widest rounded-sm mb-6">
+              <Factory className="w-4 h-4" />
+              Industrial Excellence
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight mb-6">
+              Precision in <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-300">
+                Pharmaceutical
+              </span>{" "}
+              Manufacturing
+            </h1>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed">
+              State-of-the-art facilities compliant with international GMP standards, driving innovation in human and veterinary healthcare.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => document.getElementById('production-lines')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all flex items-center gap-2"
+              >
+                Explore Operations <ArrowRight className="w-5 h-5" />
+              </button>
+              <Link href="/contact-us" className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-lg border border-white/20 transition-all">
+                Contract Manufacturing
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats overlay at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white/5 backdrop-blur-md border-t border-white/10 z-20 hidden md:block">
+          <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between">
+            <div>
+               <span className="block text-3xl font-bold text-white">400+</span>
+               <span className="text-gray-400 text-sm">Products Portfolio</span>
+            </div>
+            <div className="w-px bg-white/20 h-12"></div>
+            <div>
+               <span className="block text-3xl font-bold text-white">3</span>
+               <span className="text-gray-400 text-sm">Main Production Lines</span>
+            </div>
+            <div className="w-px bg-white/20 h-12"></div>
+            <div>
+               <span className="block text-3xl font-bold text-white">ISO</span>
+               <span className="text-gray-400 text-sm">9001:2015 Certified</span>
+            </div>
+            <div className="w-px bg-white/20 h-12"></div>
+            <div>
+               <span className="block text-3xl font-bold text-white">24/7</span>
+               <span className="text-gray-400 text-sm">Operational Capacity</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Intro / Compliance Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">World-Class Quality Standards</h2>
+            <div className="w-20 h-1.5 bg-red-600 mx-auto rounded-full mb-6"></div>
+            <p className="text-lg text-gray-600">
+              Our manufacturing philosophy is built on zero compromise. We adhere to the stricter standards ensuring efficacy and safety in every dose we produce.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            {/* Left Side: Interactive Selector */}
+            <div className="lg:col-span-5 flex flex-col gap-4">
+              {qualityFeatures.map((feature, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveFeature(index)}
+                  className={`relative group w-full flex items-center gap-5 p-6 rounded-2xl text-left transition-all duration-300 border ${
+                    activeFeature === index
+                      ? "bg-red-600 text-white shadow-xl shadow-red-600/20 border-red-600 scale-105"
+                      : "bg-white text-gray-600 hover:bg-gray-50 border-gray-100 hover:border-red-100 scale-100"
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
+                    activeFeature === index ? "bg-white/20 text-white" : "bg-red-50 text-red-600 group-hover:bg-red-100"
+                  }`}>
+                    <feature.icon className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <span className={`text-lg font-bold block mb-1 ${activeFeature === index ? "text-white" : "text-gray-900"}`}>
+                      {feature.title}
+                    </span>
+                    <span className={`text-sm ${activeFeature === index ? "text-red-100" : "text-gray-400"}`}>
+                      Click to view details
+                    </span>
+                  </div>
+                  <ChevronRight className={`w-5 h-5 transition-transform ${activeFeature === index ? "opacity-100 translate-x-1" : "opacity-0 -translate-x-2"}`} />
+                </button>
+              ))}
+            </div>
+
+            {/* Right Side: Content Display */}
+            <div className="lg:col-span-7 h-full min-h-[400px]">
+              <div className="relative h-full bg-gray-50 rounded-3xl p-8 md:p-12 overflow-hidden border border-gray-100">
+                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+                  <Shield className="w-64 h-64 text-red-600" />
+                </div>
+                
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeFeature}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative z-10 flex flex-col justify-center h-full"
+                  >
+                    <div className="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-red-600/20">
+                      {(() => {
+                        const Icon = qualityFeatures[activeFeature].icon;
+                        return <Icon className="w-8 h-8 text-white" />;
+                      })()}
+                    </div>
+                    
+                    <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                      {qualityFeatures[activeFeature].title}
+                    </h3>
+                    
+                    <p className="text-xl text-gray-600 leading-relaxed mb-8">
+                       {qualityFeatures[activeFeature].description}
+                    </p>
+
+                    <Link href="/quality" className="flex items-center gap-4 text-red-600 font-medium cursor-pointer group w-fit">
+                      <div className="w-10 h-10 rounded-full border-2 border-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-all">
+                        <ArrowRight className="w-5 h-5" />
+                      </div>
+                      <span>Learn more about our standards</span>
+                    </Link>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Production Lines Interactive Slider */}
+      <section id="production-lines" className="py-16 text-white overflow-hidden relative bg-gray-900">
+        {/* Simple Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 z-0"></div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-6 relative z-10 w-full">
+          <div className="mb-8 text-center">
+             <span className="text-red-500 font-bold tracking-wider uppercase mb-2 block">Our Capabilities</span>
+             <h2 className="text-3xl md:text-5xl font-black text-white mb-6">Production Lines</h2>
+          </div>
+
+          <div className="relative pb-12 lg:pb-0">
+             {/* Slider Controls */}
+             <button 
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 hover:bg-red-600 backdrop-blur-md rounded-full text-white transition-all -translate-x-1/4 lg:-translate-x-full border border-white/10"
+             >
+               <ChevronLeft className="w-8 h-8" />
+             </button>
+             
+             <button 
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 hover:bg-red-600 backdrop-blur-md rounded-full text-white transition-all translate-x-1/4 lg:translate-x-full border border-white/10"
+             >
+               <ChevronRight className="w-8 h-8" />
+             </button>
+
+             {/* Cards Deck - 3D Coverflow */}
+             <div className="relative w-full h-[600px] flex items-center justify-center perspective-1000">
+                <div className="relative w-full max-w-5xl h-full flex items-center justify-center transform-style-3d">
+                  {linesArray.map((line, index) => {
+                    // Calculate position relative to active slide
+                    const position = (index - activeSlide + linesArray.length) % linesArray.length;
+                    const isActive = position === 0;
+                    const isPrev = position === linesArray.length - 1;
+                    const isNext = position === 1;
+
+                    // Determine z-index and transforms based on position
+                    let zIndex = 0;
+                    let x = "0%";
+                    let scale = 1;
+                    let rotateY = 0;
+                    let opacity = 1;
+
+                    if (isActive) {
+                      zIndex = 30;
+                      x = "0%";
+                      scale = 1;
+                      rotateY = 0;
+                      opacity = 1;
+                    } else if (isPrev) {
+                      zIndex = 20;
+                      x = "-60%";
+                      scale = 0.8;
+                      rotateY = 45;
+                      opacity = 0.6;
+                    } else if (isNext) {
+                      zIndex = 20;
+                      x = "60%";
+                      scale = 0.8;
+                      rotateY = -45;
+                      opacity = 0.6;
+                    }
+
+                    return (
+                      <motion.div
+                        key={line.id}
+                        initial={false}
+                        animate={{
+                          zIndex,
+                          x,
+                          scale,
+                          rotateY,
+                          opacity
+                        }}
+                        transition={{ duration: 0.6, ease: "easeInOut" }}
+                        className="absolute w-full max-w-4xl bg-gray-800 rounded-3xl overflow-hidden shadow-2xl border border-gray-700 flex flex-col md:flex-row group origin-center cursor-pointer"
+                        onClick={() => {
+                          // Navigate on click for the active, or slide if not active
+                          if (isActive) {
+                             router.push('/manufacturing/machine/' + line.id);
+                          } else if (isPrev) {
+                             prevSlide();
+                          } else if (isNext) {
+                             nextSlide();
+                          }
+                        }}
+                      >
+                        {/* Image Side */}
+                        <div className="w-full md:w-1/2 relative h-64 md:h-auto md:min-h-[500px]">
+                          <Image 
+                            src={line.coverImage} 
+                            alt={line.title} 
+                            fill 
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            unoptimized
+                            loading="lazy"
+                            className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
+                          <div className={`absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-transparent to-gray-900 md:to-gray-900/90 ${isActive ? 'opacity-100' : 'opacity-80'}`}></div>
+                          {!isActive && <div className="absolute inset-0 bg-black/40 z-10"></div>}
+                        </div>
+
+                        {/* Content Side */}
+                        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-gray-900 relative">
+                          <div className="flex items-center gap-4 mb-6">
+                              <div className="p-3 bg-red-600/20 rounded-xl text-red-500 border border-red-500/30">
+                                {(() => {
+                                  const Icon = line.icon;
+                                  return <Icon className="w-8 h-8" />;
+                                })()}
+                              </div>
+                              <div className="text-sm font-bold text-gray-400 uppercase tracking-widest border border-gray-700 px-3 py-1 rounded-full">
+                                {index + 1} / {linesArray.length}
+                              </div>
+                          </div>
+                          
+                          <h3 className="text-3xl md:text-5xl font-bold text-white mb-2">{line.title}</h3>
+                          {lang === 'ar' && <h4 className="text-2xl font-bold text-red-500 mb-6 font-arabic">{line.titleAr}</h4>}
+                          
+                          <p className="text-gray-400 mb-8 leading-relaxed line-clamp-3 md:line-clamp-4">
+                            {line.description}
+                          </p>
+                          
+                          <div className="grid grid-cols-2 gap-4 mb-8">
+                             {line.stats.slice(0, 2).map((stat, i) => (
+                               <div key={i} className="flex items-center gap-2 text-sm text-gray-300">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                                 {stat}
+                               </div>
+                             ))}
+                          </div>
+
+                          <div className="flex items-center gap-2 text-red-500 font-bold group-hover:gap-4 transition-all">
+                            View Details <ArrowRight className="w-5 h-5" />
+                          </div>
+                          
+                          {/* 3D reflection effect for bottom */}
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+             </div>
+          </div>
+        </div>
       </section>
     </div>
   );
 }
-
-

@@ -140,8 +140,8 @@ body {
   }
 }
 
-/* Smooth scrolling */
-html {
+/* Smooth scrolling - uses data attribute to prevent Next.js route transition conflicts */
+html[data-scroll-behavior="smooth"] {
   scroll-behavior: smooth;
 }
 
