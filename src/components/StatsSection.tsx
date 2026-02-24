@@ -49,17 +49,11 @@ export default function StatsSection() {
   });
 
   return (
-    <section className="py-20 bg-white relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-blue-600 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-emerald-600 blur-3xl" />
-      </div>
-
+    <section className="py-16 bg-white relative overflow-hidden border-b border-gray-100">
       <div className="container mx-auto px-4 md:px-8 lg:px-16 relative z-10">
-        <div 
+        <div
           ref={ref}
-          className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
         >
           {stats.map((stat, index) => (
             <motion.div
@@ -67,21 +61,21 @@ export default function StatsSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="flex flex-col items-center text-center group"
+              className="flex flex-col items-center text-center group p-8 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-red-100 transition-all duration-500 hover:-translate-y-1"
             >
-              <div className="mb-4 p-4 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+              <div className="mb-6 p-4 rounded-2xl bg-gray-50 text-gray-400 group-hover:bg-red-50 group-hover:text-red-600 transition-colors duration-500">
                 <stat.icon className="w-8 h-8" />
               </div>
-              
-              <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2 font-sans">
+
+              <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 font-sans tracking-tight">
                 {inView ? (
                   <CountUp end={stat.value} duration={2.5} suffix={stat.suffix} />
                 ) : (
                   <span>0{stat.suffix}</span>
                 )}
               </div>
-              
-              <p className="text-gray-500 font-medium">
+
+              <p className="text-gray-500 font-medium text-sm md:text-base uppercase tracking-wider">
                 {lang === 'ar' ? stat.labelAr : stat.labelEn}
               </p>
             </motion.div>

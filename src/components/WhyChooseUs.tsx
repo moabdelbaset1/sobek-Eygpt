@@ -56,7 +56,7 @@ export default function WhyChooseUs() {
     <section className="py-24 bg-slate-900 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-blue-600/20 blur-3xl" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-red-600/10 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-900 to-transparent" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-white/5 rounded-full" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full" />
@@ -68,11 +68,11 @@ export default function WhyChooseUs() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-block py-1 px-3 rounded-full bg-blue-500/10 text-blue-400 text-sm font-semibold mb-4 border border-blue-500/20"
+            className="inline-block py-1 px-3 rounded-full bg-red-500/10 text-red-400 text-sm font-semibold mb-4 border border-red-500/20"
           >
             {lang === 'ar' ? 'لماذا نحن' : 'Why Choose Us'}
           </motion.span>
-          
+
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -81,12 +81,12 @@ export default function WhyChooseUs() {
             className="text-4xl md:text-5xl font-bold text-white mb-6"
           >
             {lang === 'ar' ? (
-              <>التميز في <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">كل تفصيلة</span></>
+              <>التميز في <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">كل تفصيلة</span></>
             ) : (
-              <>Excellence in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Every Detail</span></>
+              <>Excellence in <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">Every Detail</span></>
             )}
           </motion.h2>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -111,17 +111,17 @@ export default function WhyChooseUs() {
               transition={{ delay: index * 0.1 }}
               className="group relative p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 hover:-translate-y-2"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-emerald-600/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+              <div className="absolute inset-0 bg-gradient-to-br from-red-600/5 to-red-900/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
               <div className="relative z-10">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center mb-6 shadow-lg shadow-red-500/20 group-hover:scale-110 transition-transform duration-300">
                   <feature.icon className="w-7 h-7 text-white" />
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-white mb-3">
                   {lang === 'ar' ? feature.titleAr : feature.titleEn}
                 </h3>
-                
+
                 <p className="text-gray-400 leading-relaxed">
                   {lang === 'ar' ? feature.descAr : feature.descEn}
                 </p>

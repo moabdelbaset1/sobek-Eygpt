@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BottomNav from '@/components/BottomNav';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -11,9 +12,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     return (
         <>
             {!isAdminPage && <Header />}
-            <main id="content" className="min-h-dvh">
+            <main id="content" className={`min-h-dvh ${!isAdminPage ? 'pb-16 md:pb-0' : ''}`}>
                 {children}
             </main>
+            {!isAdminPage && <BottomNav />}
             {!isAdminPage && <Footer />}
         </>
     );

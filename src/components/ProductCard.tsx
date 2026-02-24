@@ -30,10 +30,10 @@ export default function ProductCard({ product, index, onViewDetails }: ProductCa
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 * index, duration: 0.4 }}
-      className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col h-full"
+      className="group relative bg-white rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 overflow-hidden flex flex-col h-full hover:-translate-y-1"
     >
       {/* Image Section */}
-      <div className="relative h-56 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden group-hover:from-blue-50 group-hover:to-indigo-50 transition-colors duration-500">
+      <div className="relative h-64 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden group-hover:from-red-50 group-hover:to-slate-50 transition-colors duration-500">
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -45,52 +45,50 @@ export default function ProductCard({ product, index, onViewDetails }: ProductCa
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="relative">
-              <div className="absolute inset-0 bg-blue-400 blur-2xl opacity-20 rounded-full"></div>
-              <Pill className="relative w-16 h-16 text-slate-300 group-hover:text-blue-500 transition-colors duration-300" />
+              <div className="absolute inset-0 bg-red-400 blur-3xl opacity-10 rounded-full"></div>
+              <Pill className="relative w-20 h-20 text-slate-200 group-hover:text-red-400 transition-colors duration-500" />
             </div>
           </div>
         )}
 
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
-          <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-bold rounded-full shadow-sm border border-white/50">
+          <span className="px-4 py-1.5 bg-white/95 backdrop-blur-md text-slate-800 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm border border-white/50">
             {product.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
           </span>
         </div>
 
         <div className="absolute top-4 right-4">
-          <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm backdrop-blur-md border border-white/20 ${product.is_active
-              ? 'bg-emerald-500/90 text-white'
-              : 'bg-slate-500/90 text-white'
+          <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-md border border-white/20 ${product.is_active
+            ? 'bg-emerald-500/90 text-white'
+            : 'bg-slate-500/90 text-white'
             }`}>
             {product.is_active ? 'Active' : 'Inactive'}
           </span>
         </div>
 
         {/* Quick Info Overlay */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">{product.name}</h3>
-            <p className="text-sm text-gray-600 font-medium flex items-center gap-2">
-              <Activity className="w-3 h-3 text-red-600" />
-              {product.generic_name}
-            </p>
-          </div>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6 pt-12">
+          <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-md">{product.name}</h3>
+          <p className="text-sm text-white/90 font-medium flex items-center gap-2 drop-shadow-md">
+            <Activity className="w-4 h-4 text-red-400" />
+            {product.generic_name}
+          </p>
         </div>
       </div>
 
       {/* Content Section */}
-      <div className="p-5 flex-1 flex flex-col">
+      <div className="p-6 flex-1 flex flex-col bg-white">
         {/* Specs Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:border-blue-100 transition-colors">
-            <span className="text-xs text-slate-500 font-medium block mb-1">Dosage Form</span>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 group-hover:border-red-100 transition-colors duration-300">
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block mb-1">Dosage Form</span>
             <span className="text-sm font-bold text-slate-800 line-clamp-1" title={product.dosage_form}>
               {product.dosage_form}
             </span>
           </div>
-          <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:border-blue-100 transition-colors">
-            <span className="text-xs text-slate-500 font-medium block mb-1">Strength</span>
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 group-hover:border-red-100 transition-colors duration-300">
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block mb-1">Strength</span>
             <span className="text-sm font-bold text-slate-800 line-clamp-1" title={product.strength}>
               {product.strength}
             </span>
@@ -110,7 +108,7 @@ export default function ProductCard({ product, index, onViewDetails }: ProductCa
         {/* Action Button */}
         <Link
           href={`/products/human-new/${product.category}/${product.id}`}
-          className="w-full group/btn relative overflow-hidden rounded-xl bg-slate-900 text-white px-4 py-3.5 font-medium transition-all hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30 active:scale-[0.98] block text-center"
+          className="w-full group/btn relative overflow-hidden rounded-xl bg-slate-900 text-white px-4 py-3.5 font-medium transition-all hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/30 active:scale-[0.98] block text-center"
         >
           <span className="relative z-10 flex items-center justify-center gap-2">
             View Full Details

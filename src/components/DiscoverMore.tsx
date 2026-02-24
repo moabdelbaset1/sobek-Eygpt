@@ -19,9 +19,9 @@ export default function DiscoverMore() {
       descAr: "ابق على اطلاع بأحدث التحديثات والإعلانات والرؤى الصناعية من سوبك مصر فارما.",
       icon: Newspaper,
       link: "/media/news",
-      color: "text-blue-600",
-      hoverColor: "group-hover:text-blue-600",
-      gradient: "from-blue-500 to-blue-700",
+      color: "text-red-600",
+      hoverColor: "group-hover:text-red-600",
+      gradient: "from-red-500 to-red-700",
       image: "/Scientific-Inquiry-1.jpg",
       delay: 0,
     },
@@ -33,9 +33,9 @@ export default function DiscoverMore() {
       descAr: "انضم إلينا في المؤتمرات والندوات وأحداث التواصل للتواصل مع قادة الصناعة.",
       icon: Calendar,
       link: "/media/events",
-      color: "text-red-600",
-      hoverColor: "group-hover:text-red-600",
-      gradient: "from-red-500 to-red-700",
+      color: "text-blue-600",
+      hoverColor: "group-hover:text-blue-600",
+      gradient: "from-blue-500 to-blue-700",
       image: "/hero-bg-2.jpg",
       delay: 0.1,
     },
@@ -47,9 +47,9 @@ export default function DiscoverMore() {
       descAr: "استكشف فرص عمل مثيرة وكن جزءاً من فريق مكرس لتحسين الرعاية الصحية.",
       icon: Briefcase,
       link: "/careers",
-      color: "text-purple-600",
-      hoverColor: "group-hover:text-purple-600",
-      gradient: "from-purple-500 to-purple-700",
+      color: "text-gray-800",
+      hoverColor: "group-hover:text-gray-800",
+      gradient: "from-gray-700 to-gray-900",
       image: "/team-work.jpg",
       delay: 0.2,
     },
@@ -59,8 +59,8 @@ export default function DiscoverMore() {
     <section className="py-24 bg-gray-50 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-100/50 rounded-full blur-3xl" />
-        <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-purple-100/50 rounded-full blur-3xl" />
+        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-red-100/50 rounded-full blur-3xl" />
+        <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] bg-blue-100/50 rounded-full blur-3xl" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -72,21 +72,21 @@ export default function DiscoverMore() {
             transition={{ duration: 0.6 }}
           >
             <div className="inline-flex items-center justify-center gap-2 mb-4">
-              <span className="w-8 h-[2px] bg-blue-600"></span>
-              <span className="text-blue-600 font-bold uppercase tracking-wider text-sm">
+              <span className="w-8 h-[2px] bg-red-600"></span>
+              <span className="text-red-600 font-bold uppercase tracking-wider text-sm">
                 {lang === 'ar' ? 'اكتشف المزيد' : 'Discover More'}
               </span>
-              <span className="w-8 h-[2px] bg-blue-600"></span>
+              <span className="w-8 h-[2px] bg-red-600"></span>
             </div>
-            
+
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
               {lang === 'ar' ? (
-                <>ابق متصلاً <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">& تطور معنا</span></>
+                <>ابق متصلاً <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-blue-600">& تطور معنا</span></>
               ) : (
-                <>Stay Connected <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">& Grow</span></>
+                <>Stay Connected <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-blue-600">& Grow</span></>
               )}
             </h2>
-            
+
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               {lang === 'ar'
                 ? 'استكشف أحدث أخبارنا والأحداث القادمة وفرص العمل المثيرة التي تشكل مستقبل الرعاية الصحية'
@@ -119,12 +119,12 @@ export default function DiscoverMore() {
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-30 group-hover:opacity-20 transition-opacity duration-500`} />
-                    
+
                     {/* Abstract Pattern */}
                     <div className="absolute inset-0 opacity-10">
-                        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            <path d="M0 100 L100 0 L100 100 Z" fill="white" />
-                        </svg>
+                      <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path d="M0 100 L100 0 L100 100 Z" fill="white" />
+                      </svg>
                     </div>
                   </div>
 
@@ -132,10 +132,10 @@ export default function DiscoverMore() {
                   <div className="p-8 pt-14 relative">
                     {/* Floating Icon */}
                     <div className={`absolute -top-10 ${isRTL ? 'right-8' : 'left-8'}`}>
-                        <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center transform group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 border-4 border-white relative overflow-hidden">
-                            <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${card.gradient}`}></div>
-                            <card.icon className={`w-10 h-10 ${card.color} relative z-10`} />
-                        </div>
+                      <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center transform group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 border-4 border-white relative overflow-hidden">
+                        <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${card.gradient}`}></div>
+                        <card.icon className={`w-10 h-10 ${card.color} relative z-10`} />
+                      </div>
                     </div>
 
                     <h3 className={`text-2xl font-bold text-gray-900 mb-3 ${card.hoverColor} transition-colors`}>
@@ -144,7 +144,7 @@ export default function DiscoverMore() {
                     <p className="text-gray-600 mb-6 line-clamp-3">
                       {lang === 'ar' ? card.descAr : card.descEn}
                     </p>
-                    
+
                     <div className={`flex items-center font-semibold ${card.color} group-hover:translate-x-2 transition-transform duration-300 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <span>{lang === 'ar' ? 'اقرأ المزيد' : 'Read More'}</span>
                       <ArrowRight className={`w-5 h-5 ${isRTL ? 'mr-2 rotate-180' : 'ml-2'}`} />
